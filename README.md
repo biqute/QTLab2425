@@ -28,7 +28,7 @@ $ git clone https://github.com/biqute/QTLab2425.git
     <tr>
         <td>Francesco</td>
         <td>Butà</td>
-        <td>f.buta@campus.unimib.it</td>
+        <td> <a href="mailto:f.buta@campus.unimib.it">f.buta@campus.unimib.it</a>  </td>
     </tr>
     <tr>
         <td>Gabriele</td>
