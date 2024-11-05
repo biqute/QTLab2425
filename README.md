@@ -14,16 +14,16 @@ $ git clone https://github.com/biqute/QTLab2425.git
 ```
 
 
-## Students
+### Students
 
 <table>
     <tr>
         <td colspan="3"><b>IRdetection</b></td>
     </tr>
     <tr>
-        <td>Nome</td>
-        <td>Cognome</td>
-        <td>Mail</td>
+        <td><b>Nome</b></td>
+        <td><b>Cognome</b></td>
+        <td><b>Mail</b></td>
     </tr>
     <tr>
         <td>Francesco</td>
@@ -49,9 +49,9 @@ $ git clone https://github.com/biqute/QTLab2425.git
        <td colspan="3"><b>3Dqubit</b></td>
     </tr>
     <tr>
-        <td>Nome</td>
-        <td>Cognome</td>
-        <td>Mail</td>
+        <td><b>Nome</b></td>
+        <td><b>Cognome</b></td>
+        <td><b>Mail</b></td>
     </tr>
     <tr>
         <td>Riccardo</td>
@@ -72,9 +72,9 @@ $ git clone https://github.com/biqute/QTLab2425.git
     <td colspan="3"><b>2Dqubit</b></td>
     </tr>
     <tr>
-        <td>Nome</td>
-        <td>Cognome</td>
-        <td>Mail</td>
+        <td><b>Nome</b></td>
+        <td><b>Cognome</b></td>
+        <td><b>Mail</b></td>
     </tr>
     <tr>
         <td>Domenico</td>
