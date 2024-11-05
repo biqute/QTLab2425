@@ -17,9 +17,7 @@ $ git clone https://github.com/biqute/QTLab2425.git
 ## Students
 <table>
     <tr>
-        <td>IRdetection</td>
-        <td></td>
-        <td></td>
+        <td colspan="3">IRdetection</td>
     </tr>
     <tr>
         <td>Nome</td>
