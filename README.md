@@ -15,9 +15,10 @@ $ git clone https://github.com/biqute/QTLab2425.git
 
 
 ## Students
+
 <table>
     <tr>
-        <td colspan="3"><b>IRdetection</b>b></td>
+        <td colspan="3"><b>IRdetection</b></td>
     </tr>
     <tr>
         <td>Nome</td>
@@ -45,7 +46,7 @@ $ git clone https://github.com/biqute/QTLab2425.git
         <td>f.farabegoli@campus.unimib.it</td>
     </tr>
     <tr>
-       <td colspan="3"><b>3Dqubit</b>b></td>
+       <td colspan="3"><b>3Dqubit</b></td>
     </tr>
     <tr>
         <td>Nome</td>
