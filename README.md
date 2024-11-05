@@ -14,87 +14,88 @@ $ git clone https://github.com/biqute/QTLab2425.git
 ```
 
 
-
 <table>
+    <tr>
+        <td>IRdetection</td>
+        <td></td>
+        <td></td>
+    </tr>
     <tr>
         <td>Nome</td>
         <td>Cognome</td>
         <td>Mail</td>
     </tr>
     <tr>
-        <td>esp 1 (qubit planare)</td>
         <td>Francesco</td>
         <td>Butà</td>
         <td>f.buta@campus.unimib.it</td>
     </tr>
     <tr>
-        <td></td>
         <td>Gabriele</td>
         <td>Davì</td>
         <td>g.davi1@campus.unimib.it</td>
     </tr>
     <tr>
-        <td></td>
         <td>Alessandra</td>
         <td>Esmeraldi</td>
         <td>a.esmeraldi@campus.unimib.it</td>
     </tr>
     <tr>
-        <td></td>
         <td>Francesco</td>
         <td>Farabegoli</td>
         <td>f.farabegoli@campus.unimib.it</td>
     </tr>
     <tr>
-        <td></td>
-        <td></td>
+        <td>2Dqubit</td>
         <td></td>
         <td></td>
     </tr>
     <tr>
-        <td>esp 2 (cavità 3D e qubit)</td>
+        <td>Nome</td>
+        <td>Cognome</td>
+        <td>Mail</td>
+    </tr>
+    <tr>
         <td>Riccardo</td>
         <td>Marega</td>
         <td>r.marega@campus.unimib.it</td>
     </tr>
     <tr>
-        <td></td>
         <td>Edoardo Emil</td>
         <td>Riva</td>
         <td>e.riva59@campus.unimib.it</td>
     </tr>
     <tr>
-        <td></td>
         <td>Davide</td>
         <td>Zanin</td>
         <td>d.zanin2@campus.unimib.it</td>
     </tr>
     <tr>
-        <td></td>
-        <td></td>
+        <td>2Dqubit</td>
         <td></td>
         <td></td>
     </tr>
     <tr>
-        <td>esp 3 (singolo fotone)</td>
+        <td>Nome</td>
+        <td>Cognome</td>
+        <td>Mail</td>
+    </tr>
+    <tr>
         <td>Domenico</td>
         <td>Volpe</td>
         <td>d.volpe2@campus.unimib.it</td>
     </tr>
     <tr>
-        <td></td>
         <td>Davide</td>
         <td>Ferioli</td>
         <td>d.ferioli2@campus.unimib.it</td>
     </tr>
     <tr>
-        <td></td>
         <td>Giovanni</td>
         <td>Laganà</td>
         <td>g.lagana2@campus.unimib.it</td>
     </tr>
     <tr>
-        <td></td>
         <td>Alessandro</td>
         <td>Rocchi</td>
         <td>a.rocchi12@campus.unimib.it</td>
