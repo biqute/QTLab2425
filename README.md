@@ -69,7 +69,7 @@ $ git clone https://github.com/biqute/QTLab2425.git
         <td>d.zanin2@campus.unimib.it</td>
     </tr>
     <tr>
-    <td colspan="3"><b>2Dqubit</b>b></td>
+    <td colspan="3"><b>2Dqubit</b></td>
     </tr>
     <tr>
         <td>Nome</td>
