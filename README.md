@@ -33,12 +33,12 @@ $ git clone https://github.com/biqute/QTLab2425.git
     <tr>
         <td>Gabriele</td>
         <td>Davì</td>
-        <td>g.davi1@campus.unimib.it</td>
+        <td><a href="mailto:g.davi1@campus.unimib.it">g.davi1@campus.unimib.it</a></td>
     </tr>
     <tr>
         <td>Alessandra</td>
         <td>Esmeraldi</td>
-        <td>a.esmeraldi@campus.unimib.it</td>
+        <td><a href="mailto:a.esmeraldi@campus.unimib.it">a.esmeraldi@campus.unimib.it</a></td>
     </tr>
     <tr>
         <td>Francesco</td>
