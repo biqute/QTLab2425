@@ -16,9 +16,11 @@ $ git clone https://github.com/biqute/QTLab2425.git
 
 ### Students
 
-table {
-    width:100%;
-}
+<style>
+    table {
+        width: 100%;
+    }
+</style
 
 <table style="width:100%">
     <tr>
