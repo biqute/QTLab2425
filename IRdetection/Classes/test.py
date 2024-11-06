@@ -14,4 +14,4 @@ ser.write(b'*RST\r\n')
 time.sleep(2)
 
 # Enable the output
-ser.write(b'OUTPut:STATe ON\r\n')
+#ser.write(b'OUTPut:STATe ON\r\n')
