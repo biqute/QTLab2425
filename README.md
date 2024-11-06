@@ -43,7 +43,7 @@ $ git clone https://github.com/biqute/QTLab2425.git
     <tr>
         <td>Francesco</td>
         <td>Farabegoli</td>
-        <td>f.farabegoli@campus.unimib.it</td>
+        <td><a href="mailto:f.farabegoli@campus.unimib.it">f.farabegoli@campus.unimib.it</a></td>
     </tr>
     <tr>
        <td colspan="3"><b>3Dqubit</b></td>
@@ -56,7 +56,7 @@ $ git clone https://github.com/biqute/QTLab2425.git
     <tr>
         <td>Riccardo</td>
         <td>Marega</td>
-        <td>r.marega@campus.unimib.it</td>
+        <td><a href="mailto:r.marega@campus.unimib.it">r.marega@campus.unimib.it</a></td>
     </tr>
     <tr>
         <td>Edoardo Emil</td>
