@@ -16,18 +16,13 @@ $ git clone https://github.com/biqute/QTLab2425.git
 
 ### Students
 
-<style>
-    table {
-        width: 100%;
-    }
-</style
 
 <table style="width:100%">
     <tr>
         <td colspan="3"><b>IRdetection</b></td>
     </tr>
     <tr>
-        <td><b>Nome</b></td>
+        <td><img width="441" height="1"> <b>Nome</b></td>
         <td><b>Cognome</b></td>
         <td><b>Mail</b></td>
     </tr>
