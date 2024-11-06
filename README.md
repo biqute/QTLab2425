@@ -22,9 +22,9 @@ $ git clone https://github.com/biqute/QTLab2425.git
         <td colspan="3"><b>IRdetection</b></td>
     </tr>
     <tr>
-        <td><img width="441" height="1"> <b>Nome</b></td>
-        <td><b>Cognome</b></td>
-        <td><b>Mail</b></td>
+        <td> <b>Nome</b><img width="200" height="1">  </td>
+        <td><b>Cognome</b><img width="200" height="1"></td>
+        <td><b>Mail</b><img width="200" height="1"></td>
     </tr>
     <tr>
         <td>Francesco</td>
