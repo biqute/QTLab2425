@@ -16,7 +16,7 @@ $ git clone https://github.com/biqute/QTLab2425.git
 
 ### Students
 
-<table>
+<table style="width:100%">
     <tr>
         <td colspan="3"><b>IRdetection</b></td>
     </tr>
