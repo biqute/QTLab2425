@@ -85,7 +85,7 @@ $ git clone https://github.com/biqute/QTLab2425.git
     <tr>
         <td>Davide</td>
         <td>Ferioli</td>
-        <td>d.ferioli2@campus.unimib.it</td>
+        <td><a href="d.ferioli2@campus.unimib.it">d.ferioli2@campus.unimib.it</a></td>
     </tr>
     <tr>
         <td>Giovanni</td>
