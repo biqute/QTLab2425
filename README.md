@@ -62,12 +62,12 @@ $ git clone https://github.com/biqute/QTLab2425.git
     <tr>
         <td>Edoardo Emil</td>
         <td>Riva</td>
-        <td>e.riva59@campus.unimib.it</td>
+        <td><a href="mailto:e.riva59@campus.unimib.it">e.riva59@campus.unimib.it</a></td>
     </tr>
     <tr>
         <td>Davide</td>
         <td>Zanin</td>
-        <td>d.zanin2@campus.unimib.it</td>
+        <td><a href="mailto:d.zanin2@campus.unimib.it">d.zanin2@campus.unimib.it</a></td>
     </tr>
     <tr>
     <td colspan="3"><b>2Dqubit</b></td>
@@ -80,7 +80,7 @@ $ git clone https://github.com/biqute/QTLab2425.git
     <tr>
         <td>Domenico</td>
         <td>Volpe</td>
-        <td>d.volpe2@campus.unimib.it</td>
+        <td><a href="d.volpe2@campus.unimib.it">d.volpe2@campus.unimib.it</a></td>
     </tr>
     <tr>
         <td>Davide</td>
@@ -89,12 +89,13 @@ $ git clone https://github.com/biqute/QTLab2425.git
     </tr>
     <tr>
         <td>Giovanni</td>
-        <td>Laganà</td>
-        <td>g.lagana2@campus.unimib.it</td>
+        <td>Laganà</td>        
+        <td><a href="g.lagana2@campus.unimib.it">g.lagana2@campus.unimib.it</a></td>
     </tr>
     <tr>
         <td>Alessandro</td>
         <td>Rocchi</td>
-        <td>a.rocchi12@campus.unimib.it</td>
+        <td><a href="a.rocchi12@campus.unimib.it">a.rocchi12@campus.unimib.it</a></td>
+        <td></td>
     </tr>
 </table>
