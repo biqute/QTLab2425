@@ -1,17 +1,12 @@
 import serial
 import time
+from Keithley2231A import Keithley2231A as KL
 
-ser = serial.Serial('COM5')  # open serial port
+gen = KL("COM5")
+gen.reset()
+#time.sleep(5)
+gen.set_voltage(3.0)
+time.sleep(1)
+gen.set_current_limit(0.08)
 
-print(ser.is_open)
-
-# Clear the input buffer to ensure there are no pending commands
-ser.flushInput()
-
-
-# Command to set the device to remote mode
-ser.write(b'*RST\r\n')
-time.sleep(2)
-
-# Enable the output
-#ser.write(b'OUTPut:STATe ON\r\n')
+gen.close_conncetion()
