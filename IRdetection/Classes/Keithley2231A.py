@@ -141,19 +141,6 @@ class Keithley2231A(serial.Serial):
         self.ser.flushInput()
 
 
-   # ser.write(b'APPLy CH2,1.59,0.2\r\n')
-   # ser.write(b'APPLy CH3,1.4,0.4\r\n')
-   # time.sleep(1)  # Allow time for the device to process the command
-
-    # Optionally, verify the settings by querying the device
-    #ser.write(b'APPLy? CH1\r\n')
-    #ser.write(b'APPLy? CH2\r\n')
-  #  ser.write(b'APPLy? CH3\r\n')
-  #  time.sleep(1)  # Allow time for the device to respond
-
-    # Read the response
-   # response = ser.read_all()
-   # print(response.decode('utf-8'))
 
     def close_conncetion(self):
         # Close the serial port
