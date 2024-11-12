@@ -21,6 +21,15 @@ echo EMAIL:
 git config user.email
 ```
 
+
+## Commit git
+```shell
+git pull
+git commit -m "..."
+git push
+```
+
 ## Link utili
 - <https://peps.python.org/pep-0008/>
 - <https://www.keysight.com/us/en/assets/7018-03314/data-sheets/5990-9783.pdf>
+- <https://www.keysight.com/us/en/assets/9921-02561/programming-guides/FFProgrammingHelp.pdf>

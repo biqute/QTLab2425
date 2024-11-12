@@ -1,13 +1,49 @@
 import pyvisa
+import matplotlib.pyplot as plt
+import numpy as np
 
-rm_2 = pyvisa.ResourceManager()
-#rm_2.list_resources()
-resource_2 = rm_2.open_resource("tcpip0::192.168.40.10::INSTR")
-#resource_2 = rm_2.open_resource("tcpip0::192.168.40.15::inst0::INSTR")
-print(resource_2.query("*IDN?"))
+SETTINGS = {
+    "points": 400,
+    "min_freq": 4e9, # Hz
+    "max_freq": 6e9, # Hz
+    "timeout": 10e3, # ms
+}
 
+# N9916A
+rm_PSA = pyvisa.ResourceManager()
+PSA = rm_PSA.open_resource("tcpip0::192.168.40.10::INSTR")
+
+PSA.timeout = SETTINGS["timeout"]
+PSA.write("*CLS")
+print(PSA.query("*IDN?"))
+PSA.query("INST:SEL 'SA';*OPC?") # SA (Spectrum Analyzer), CAT, NA
+
+#print("Preset complete: " + PSA.query("SYST:PRES;*OPC?"))
+
+PSA.write("SENS:SWE:POIN " + str(SETTINGS["points"]))
+PSA.write("SENS:FREQ:START " + str(SETTINGS["min_freq"]))
+PSA.write("SENS:FREQ:STOP " + str(SETTINGS["max_freq"]))
+
+PSA.query("FORM COMP,32; *OPC?")
+# print(PSA.query("TRACE1:TYPE?"))
+
+# PSA.query("INIT:CONT OFF; *OPC?")
+# print("Trigger complete: " + PSA.query("INIT:IMM; *OPC?")) # Trigger
+datay = list(map(float, PSA.query("TRACE:DATA?").split(",")))
+PSA.query("*OPC?")
+
+datax = np.linspace(SETTINGS["min_freq"],SETTINGS["max_freq"],SETTINGS["points"])
+plt.plot(datax, datay)
+plt.title("Random Plot")
+plt.xlabel("Frequency (Hz)")
+plt.ylabel("dB")
+plt.grid()
+plt.show()
+
+
+
+# SMA100B
 #rm_1 = pyvisa.ResourceManager()
-#rm_1.list_resources()
-#resource_1 = rm_1.open_resource('tcpip0::169.254.69.24::inst0::INSTR')
+#resource_1 = rm_1.open_resource('tcpip0::192.168.40.15::inst0::INSTR')
 #print(resource_1.query("*IDN?"))
 
