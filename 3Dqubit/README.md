@@ -33,3 +33,9 @@ git push
 - <https://peps.python.org/pep-0008/>
 - <https://www.keysight.com/us/en/assets/7018-03314/data-sheets/5990-9783.pdf>
 - <https://www.keysight.com/us/en/assets/9921-02561/programming-guides/FFProgrammingHelp.pdf>
+
+## TODO
+- `VNA.py`: 
+    - add BandWidth property
+    - manage data averaging
+    - plotting functions?? 

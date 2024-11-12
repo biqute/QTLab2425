@@ -1,6 +1,6 @@
-import pyvisa
 import matplotlib.pyplot as plt
 import numpy as np
+from PSA import PSA
 
 SETTINGS = {
     "points": 400,
@@ -9,6 +9,16 @@ SETTINGS = {
     "timeout": 10e3, # ms
 }
 
+myPSA = PSA("tcpip0::192.168.40.10::INSTR")
+
+myPSA.set_timeout(SETTINGS["timeout"])
+myPSA.set_min_freq(SETTINGS["min_freq"])
+myPSA.set_max_freq(SETTINGS["max_freq"])
+myPSA.set_point_count(SETTINGS["points"])
+
+datay = myPSA.read_data()
+
+"""
 # N9916A
 rm_PSA = pyvisa.ResourceManager()
 PSA = rm_PSA.open_resource("tcpip0::192.168.40.10::INSTR")
@@ -31,6 +41,7 @@ PSA.query("FORM COMP,32; *OPC?")
 # print("Trigger complete: " + PSA.query("INIT:IMM; *OPC?")) # Trigger
 datay = list(map(float, PSA.query("TRACE:DATA?").split(",")))
 PSA.query("*OPC?")
+"""
 
 datax = np.linspace(SETTINGS["min_freq"],SETTINGS["max_freq"],SETTINGS["points"])
 plt.plot(datax, datay)
