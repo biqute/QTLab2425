@@ -1,29 +1,14 @@
 import serial
 import time
+import socket
+from QuickSyn import QuickSyn
 
-# Connect to COM3 port
-ser = serial.Serial('COM3', 9600, timeout=1)
-time.sleep(2)  # Wait for the connection to establish
+gen = QuickSyn('COM3')
 
-# Ask for device name
-ser.write(b'*IDN?\r\n')
-time.sleep(1)  # Wait for the response
-
-# Read the response
-device_name = ser.readline().decode('utf-8').strip()
-print(f'Device name: {device_name}')
-
-
-ser.write(b'FREQ 4.81359GHz\r\n')
+gen.set_frequency(5, 'GHz')
 time.sleep(1)
-ser.write(b'FREQ?\r\n')
-
-
-
-# Read the response
-frequency = ser.readline().decode('utf-8').strip()
-print(f'Frequency: {frequency}')
-
-ser.write(b'OUTP:STAT ON\r\n')
-# Close the serial connection
-ser.close()
+result = gen.get_frequency('GHz')
+print(f'Frequency: {result} GHz')
+result_MHz = gen.get_frequency('MHz')
+print(f'Frequency: {result_MHz} MHz')
+#gen.close_conncetion()

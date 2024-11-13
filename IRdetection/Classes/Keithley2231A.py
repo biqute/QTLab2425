@@ -33,8 +33,7 @@ class Keithley2231A:
         """
         self.__validate_channel(channel)
         actual_current = current if current is not None else self.get_current_limit(channel)
-        command = f'APPLy CH{channel},{voltage},{actual_current}'
-        self.__write(command)
+        self.__write(f'APPLy CH{channel},{voltage},{actual_current}')
 
     def set_current_limit(self, current, channel=1):
         """
@@ -45,8 +44,7 @@ class Keithley2231A:
         """
         self.__validate_channel(channel)
         actual_voltage = self.get_voltage(channel)
-        command = f'APPLy CH{channel},{actual_voltage},{current}'
-        self.__write(command)
+        self.__write(f'APPLy CH{channel},{actual_voltage},{current}')
 
     def get_channel_values(self, channel=1):
         """
