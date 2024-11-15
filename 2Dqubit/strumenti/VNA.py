@@ -1,0 +1,122 @@
+import numpy as np
+import pyvisa
+import matplotlib.pyplot as plt
+import time
+
+class VNA :
+
+    def __init__(self, ip) :
+
+        rm1 = pyvisa.ResourceManager()
+        self.__VNA = rm1.open_resource(f"tcpip0::{ip}::inst0::INSTR") 
+        print("device connected")
+
+        self.__VNA.write("*CLS")
+        VNA =self.__VNA.query("INST:SEL 'NA'; *OPC?")
+        if VNA[0] != '1': raise Exception("Failed to select NA mode")
+
+
+    def off (self) :
+        self.__VNA.clear()
+        self.__VNA.close()
+
+
+    def set_freq_limits (self, set_min, set_max) :
+
+        set_min_G = set_min*1000000000
+        set_max_G = set_max*1000000000
+        self.__VNA.write(f'FREQ:STAR {set_min_G}')
+        self.__VNA.write(f'FREQ:STOP {set_max_G}')
+
+        return self.__VNA.query("*OPC?")
+    
+    
+    def set_freq_span (self, set_center, set_span) :
+
+        set_center_G = set_center*1000000000
+        set_span_G = set_span*1000000000
+        self.__VNA.write(f'FREQ:CENT {set_center_G}')   
+        self.__VNA.write(f'FREQ:SPAN {set_span_G}')
+
+        return self.__VNA.query("*OPC?")
+    
+
+    def set_power(self, set_power) :
+
+        self.__VNA.write(f'SOUR:POW {set_power}')
+
+        return self.__VNA.query("*OPC?")
+    
+    
+    def set_ifband(self, ifband) : 
+
+        self.__VNA.write(f'BAND {ifband}')
+
+        return self.__VNA.query("*OPC?")
+    
+
+    def set_sweep_time(self, sweep_time) :
+
+        self.__VNA.write(f'SWE:TIME  {sweep_time}')
+
+        return self.__VNA.query("*OPC?")
+    
+    
+    def set_sweep_points(self, sweep_points) :
+        
+        self.__VNA.write(f'SWE:POIN {sweep_points}')
+
+        return self.__VNA.query("*OPC?")
+
+
+    def set_n_means(self, n_means) :
+        self.__VNA.write(f"SENS:AVER:COUN {n_means}")
+        return self.__VNA.query("*OPC?")
+
+
+    def get_freq_limits (self) :
+
+        min_freq = self.__VNA.query("SENS:FREQ:START?")
+        max_freq = self.__VNA.query("SENS:FREQ:STOP?")
+
+        return float(min_freq), float(max_freq)
+
+
+    def get_freq_center (self) :
+
+        return float(self.__VNA.query("SENS:FREQ:CENT?")), float(self.__VNA.query("SENS:FREQ:SPAN?"))
+    
+
+    def get_sweep_points(self) :
+
+        return int(self.__VNA.query("SENSE:SWE:POIN?"))
+
+
+    def get_n_means(self) :
+
+        return int(self.__VNA.query("SENS:AVER:COUN?"))
+    
+
+    def get_trace(self) :
+        
+        return list(map(float, self.__VNA.query("TRACE:DATA?").split(",")))    
+    
+
+    def get_spectrum(self) :
+        # Query the FieldFox response data
+        amp = self.__VNA.query("TRACE:DATA?")
+
+        # Convert amp data to a list of floats
+        amp_Array = list(map(float, amp.split(",")))
+        min , max = self.get_freq_limits()
+        n_points = self.get_sweep_points()
+        freq = np.linspace(min , max, n_points)
+        import matplotlib.pyplot as plt
+        plt.title("spectrum")
+        plt.xlabel("Frequency [Hz]")
+        plt.ylabel("Amplitude [dBm]")
+        plt.plot(freq, amp_Array)
+        plt.show()
+
+        return self.__VNA.query("*OPC?")
+

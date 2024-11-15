@@ -1,6 +1,7 @@
 import numpy as np
 import pyvisa
 import matplotlib.pyplot as plt  # Import per la visualizzazione
+import time
 
 class PSA :
 
@@ -14,13 +15,29 @@ class PSA :
         PSA = self.__PSA.query("INST:SEL 'SA'; *OPC?") # set spectrum analyzer
         if PSA[0] != '1': raise Exception("Failed to select SA mode.")
 
+
     def off (self) :
 
         self.__PSA.clear()
         self.__PSA.close()
 
 
+
+
+    def wait(self, wait_time):
+
+        time.sleep(wait_time)  # Aspetta il tempo specificato
+            
+
     # SET PARAMETERS
+
+    """
+    def set_average_display(self, enable=True):
+      
+    # Abilita o disabilita la funzione di media
+        avg_state = 'ON' if enable else 'OFF'
+        self.__PSA.write("AVER:SDET ON ")  """
+    
 
 
     def set_freq_limits (self, set_min, set_max) :
@@ -78,7 +95,6 @@ class PSA :
         return self.__PSA.query("*OPC?")
 
     # GET PARAMETERS
-
 
     def get_freq_limits (self) :
 
