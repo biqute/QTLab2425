@@ -9,7 +9,16 @@ myVNA = VNA("192.168.40.10")
 myVNA.min_freq = 3.5e9
 myVNA.max_freq = 7e9
 myVNA.point_count = 500
-myVNA.timeout = 10e3
+myVNA.timeout = 20e3
+myVNA.bandwidth = 10e3
+myVNA.avg_count = 5
+
+data = {
+    "S11": myVNA.read_data("S11"),
+    "S12": myVNA.read_data("S12"),
+    "S21": myVNA.read_data("S21"),
+    "S22": myVNA.read_data("S22"),
+}
 
 """
 # SMA100B
@@ -44,8 +53,9 @@ data["S22"] = list(map(float, VNA.query("CALC:DATA:SDATA?").split(",")))
 
 VNA.query("INIT:CONT 1;*OPC?")
 
+"""
 
-datax = np.linspace(SETTINGS["min_freq"],SETTINGS["max_freq"],SETTINGS["points"])
+datax = np.linspace(myVNA.min_freq, myVNA.max_freq, myVNA.point_count)
 
 Snames = [["S11", "S12"], ["S21", "S22"]]
 
@@ -53,9 +63,7 @@ fig, axes = plt.subplots(2, 2)
 for i in [0,1]:
     for j in [0,1]:
         Sij = Snames[i][j]
-        data_real = data[Sij][0::2] # all even entries 0,2,4,6,8
-        data_imag = data[Sij][1::2] # all odd entries 1,3,5,7,9
-        data_magn = [10*math.log10(data_real[i]**2 + data_imag[i]**2) for i in range(0, len(data_real))] 
+        data_magn = [10*math.log10(data[Sij]["real"][i]**2 + data[Sij]["imag"][i]**2) for i in range(0, myVNA.point_count)] 
         axes[i,j].plot(datax, data_magn)
         axes[i,j].set_title(Sij)
         axes[i,j].grid()
@@ -67,4 +75,3 @@ for ax in axes.flat:
     ax.label_outer()
 
 plt.show()
-"""
