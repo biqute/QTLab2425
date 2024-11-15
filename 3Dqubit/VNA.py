@@ -1,7 +1,20 @@
 import pyvisa
+import numpy as np
 
 
 class VNA:
+    """
+    Vector Network Analyzer (VNA)
+
+    Conventions:
+        - All arrays are numpy arrays
+    
+    Units:
+        - frequency [Hz]
+        - time [ms]
+        - amplitude TODO
+    """
+
     _name = ""
     _ip = ""
     __min_freq = 0
@@ -138,6 +151,12 @@ class VNA:
         self.write("AVER:COUN " + str(n))
         self.__avg_count = n
 
+    # FREQUENCY SPECTRUM
+
+    def read_frequency_data(self):
+        return np.array(list(map(float, self.query_expect("FREQ:DATA?", "Frequency data readout failed.").split(","))))
+        
+
     # DATA ACQUISITION
     
     def read_data(self, Sij):
@@ -146,7 +165,7 @@ class VNA:
 
         for _ in range(self.avg_count): self.write_expect("INIT:IMMediate") # Trigger now
         
-        data = list(map(float, self.query_expect("CALC:DATA:SDATA?", "Data readout failed.").split(",")))
+        data = np.array(list(map(float, self.query_expect("CALC:DATA:SDATA?", "Data readout failed.").split(","))))
         data_real = data[0::2] # all even entries 0,2,4,6,8
         data_imag = data[1::2] # all odd entries 1,3,5,7,9
 
