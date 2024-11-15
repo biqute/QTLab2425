@@ -35,7 +35,6 @@ git push
 - <https://www.keysight.com/us/en/assets/9921-02561/programming-guides/FFProgrammingHelp.pdf>
 
 ## TODO
-- `VNA.py`: 
-    - add BandWidth property
-    - manage data averaging
-    - plotting functions?? 
+- `VNA.py`:
+    - plotting functions??
+    - sanity checks on input values

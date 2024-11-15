@@ -5,7 +5,7 @@ import time
 # Instantiate TCP/IP socket on this machine
 computer_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 fsv_ip = '192.168.3.50'
-port = 139
+port = 5025
 
 # Set a timeout for the socket
 computer_sock.settimeout(3)  # Timeout after 10 seconds if no response
@@ -19,7 +19,7 @@ except socket.error as e:
 
 # Send a command: *IDN?
 command = '*IDN?\r\n'
-computer_sock.sendall(command.encode('utf-8'))
+computer_sock.send(command.encode('utf-8'))
 print(f"Command sent: {command}")
 time.sleep(1)
 
@@ -31,3 +31,7 @@ except socket.timeout:
     print("Timed out waiting for a response from the server")
 finally:
     computer_sock.close()  # Make sure to close the socket
+    
+
+# Trying to get data from the instrument
+
