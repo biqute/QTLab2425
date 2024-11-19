@@ -7,8 +7,8 @@ from VNA import VNA
 # N9916A
 myVNA = VNA("192.168.40.10")
 myVNA.min_freq = 3.5e9
-myVNA.max_freq = 7e9
-myVNA.point_count = 50000000
+myVNA.max_freq = 5e9
+myVNA.point_count = 500
 myVNA.timeout = 20e3
 myVNA.bandwidth = 10e3
 myVNA.avg_count = 1
