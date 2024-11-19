@@ -38,3 +38,4 @@ git push
 - `VNA.py`:
     - plotting functions??
     - sanity checks on input values
+    - reorganize files into subfolders (classes, scripts, ...)
