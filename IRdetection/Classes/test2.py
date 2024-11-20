@@ -1,7 +1,7 @@
 import serial
 import time
 import socket
-from QuickSyn import QuickSyn
+from QuickSynE3615A import QuickSyn
 
 gen = QuickSyn('COM3')
 

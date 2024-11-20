@@ -26,7 +26,7 @@ def query_power_spectrum_analyzer(host, port, start_freq, stop_freq, step):
         s.sendall("TRAC? TRACE1\n".encode())
         
         # Receive the response
-        response = s.recv(65536)
+        response = s.recv(65536*3)  # Receive up to 65536 bytes
         # Put data in a list
         data = re.sub(r'E', 'e', response.decode()).split(',')
         # Extract the data from the list
@@ -49,14 +49,14 @@ def find_peak(x, y):
 # Example usage
 start_freq = 5.9e9
 stop_freq = 6.1e9
-step = 1e5     # leave this at 1e5
+step = 1e3     # leave this at 1e5
 data = query_power_spectrum_analyzer('192.168.3.50', 5025, start_freq, stop_freq, step)
 print(f'Number of data points: {len(data)}')
 x = [start_freq + i * step for i in range(len(data))]
 
 # Peak
 peak_x, peak_y = find_peak(x, data)
-
+print(f'Peak frequency: {peak_x} Hz')
 # Plot the data
 fig, ax = plt.subplots(figsize=(10, 6))
 ax.plot(x, data)
