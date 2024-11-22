@@ -1,7 +1,8 @@
-import serial
 import time
-import socket
-from QuickSynE3615A import QuickSyn
+
+from Instruments.QuickSynE3615A import QuickSyn
+
+print('Test QuickSynE3615A')
 
 gen = QuickSyn('COM3')
 

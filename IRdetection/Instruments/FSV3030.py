@@ -328,7 +328,7 @@ class FSV3030:
                 raise TimeoutError('Timeout waiting for OPC')
             time.sleep(time_sleep)
             
-    def set_auto(self, center_freq:float, config: str ='IRdetection/Classes/FSV3030_default_configs.json'):
+    def set_auto(self, center_freq:float, config: str ='IRdetection/Instruments/FSV3030_default_configs.json'):
         """
         set the instrument to default parameters read from json config file
         
