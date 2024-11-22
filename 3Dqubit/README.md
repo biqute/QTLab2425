@@ -25,7 +25,7 @@ git config user.email
 ## Commit git
 ```shell
 git pull
-git commit -m "..."
+git commit -a -m "..."
 git push
 ```
 
@@ -37,5 +37,4 @@ git push
 ## TODO
 - `VNA.py`:
     - plotting functions??
-    - sanity checks on input values
-    - reorganize files into subfolders (classes, scripts, ...)
+    - test if sleep() makes pyvisa work for LO

@@ -1,6 +1,6 @@
 import serial
 import time
-from Keithley2231A import Keithley2231A as KL
+from Instruments.Keithley2231A import Keithley2231A as KL
 
 gen = KL("COM5")
 gen.reset()

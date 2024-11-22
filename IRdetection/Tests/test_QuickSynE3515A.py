@@ -1,11 +1,12 @@
-import serial
 import time
-import socket
-from QuickSyn import QuickSyn
+
+from Instruments.QuickSynE3615A import QuickSyn
+
+print('Test QuickSynE3615A')
 
 gen = QuickSyn('COM3')
 
-gen.set_frequency(6, 'GHz')
+gen.set_frequency(5, 'GHz')
 time.sleep(1)
 result = gen.get_frequency('GHz')
 print(f'Frequency: {result} GHz')

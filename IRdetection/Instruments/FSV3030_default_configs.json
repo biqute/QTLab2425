@@ -1,0 +1,13 @@
+{
+    "frequency_span": 1e6,
+    "resolution_bandwidth": 1000.0,
+    "video_bandwidth_ratio": 10,
+    "sweep_time": "auto",
+    "sweep_type": "FFT",
+    "sweep_count": 10,
+    "sweep_points": 5000,
+    "dB_reference": 10,
+    "dB_range": 100.0,
+    "dB_ref_position": 95.0,
+    "trace_mode": "AVERAGE"
+}
