@@ -19,7 +19,7 @@ $ git clone https://github.com/biqute/QTLab2425.git
 
 <table style="width:100%">
     <tr>
-        <td colspan="3"><b>IRdetection</b></td>
+        <td colspan="3"><b>2Dqubit</b></td>
     </tr>
     <tr>
         <td><b>Nome</b><img width="200" height="1">  </td>
@@ -70,7 +70,7 @@ $ git clone https://github.com/biqute/QTLab2425.git
         <td><a href="mailto:d.zanin2@campus.unimib.it">d.zanin2@campus.unimib.it</a></td>
     </tr>
     <tr>
-    <td colspan="3"><b>2Dqubit</b></td>
+    <td colspan="3"><b>IRdetection</b></td>
     </tr>
     <tr>
         <td><b>Nome</b></td>
