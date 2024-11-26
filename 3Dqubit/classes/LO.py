@@ -16,6 +16,7 @@ class LO(serial.Serial):
 
     __freq = 0.0
     debug = True
+    debug_prefix = ""
 
     def __init__(self, name):
         self.__ser = serial.Serial(name)  # open serial port
@@ -29,11 +30,15 @@ class LO(serial.Serial):
         command_utf8 = (unterminated_command + "\r\n").encode(encoding="utf-8")
         self.__ser.write(command_utf8)
 
-        if self.debug: print(f"[{unterminated_command}]")
+        if self.debug: print(f"{self.debug_prefix}[{unterminated_command}]")
 
-    def query(self, unterminated_command):        
-        self.write(unterminated_command)
+    def query(self, unterminated_command):    
+        command_utf8 = (unterminated_command + "\r\n").encode(encoding="utf-8")
+        self.__ser.write(command_utf8)
         string = self.__ser.readline().decode("utf-8").strip()
+
+        if self.debug: print(f"{self.debug_prefix}[{unterminated_command}] {string}")
+
         return string
     
     def turn_on(self):
@@ -43,7 +48,6 @@ class LO(serial.Serial):
         self.write("OUTP:STAT OFF") # turn off the output
     
     def close(self):
-        self.turn_off()
         self.__ser.close() # close the serial port
 
         if self.ser.is_open: raise Exception("Connection failed to close.")

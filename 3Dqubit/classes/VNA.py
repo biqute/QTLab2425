@@ -24,6 +24,7 @@ class VNA:
     __bandwidth = 0
     __avg_count = 0
     debug = True
+    debug_prefix = ""
 
     def __init__(self, ip_address_string):
         res_manager = pyvisa.ResourceManager()
@@ -58,7 +59,7 @@ class VNA:
 
         result = self.query(f"{command}; *OPC?")
 
-        if self.debug: print(f"[{command}] {result.strip()}")
+        if self.debug: print(f"{self.debug_prefix}[{command}] {result.strip()}")
         if '0' in result:
             if error_msg is None:
                 raise Exception(f"Operation '{command}' could not complete.")
