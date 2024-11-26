@@ -15,6 +15,7 @@ class LO(serial.Serial):
     """
 
     __freq = 0.0
+    debug = True
 
     def __init__(self, name):
         self.__ser = serial.Serial(name)  # open serial port
@@ -22,11 +23,13 @@ class LO(serial.Serial):
 
         if not self.__ser.is_open: raise Exception("Connection failed.")
 
-        self.frequency = 5e9 # 5GHz
+        self.freq = 5e9 # 5GHz
 
     def write(self, unterminated_command):
         command_utf8 = (unterminated_command + "\r\n").encode(encoding="utf-8")
         self.__ser.write(command_utf8)
+
+        if self.debug: print(f"[{unterminated_command}]")
 
     def query(self, unterminated_command):        
         self.write(unterminated_command)
@@ -34,10 +37,13 @@ class LO(serial.Serial):
         return string
     
     def turn_on(self):
-        self.write("OUTP:STAT ON")
+        self.write("OUTP:STAT ON") # turn on the output
+    
+    def turn_off(self):
+        self.write("OUTP:STAT OFF") # turn off the output
     
     def close(self):
-        self.write("OUTP:STAT OFF") # turn off the output
+        self.turn_off()
         self.__ser.close() # close the serial port
 
         if self.ser.is_open: raise Exception("Connection failed to close.")
@@ -45,11 +51,11 @@ class LO(serial.Serial):
     # FREQUENCY
 
     @property
-    def frequency(self):
+    def freq(self):
         return self.__freq
 
-    @frequency.setter
-    def frequency(self, f):
+    @freq.setter
+    def freq(self, f):
         """Set synthetized frequency in Hz"""
         f_millis = f * 1000 # f in mHz
         self.write(f"FREQ {f_millis}mlHz")

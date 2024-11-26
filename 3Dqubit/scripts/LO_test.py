@@ -1,10 +1,15 @@
 import sys; sys.path.append("../classes")
 from LO import LO
+import time
 
 myLO = LO("COM4")
-myLO.frequency = 6e9
+myLO.freq = 5e9
 
-print(myLO.frequency)
+print(myLO.freq)
+
+myLO.turn_off()
+time.sleep(2)
+myLO.turn_on()
 
 """
 import pyvisa
