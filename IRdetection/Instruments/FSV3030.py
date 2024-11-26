@@ -3,8 +3,9 @@ import sys
 import re
 import time
 import json
+from Instruments.Instrument import BaseInstrument
 
-class FSV3030:
+class FSV3030(BaseInstrument):
     """
     class to control the Rohde & Schwarz FSV3030 Spectrum Analyzer.
     """
@@ -15,17 +16,10 @@ class FSV3030:
         :param ip_address: IP address of the device
         :param port: Port number
         """
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.ip_address = ip_address
         self.port = port
-        self.sock.settimeout(3)
         
-        # Connect to the server
-        try:
-            self.sock.connect((ip_address, port))
-        except socket.error as e:
-            print(f"Socket error: {e}")
-            sys.exit(1)
+        self.connect()
             
         # Set default parameters if required
         if set_defaults:
@@ -355,11 +349,41 @@ class FSV3030:
         
         self.wait_opc()
 
+    # ----------------- Base Instrument Functions -----------------
     def _reset(self):
         self.send_command('*RST')        
-    
-    def close_connection(self):
+
+    def connect(self) -> None:
+        # Establish a connection to the instrument
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sock.settimeout(3)
+        try:
+            self.sock.connect((self.ip_address, self.port))
+        except socket.error as e:
+            print(f"Socket error: {e}")
+            sys.exit(1)
+
+    def disconnect(self) -> None:
+        # Disconnect the instrument
         self.sock.close()
+
+    def get_configs(self) -> dict:
+        # Retrieve current configurations
+        config = {
+            "frequency_center": self.get_frequency_center(),
+            "frequency_span": self.get_frequency_span(),
+            "resolution_bandwidth": self.get_resolution_bandwidth(),
+            "video_bandwidth_ratio": self.get_video_bandwidth_ratio(),
+            "sweep_time": self.get_sweep_time(),
+            "sweep_type": self.get_sweep_type(),
+            "sweep_count": self.get_sweep_count(),
+            "sweep_points": self.get_sweep_points(),
+            "dB_reference": self.get_dB_reference(),
+            "dB_range": self.get_dB_range(),
+            "dB_ref_position": self.get_dB_ref_position(),
+            "trace_mode": self.get_trace_mode(),
+        }
+        return config
 
 if __name__ == "__main__":
     fsv = FSV3030('192.168.3.50')
