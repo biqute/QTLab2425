@@ -26,6 +26,17 @@ class QuickSyn(serial.Serial):
         time.sleep(0.5)
         self.__write('OUTP:STAT ON')
     
+    def set_output_state(self, state):
+        """
+        Set output flow control.
+        
+        :param state: 'ON' or 'OFF'
+        """
+        if state not in ['ON', 'OFF']:
+            raise ValueError('State should be one of: ON, OFF.')
+        
+        self.__write(f'OUTP:STAT {state}')
+    
     def get_frequency(self, order="GHz"):
         """
         Get frequency for the specified order (GHz, MHz, KHz, Hz, mlHz).
