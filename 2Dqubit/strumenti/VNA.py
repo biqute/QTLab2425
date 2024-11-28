@@ -2,7 +2,7 @@ import numpy as np
 import pyvisa
 import matplotlib.pyplot as plt
 import time
-
+# aggiungere metodo per trovare i picchi senza usare i marker
 class VNA :
 
     def __init__(self, ip) :

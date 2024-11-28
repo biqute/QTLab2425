@@ -2,7 +2,7 @@ import numpy as np
 import pyvisa
 import matplotlib.pyplot as plt  # Import per la visualizzazione
 import time
-
+# aggiungere metodo per trovare i picchi senza usare i marker
 class PSA :
 
     def __init__ (self, ip) :
@@ -14,6 +14,8 @@ class PSA :
         self.__PSA.write("*CLS") # clear settings
         PSA = self.__PSA.query("INST:SEL 'SA'; *OPC?") # set spectrum analyzer
         if PSA[0] != '1': raise Exception("Failed to select SA mode.")
+
+        self.__PSA.write("DISP:WIND:TRAC1:Y:AUTO") # Turn on autoscaling on the y axis
 
 
     def off (self) :
