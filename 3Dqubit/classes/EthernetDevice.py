@@ -2,7 +2,7 @@ import pyvisa
 
 class EthernetDevice:
     """
-    Pyvisa device abstraction
+    Pyvisa ethernet device abstraction
 
     Conventions:
         - All arrays are numpy arrays
@@ -11,6 +11,7 @@ class EthernetDevice:
         - frequency [Hz]
         - time [ms]
         - amplitude TODO
+        - tension [V]
     """
 
     _name = ""
@@ -22,7 +23,9 @@ class EthernetDevice:
     def __init__(self, ip_address_string):
         res_manager = pyvisa.ResourceManager()
         self.__res = res_manager.open_resource(f"tcpip0::{ip_address_string}::INSTR")
+
         self._ip = ip_address_string
+        self._name = self.query_expect("*IDN?")
 
         self.timeout = 10e3
 

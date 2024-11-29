@@ -1,4 +1,5 @@
 import pyvisa
+import numpy as np
 
 
 class PSA:
@@ -47,5 +48,5 @@ class PSA:
         """
         Returns the data displayed on the PSA as an array of floats 
         """
-        return list(map(float, self.__res.query("TRACE:DATA?").split(",")))
+        return np.array(list(map(float, self.__res.query("TRACE:DATA?").split(","))))
 

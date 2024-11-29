@@ -3,17 +3,7 @@ from EthernetDevice import EthernetDevice
 
 
 class SMA(EthernetDevice):
-    """
-    SMA100B signal generator
-
-    Conventions:
-        - All arrays are numpy arrays
-    
-    Units:
-        - frequency [Hz]
-        - time [ms]
-        - amplitude TODO
-    """
+    """SMA100B signal generator"""
 
     __freq = 0
     __power_level = 0
@@ -21,7 +11,6 @@ class SMA(EthernetDevice):
     def on_init(self, ip_address_string):
         self.write_expect("*RST") # clear settings
         self.write_expect("*CLS") # clear settings
-        self._name = self.query_expect("*IDN?")
         self.write_expect("SOUR:FREQ:MODE CW") # set mode to Continous Wave (CW)
 
         self.freq = 5e9

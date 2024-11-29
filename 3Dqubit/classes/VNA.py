@@ -4,17 +4,7 @@ from EthernetDevice import EthernetDevice
 
 
 class VNA(EthernetDevice):
-    """
-    Vector Network Analyzer (VNA)
-
-    Conventions:
-        - All arrays are numpy arrays
-    
-    Units:
-        - frequency [Hz]
-        - time [ms]
-        - amplitude TODO
-    """
+    """Vector Network Analyzer (VNA)"""
 
     __min_freq = 0
     __max_freq = 0
@@ -25,7 +15,6 @@ class VNA(EthernetDevice):
 
     def on_init(self, ip_address_string):
         self.write_expect("*CLS") # clear settings
-        self._name = self.query_expect("*IDN?")
 
         self.write_expect("INST:SEL 'NA'", "Failed to select NA mode.") # Newtwork Analyzer
 
@@ -137,6 +126,7 @@ class VNA(EthernetDevice):
     # DATA ACQUISITION
     
     def read_data(self, Sij):
+        """Sij is a string of value "S11", "S12", "S21" or "S22"."""
         self.write_expect("INIT:CONT 0")
         self.write_expect(f"CALC:PAR:DEF {Sij}") # Chose which data to read
 
