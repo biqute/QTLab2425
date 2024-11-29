@@ -1,8 +1,9 @@
 import pyvisa
 import numpy as np
+from EthernetDevice import EthernetDevice
 
 
-class VNA:
+class VNA(EthernetDevice):
     """
     Vector Network Analyzer (VNA)
 
@@ -15,22 +16,14 @@ class VNA:
         - amplitude TODO
     """
 
-    _name = ""
-    _ip = ""
     __min_freq = 0
     __max_freq = 0
     __point_count = 0
     __timeout = 0
     __bandwidth = 0
     __avg_count = 0
-    debug = True
-    debug_prefix = ""
 
-    def __init__(self, ip_address_string):
-        res_manager = pyvisa.ResourceManager()
-        self.__res = res_manager.open_resource(f"tcpip0::{ip_address_string}::INSTR")
-        self._ip = ip_address_string
-
+    def on_init(self, ip_address_string):
         self.write_expect("*CLS") # clear settings
         self._name = self.query_expect("*IDN?")
 
@@ -46,41 +39,6 @@ class VNA:
         self.point_count = 400 
         self.bandwidth = 10e3
         self.avg_count = 1
-    
-    def write(self, command):
-        self.__res.write(command)
-
-    def query(self, command):
-        return self.__res.query(command)
-
-    def write_expect(self, command, error_msg = None):
-        """Send write command to device and check for operation complete"""
-        if self.__res is None: raise Exception("No connection.")
-
-        result = self.query(f"{command}; *OPC?")
-
-        if self.debug: print(f"{self.debug_prefix}[{command}] {result.strip()}")
-        if '0' in result:
-            if error_msg is None:
-                raise Exception(f"Operation '{command}' could not complete.")
-            else:
-                raise Exception(error_msg)
-            
-    def query_expect(self, command, error_msg = None):
-        """Send query command to device and check for operation complete. Returns the queried value if no error occurs."""
-        if self.__res is None: raise Exception("No connection.")
-
-        data = self.query(f"{command}")
-        result = self.query("*OPC?")
-
-        if self.debug: print(f"[{command}] {result.strip()}")
-        if '0' in result:
-            if error_msg is None:
-                raise Exception(f"Operation '{command}' could not complete.")
-            else:
-                raise Exception(error_msg)
-        
-        return data
 
     # TIMEOUT
 

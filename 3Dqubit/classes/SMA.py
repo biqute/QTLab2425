@@ -1,8 +1,8 @@
 import pyvisa
-import numpy as np
+from EthernetDevice import EthernetDevice
 
 
-class SMA:
+class SMA(EthernetDevice):
     """
     SMA100B signal generator
 
@@ -15,18 +15,10 @@ class SMA:
         - amplitude TODO
     """
 
-    _name = ""
-    _ip = ""
     __freq = 0
     __power_level = 0
-    debug = True
-    debug_prefix = ""
 
-    def __init__(self, ip_address_string):
-        res_manager = pyvisa.ResourceManager()
-        self.__res = res_manager.open_resource(f"tcpip0::{ip_address_string}::INSTR")
-        self._ip = ip_address_string
-
+    def on_init(self, ip_address_string):
         self.write_expect("*RST") # clear settings
         self.write_expect("*CLS") # clear settings
         self._name = self.query_expect("*IDN?")
@@ -34,42 +26,6 @@ class SMA:
 
         self.freq = 5e9
         self.power_level = -20
-    
-    def write(self, command):
-        self.__res.write(command)
-
-    def query(self, command):
-        return self.__res.query(command)
-
-    def write_expect(self, command, error_msg = None):
-        """Send write command to device and check for operation complete"""
-        if self.__res is None: raise Exception("No connection.")
-
-        result = self.query(f"{command}; *OPC?")
-
-        if self.debug: print(f"{self.debug_prefix}[{command}] {result.strip()}")
-        if '0' in result:
-            if error_msg is None:
-                raise Exception(f"Operation '{command}' could not complete.")
-            else:
-                raise Exception(error_msg)
-            
-    def query_expect(self, command, error_msg = None):
-        """Send query command to device and check for operation complete. Returns the queried value if no error occurs."""
-        if self.__res is None: raise Exception("No connection.")
-
-        data = self.query(f"{command}")
-        result = self.query("*OPC?")
-
-        if self.debug: print(f"[{command}] {result.strip()}")
-        if '0' in result:
-            if error_msg is None:
-                raise Exception(f"Operation '{command}' could not complete.")
-            else:
-                raise Exception(error_msg)
-        
-        return data
-    
      
     # FREQUENCY
 

@@ -41,3 +41,4 @@ git push
     - test if sleep() makes pyvisa work for LO
 - `LO.py`:
     - turn_on() and turn_off() seem to do nothing
+    - check the existence of the COM, if it doesn't return list of available COMs
