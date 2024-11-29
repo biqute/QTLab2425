@@ -15,7 +15,7 @@ class PSA :
         PSA = self.__PSA.query("INST:SEL 'SA'; *OPC?") # set spectrum analyzer
         if PSA[0] != '1': raise Exception("Failed to select SA mode.")
 
-        self.__PSA.write("DISP:WIND:TRAC1:Y:AUTO") # Turn on autoscaling on the y axis
+      
 
 
     def off (self) :
@@ -40,6 +40,10 @@ class PSA :
         avg_state = 'ON' if enable else 'OFF'
         self.__PSA.write("AVER:SDET ON ")  """
     
+
+    def auto_scale (self):
+
+        self.__PSA.write("DISP:WIND:TRAC1:Y:AUTO") # Turn on autoscaling on the y axis
 
 
     def set_freq_limits (self, set_min, set_max) :
@@ -128,6 +132,11 @@ class PSA :
         return list(map(float, self.__PSA.query("TRACE:DATA?").split(",")))    
     
 
+    def get_freq(self) :
+        
+        min , max = self.get_freq_limits()
+        n_points = self.get_sweep_points()
+        return np.linspace(min , max, n_points)
     
     def get_spectrum(self) :
         # Query the FieldFox response data
