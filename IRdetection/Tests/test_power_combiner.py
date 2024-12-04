@@ -15,7 +15,7 @@ gen_2= QuickSyn('COM7')
 psa = FSV3030('192.168.3.50')
 
 #set frequencies
-gen_1.set_frequency(1.5, 'GHz')
+gen_1.set_frequency(5, 'GHz')
 gen_1.set_output_state('ON')
 gen_2.set_frequency(1.5, 'GHz')
 gen_2.set_output_state('ON')
@@ -28,7 +28,7 @@ frequency_2 = gen_2.get_frequency('GHz')
 print(f'Frequency second generator: {frequency_2} GHz')
 
 #set psa
-frequency_center = (1.5)*1e9 + 1e3
+frequency_center = (5)*1e9 + 1e3
 print(f'Frequency center: {frequency_center} Hz')
 frequency_span = 0.02*1e9
 psa.set_resolution_bandwidth(100000)
@@ -53,10 +53,10 @@ print(f'Peak: {psa.get_peak(x_data, y_data)} dBm')
 #12.73360062 - 5.120486259 = 7.613114361 -> 7.613114361 - 3.0 = 4.613114361
 
 #write to file
-f = open("power_combiner_runs/power_combiner_s1p1test.txt", "w") 
-for i in range(len(x_data)):
-    f.write(str(x_data[i]) + " " + str(y_data[i]) + "\n")
-f.close()
+# f = open("power_combiner_runs/power_combiner_s1p1test.txt", "w") 
+# for i in range(len(x_data)):
+#     f.write(str(x_data[i]) + " " + str(y_data[i]) + "\n")
+# f.close()
 
 #close connection
 #gen_1.close_conncetion()
