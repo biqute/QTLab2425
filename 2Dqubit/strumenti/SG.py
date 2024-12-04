@@ -28,3 +28,14 @@ class SG :
 
         self.__SG.write("OUTP OFF")
 
+    def quadra (self) :
+
+        self.__SG.write("SOUR:PULM:STAT ON")  
+        self.__SG.write("SOUR:PULM:SOUR INT")  
+        self.__SG.write("SOUR:PULM:TRIG:MODE SING")
+        self.__SG.write("SOUR:PULM:MODE DOUB")  
+        self.__SG.write("SOUR:PULM:TTYP SMO")  
+        self.__SG.write("SOUR:PULM:OUTP:VID:POL INV")
+        self.__SG.write("SOUR:PULM:TRIG:IMM")
+        #da finire
+
