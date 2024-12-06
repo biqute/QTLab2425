@@ -7,10 +7,11 @@ import os
 class Data :
 
 
-    def __init__ (self, x, y) :
-
-        if len (x) != len (y) :
-            raise ValueError("I vettori x e y devono avere la stessa lunghezza.")
+    def __init__ (self, x = None, y = None) :
+        if x != None and y != None :
+            
+            if len (x) != len (y) :
+                raise ValueError("I vettori x e y devono avere la stessa lunghezza.")
 
         self.x = np.array(x)
         self.y = np.array(y)

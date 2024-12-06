@@ -28,14 +28,37 @@ class SG :
 
         self.__SG.write("OUTP OFF")
 
-    def quadra (self) :
+    def pulse_on(self, sour = "INT", ttyp = "FAST"):
+        self.__SG.write("SOUR:PULM:STAT ON")  #turns on pulse
+        self.__SG.write(f"SOUR:PULM:SOUR {sour}") #sets an internal pulse source 
+        self.__SG.write(f"SOUR:PULM:TTYP {ttyp}") #sets the transition mode
 
-        self.__SG.write("SOUR:PULM:STAT ON")  
-        self.__SG.write("SOUR:PULM:SOUR INT")  
-        self.__SG.write("SOUR:PULM:TRIG:MODE SING")
-        self.__SG.write("SOUR:PULM:MODE DOUB")  
-        self.__SG.write("SOUR:PULM:TTYP SMO")  
-        self.__SG.write("SOUR:PULM:OUTP:VID:POL INV")
-        self.__SG.write("SOUR:PULM:TRIG:IMM")
-        #da finire
+    def pulse_off(self) :
+        self.__SG.write("SOUR:PULM:STAT OFF")
+
+    def pulse_set (self, delay, width, period, mode = "SING", trig = "SING") :
+
+        mode = mode if mode in ['SING', 'DOUB'] else 'SING'
+
+        self.__SG.write(f"SOUR:PULM:MODE {mode}") #single pulse setting
+        if mode == "DOUB":
+            double_d = float(input("inserire il delay del secondo impulso: "))
+            double_w = float(input("inserire la width del secondo impulso: "))
+            
+            self.__SG.write(f"SOUR:PULM:DOUB DEL {double_d}") #delay setting        
+            self.__SG.write(f"SOUR:PULM:DOUB WIDT {double_w}") #width of the pulse
+         
+        trig = trig if trig in ['SING', 'AUTO'] else 'SING'
+
+        self.__SG.write(f"SOUR:PULM:TRIG:MODE {trig}") #single trigger setting
+
+        self.__SG.write(f"SOUR:PULM:PER {period}")
+       
+        self.__SG.write(f"SOUR:PULM:DEL {delay}") #delay setting 
+
+        self.__SG.write(f"SOUR:PULM:WIDT {width}") #width of the pulse
+    
+    def pulse_trig(self) :
+        self.__SG.write("SOUR:PULM:TRIG:IMM") #initiates a trigger if trigger mode is single
+
 

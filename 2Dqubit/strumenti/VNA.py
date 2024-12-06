@@ -115,8 +115,12 @@ class VNA :
     
     def get_power(self) :
         real, imag =  self.get_S_parameters("S21")
-        
         return np.array(real**2 + imag**2)
+    
+    def get_phase(self) :
+        real, imag =  self.get_S_parameters("S21")
+        phase = np.arctan2(imag, real)
+        return phase
     
     def get_dbm (self) :
         Pow = self.get_power ()
