@@ -106,6 +106,24 @@ class VNA:
         
         self.write(f'{formats[format]}')
 
+    def set_channels_coupling(self, coupling='ON'):
+        """
+        Set channels coupling. Available options are:
+            - 'ON': Coupling is enabled
+            - 'OFF': Coupling is disabled
+        """
+        if coupling not in ['ON', 'OFF']:
+            raise ValueError('Invalid coupling option. Available options: ON, OFF')
+        self.write(f'COUC {coupling}')
+     
+    def set_matrix_element(self, element='S11'):
+        
+        """
+        Set matrix element. Available options are S11, S21 S12, S22
+        """
+        if element not in ['S11', 'S21', 'S12', 'S22']:
+            raise ValueError('Invalid element. Available options: S11, S21, S12, S22')
+        self.write(f'{element};')
      
     # ------------------ GETTERS ------------------
     def get_start_frequency(self, unit='HZ'):
@@ -125,18 +143,28 @@ class VNA:
         return frequency_span
     
     def get_array_format(self):
-        # Ask to the VNA for the current format
-        response = self.query_raw('FORM?')
         
-        formats = {2: 'float64', 3: 'float32', 4: 'ASCII'}
+        formats = {2: 'float32', 3: 'float64', 4: 'ASCII'}
         return formats[self.array_format]
-        
+    
+    def get_channels_coupling(self):
+        return self.query('COUC') # ON or OFF
+    
+    def get_matrix_element(self):
+        matrix_elements_active = [self.query(m_el) for m_el in ['S11', 'S21', 'S12', 'S22']]
+        m_el_dict = {0: 'S11', 1: 'S21', 2: 'S12', 3: 'S22'}
+        # get index of active element
+        active_index = matrix_elements_active.index('1')
+        return m_el_dict[active_index]        
     # ------------------ UTILITY ------------------
     def write(self, command):
         self.vna.write(command)
     
     def query(self, command, return_type=str):
         response = self.vna.query(command+'?')
+        # if ressponse has just one '\n' remove it
+        if response[-1] == '\n':
+            response = response[:-1]
         try:
             return return_type(response)
         except ValueError:
@@ -171,7 +199,7 @@ class VNA:
             data = np.frombuffer(raw_data[4:], dtype='>f4') # 4 bytes per float. '>' is for big-endian, 'f' is for float, '4' is for 4 bytes
         # Read float64
         elif self.array_format == 3:
-            data = np.frombuffer(raw_data[4:], dtype='>f8')     
+            data = np.frombuffer(raw_data[4:], dtype='>f8') # 8 bytes per float
         # Read ASCII
         elif self.array_format == 4:
             decoded_data = raw_data.decode('utf-8').strip()
@@ -215,21 +243,27 @@ print('Testing center frequency and frequency span')
 vna.set_start_frequency(2)
 vna.set_stop_frequency(6)
 #vna.set_frequency_span(2)
-vna.set_array_output_dtype('float32')
+vna.set_array_output_dtype('float64')
 vna.set_array_output_format('log magnitude')
 #print(vna.get_array_format())
+
+vna.get_array_format()
+vna.set_channels_coupling('ON')
+vna.set_matrix_element('S21')
+
 r, _ = vna.get_sweep_data()
+
+print(vna.get_channels_coupling())
+print(vna.get_matrix_element())
+
 # Plot polar data with r=0 in the center
 ax = plt.subplot()
 x_axis = np.linspace(0, 100, len(r))
 ax.plot(x_axis, r)
 plt.show()
 
-
 # TODO:
 # - Add channel selection
-# - Add Matrix element selection
-# - Add channel coupling switch (ON/OFF)
 # - Add frequency getter
 # - Add high level function to get i,q,freq
 # - Add high level function to get magnitude and frequency
