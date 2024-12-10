@@ -36,15 +36,13 @@ class SG :
     def pulse_off(self) :
         self.__SG.write("SOUR:PULM:STAT OFF")
 
-    def pulse_set (self, delay, width, period, mode = "SING", trig = "SING") :
+    def pulse_set (self, delay, width, period, double_d = 0, double_w = 0, mode = "SING", trig = "SING") :
 
         mode = mode if mode in ['SING', 'DOUB'] else 'SING'
 
         self.__SG.write(f"SOUR:PULM:MODE {mode}") #single pulse setting
+        
         if mode == "DOUB":
-            double_d = float(input("inserire il delay del secondo impulso: "))
-            double_w = float(input("inserire la width del secondo impulso: "))
-            
             self.__SG.write(f"SOUR:PULM:DOUB DEL {double_d}") #delay setting        
             self.__SG.write(f"SOUR:PULM:DOUB WIDT {double_w}") #width of the pulse
          
