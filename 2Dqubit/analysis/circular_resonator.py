@@ -43,39 +43,59 @@ def filter_data(I, Q, I_range, Q_range):
 def skewed_lorentzian(f, A, B, C, D, QL, fr):
     return A + B * (f - fr) + (C + D * (f - fr)) / (1 + 4 * QL**2 * ((f - fr) / fr)**2)
 
-def full_fit (f, L, C, fr, phi, a) :
-    return (np.abs(a)**2) * (1 + (((L/C)**2-4*((f-fr)/fr)*(L**2/C)*np.sin(phi)-2*(L/C)*np.cos(phi))/(1+4*L**2*((f-fr)/fr)**2)))
-
-
+def full_fit (f, a0, a1, L, C, fr, phi, fmin) :
+    return (np.abs((a0*f + a1*f**2)*(1- L/C * (np.exp(1j * phi))/(1-2j*L*((f-fr)/fr)))))
 
 def fit_resonance(f, power):
 
-    # funzione per il chi quadro
-    '''def chi_square(A, B, C, D, QL, fr):
-        return np.sum(((power - skewed_lorentzian(f, A, B, C, D, QL, fr))**2))'''
-    
-    def chi_square (L, C, fr, phi, a) :
-        return np.sum(((power - full_fit(f, L, C, fr, phi, a))**2))
+    # funzioni per il chi quadro
+    def chi_square(A, B, C, D, QL, fr):
+        return np.sum(((power - skewed_lorentzian(f, A, B, C, D, QL, fr))**2))
+
+    def chi_square_2 (a0, a1, L, C, fr, phi, fmin) :
+        return np.sum(((power - full_fit(f, a0, a1, L, C, fr, phi, fmin))**2))
 
     # inizializzo i parametri
     A0 = 1.0
     B0 = 1.0
-    C0 = 1.0
+    C0 = np.pi
     D0 = 1.0
     QL0 = 10.0
     fr0 = np.mean(f)
 
-    # eseguo il fit
-    minuit = Minuit(chi_square, L=QL0, C=B0, fr=fr0, phi=C0, a=D0)
+    # fit preliminare
+    minuit = Minuit(chi_square, A=A0, B=B0, fr=fr0, C=C0, D=D0, QL=QL0)
     minuit.errordef = Minuit.LEAST_SQUARES
     minuit.migrad()
     minuit.hesse()
 
-    # calcolo i parametri
-    params = minuit.values 
-    errors = minuit.errors   
+    # salvo i parametri
+    params = minuit.values
+    errors = minuit.errors
+    print("Risultati del fit preliminare:")
+    parametri = ["A", "B", "C", "D", "fr", "QL"]
+    for parametro in parametri:
+        print(f"{parametro} = {params[parametro]:.4f} ± {errors[parametro]:.4f}")
 
-    return params, errors
+
+    # eseguo il fit totale
+    minuit2 = Minuit(chi_square_2, L=params["QL"], a0=10e-9, a1=10e-18, fr=params["fr"], C=params["QL"], phi=C0, fmin=params["fr"])
+    minuit2.fixed["fmin"] = True
+    #minuit2.fixed["fr"] = True
+    minuit2.limits["fr"] = (params["fr"]-params["fr"]/100000, params["fr"]+params["fr"]/100000)
+    #minuit2.limits["L"] = (params["QL"]-params["QL"]/1, params["QL"]+params["QL"]/1)
+    #minuit2.fixed["L"] = True
+    #minuit2.fixed["a0"] = True
+    #minuit2.fixed["a1"] = True
+    minuit2.errordef = Minuit.LEAST_SQUARES
+    minuit2.migrad()
+    minuit2.hesse()
+
+    # salvo i parametri
+    params2 = minuit2.values 
+    errors2 = minuit2.errors   
+
+    return params2, errors2
     
     
     
