@@ -360,30 +360,3 @@ class FSV3030:
     
     def close_connection(self):
         self.sock.close()
-
-if __name__ == "__main__":
-    fsv = FSV3030('192.168.3.50')
-    
-   # fsv.set_dB_reference(20)
-    
-    fsv.set_auto(5e9)
-    # Set resolution bandwidth
-    fsv.set_resolution_bandwidth(500)
-    fsv.set_sweep_time('auto')
-    #fsv.set_dB_offset(50)
-    x_data, y_data = fsv.get_spectrum()
-    peak_freq, peak_power = fsv.get_peak(x_data, y_data)
-    #plot 
-    import matplotlib.pyplot as plt
-    plt.plot(x_data, y_data)
-    # Highlight the peak
-    #plt.axvline(x=peak_freq, color='r', linestyle='--', linewidth=1)
-    plt.plot(peak_freq, peak_power, 'rx')
-    # Set x-axis limits
-    plt.xlim(4.999e9, 5.001e9)
-    plt.xlabel('Frequency (Hz)')
-    plt.ylabel('Power (dBm)')
-    plt.show()
-    
-
-    fsv.close_connection()
