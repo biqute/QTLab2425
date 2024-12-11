@@ -1,6 +1,11 @@
 
 # Comandi utili
 
+## Activate python environment
+```shell
+qubit3d\Scripts\activate
+```
+
 ## Logout git
 ```shell
 git config --global user.email ""  
@@ -43,3 +48,4 @@ git push
 - `LO.py`:
     - turn_on() and turn_off() seem to do nothing
     - check the existence of the COM, if it doesn't return list of available COMs
+- a -> polynomial in f (up to third order)

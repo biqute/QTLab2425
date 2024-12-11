@@ -12,6 +12,7 @@ class VNA:
         
         self.rm = visa.ResourceManager()
         self.vna = self.rm.open_resource(resource_name)
+        self.vna.timeout = 5000  # Set timeout to 25 seconds
         self.set_array_output_dtype('float32')
         print(self.vna.query('*IDN?'))
         
@@ -22,6 +23,20 @@ class VNA:
         """
         raw_data = self.query_raw('OUTPFORM;')
         return self.decode_raw(raw_data)
+
+    def read_data(self, matrix_element=None, dtype='float64'):
+        """
+        Read data from VNA. The data is returned as a numpy array of complex numbers.
+        """
+        if matrix_element is not None:
+            self.set_matrix_element(matrix_element)
+        self.set_array_output_dtype(dtype)
+        self.set_array_output_format('real')
+        real, _ = self.get_sweep_data()
+        self.set_array_output_format('imaginary')
+        imaginary, _ = self.get_sweep_data()
+
+        return real+1j*imaginary
     
     # ------------------ SETTERS ------------------
     def set_start_frequency(self, start_freq, unit='GHZ'):
@@ -115,15 +130,38 @@ class VNA:
         if coupling not in ['ON', 'OFF']:
             raise ValueError('Invalid coupling option. Available options: ON, OFF')
         self.write(f'COUC {coupling}')
-     
-    def set_matrix_element(self, element='S11'):
-        
+    
+    def set_channel(self, channel=1):
         """
-        Set matrix element. Available options are S11, S21 S12, S22
+        Set active channel. Available options are: 1, 2, 3, 4
+        """
+        if channel not in [1, 2, 3, 4]:
+            raise ValueError('Invalid channel. Available options: 1, 2, 3, 4')
+        self.write(f'CHAN{channel}')
+    
+    def set_matrix_element(self, element='S11'):
+        """
+        Set matrix element. Available options are: S11, S21 S12, S22
         """
         if element not in ['S11', 'S21', 'S12', 'S22']:
             raise ValueError('Invalid element. Available options: S11, S21, S12, S22')
         self.write(f'{element};')
+    
+    def set_sweep_points(self, npoints=201):
+        self.write(f'POIN {npoints}')
+        
+    def set_IFbandwidth(self, bandwidth):
+        """
+        Set IF bandwidth. The bandwidth is in Hz.
+        Possible values are: 10, 30, 100, 300, 1000, 3000, 3700, 6000
+        """
+        if bandwidth not in [10, 30, 100, 300, 1000, 3000, 3700, 6000]:
+            raise ValueError('Invalid bandwidth. Possible values are: 10, 30, 100, 300, 1000, 3000, 3700, 6000')
+        if bandwidth == 10:
+            self.vna.timeout = 25000  # Set timeout to 25 seconds
+        else:
+            self.vna.timeout = 5000  # Set timeout to 5 seconds
+        self.write(f'IFBW {bandwidth}')
      
     # ------------------ GETTERS ------------------
     def get_start_frequency(self, unit='HZ'):
@@ -150,12 +188,30 @@ class VNA:
     def get_channels_coupling(self):
         return self.query('COUC') # ON or OFF
     
+    def get_channel(self):
+        self.write('OUTPCHAN')
+        result = self.vna.read()
+        return int(result)
+    
     def get_matrix_element(self):
-        matrix_elements_active = [self.query(m_el) for m_el in ['S11', 'S21', 'S12', 'S22']]
+        active_matrix_elements = [self.query(m_el, int) for m_el in ['S11', 'S21', 'S12', 'S22']]
         m_el_dict = {0: 'S11', 1: 'S21', 2: 'S12', 3: 'S22'}
         # get index of active element
-        active_index = matrix_elements_active.index('1')
-        return m_el_dict[active_index]        
+        active_index = active_matrix_elements.index(1)
+        return m_el_dict[active_index]
+
+    def get_frequency_points(self):
+        start_freq = self.get_start_frequency()
+        stop_freq = self.get_stop_frequency()
+        npoints = self.get_sweep_points()
+        return np.linspace(start_freq, stop_freq, npoints)
+    
+    def get_sweep_points(self):
+        return self.query('POIN', int)
+    
+    def get_IFbandwidth(self):
+        return self.query('IFBW', int)
+    
     # ------------------ UTILITY ------------------
     def write(self, command):
         self.vna.write(command)
@@ -166,6 +222,8 @@ class VNA:
         if response[-1] == '\n':
             response = response[:-1]
         try:
+            if return_type == int:
+                return return_type(float(response))
             return return_type(response)
         except ValueError:
             raise ValueError(f'Error converting response to {return_type}. Plain response: {response}')
@@ -230,40 +288,10 @@ class VNA:
         
         #del x[1::2]
         return list(x)
-        
+    
+    def complex_to_dB(self, data):
+        return 20*np.log10(np.absolute(data))
     
     def clear_all(self):
         self.write('*RST')
     
-
-# Example usage
-vna = VNA()
-
-print('Testing center frequency and frequency span')
-vna.set_start_frequency(2)
-vna.set_stop_frequency(6)
-#vna.set_frequency_span(2)
-vna.set_array_output_dtype('float64')
-vna.set_array_output_format('log magnitude')
-#print(vna.get_array_format())
-
-vna.get_array_format()
-vna.set_channels_coupling('ON')
-vna.set_matrix_element('S21')
-
-r, _ = vna.get_sweep_data()
-
-print(vna.get_channels_coupling())
-print(vna.get_matrix_element())
-
-# Plot polar data with r=0 in the center
-ax = plt.subplot()
-x_axis = np.linspace(0, 100, len(r))
-ax.plot(x_axis, r)
-plt.show()
-
-# TODO:
-# - Add channel selection
-# - Add frequency getter
-# - Add high level function to get i,q,freq
-# - Add high level function to get magnitude and frequency

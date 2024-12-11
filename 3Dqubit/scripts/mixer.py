@@ -2,7 +2,8 @@ import sys; sys.path.append("../classes")
 from SMA import SMA
 from LO import LO
 
-myLO = LO("COM5")
+
+myLO = LO("COM4")
 mySMA = SMA("192.168.40.15")
 
 myLO.debug_prefix = "LO"
