@@ -29,18 +29,15 @@ class Fitter():
     unity = ""
 
     number_of_errorbars = 50
+    show_initial_model = False
 
     def fit(self):
-        params_values = {}
-        params_limits = {}
-        for key, value in self.params.items():
-            params_values[key] = value[1]
-            params_limits[key] = (value[0], value[2])
+        separated = separate_values_from_limits(self.params)
 
         least_squares = LeastSquares(self.datax, self.datay, self.sigmay, self.model)
-        m = Minuit(least_squares, **params_values) 
+        m = Minuit(least_squares, **separated["values"]) 
         
-        for key, value in params_limits.items(): m.limits[key] = value
+        for key, value in separated["limits"].items(): m.limits[key] = value
         
         m.migrad()
         m.hesse()
@@ -62,7 +59,6 @@ class Fitter():
         final_values = {}
         for key, value in res["params"].items():
             final_values[key] = value["value"]
-
         fig, axes = plt.subplots(2, 1, gridspec_kw={'height_ratios': [2, 1]})
         first = axes[0]
         second = axes[1]
@@ -73,15 +69,20 @@ class Fitter():
         modelx = np.linspace(np.min(self.datax), np.max(self.datax), 2000)
         modely = [self.model(f, **final_values) for f in modelx]
 
-        first.plot(self.datax, self.datay, color = "blue", label="data")
-        first.plot(modelx, modely, color = "red", label="model")
+        first.plot(self.datax, self.datay, color="blue", label="data")
+        first.plot(modelx, modely, color="red", label="model")
+        if self.show_initial_model:
+            separated_initial = separate_values_from_limits(self.params)
+            initialy = [self.model(f, **separated_initial["values"]) for f in modelx]
+            first.plot(modelx, initialy, color="green", label="initial")
+
         first.set_title(self.title)
 
         # Box
         text = ""
         for key, par in res["params"].items():
             name = self.param_displayed_names[key] if key in self.param_displayed_names else key
-            text += rf"${name}$ = ${number_to_text(par["value"], par["sigma"])}${self.param_units[key]}" + "\n"
+            text += rf"${name}$ = ${number_to_text(par["value"], par["sigma"], self.param_units[key])}$" + "\n"
         text += f"p-value = {res["pvalue"]:.2f}"
         first.text(
             np.min(self.datax) + (np.max(self.datax) - np.min(self.datax))*0.02, 
@@ -92,7 +93,8 @@ class Fitter():
         )
 
         # Axis
-        first.set(ylabel=f"{self.labely} [{self.unity}]")
+        labely_with_unit = f"{self.labely} [{self.unity}]" if self.unity != "1" else self.labely
+        first.set(ylabel=labely_with_unit)
         first.set_xticks(np.linspace(np.min(self.datax), np.max(self.datax), 25))
         first.set_xlim(np.min(self.datax), np.max(self.datax))
         first.set_xticklabels([''] * 25)
@@ -121,15 +123,22 @@ class Fitter():
         second.plot(self.datax, residualsy, color = "blue")
 
         # Axis
+        labelx_with_unit = f"{self.labelx} [{self.unitx}]" if self.unitx != "1" else self.labelx
+        label_residuals_with_unit = f"Residuals [{self.unity}]" if self.unity != "1" else "Residuals"
+        second.set(xlabel=labelx_with_unit, ylabel=label_residuals_with_unit)
         second.set_xlim(np.min(self.datax), np.max(self.datax))
-        second.set(
-            xlabel=f"{self.labelx} [{self.unitx}]",
-            ylabel=f"Residuals [{self.unity}]"
-        )
         second.set_xticks(np.linspace(np.min(self.datax), np.max(self.datax), 25))
         plt.xticks(rotation=90)
         second.grid(linestyle='--', linewidth=0.5)
 
         plt.show()
+
+def separate_values_from_limits(params):
+    params_values = {}
+    params_limits = {}
+    for key, value in params.items():
+        params_values[key] = value[1]
+        params_limits[key] = (value[0], value[2])
+    return {"values": params_values, "limits": params_limits}
 
     
