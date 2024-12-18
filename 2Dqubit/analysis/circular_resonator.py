@@ -43,8 +43,8 @@ def filter_data(I, Q, I_range, Q_range):
 def skewed_lorentzian(f, A, B, C, D, QL, fr):
     return A + B * (f - fr) + (C + D * (f - fr)) / (1 + 4 * QL**2 * ((f - fr) / fr)**2)
 
-def full_fit (f, a0, a1, a2, a3, L, C, fr, phi, fmin) :
-    return (np.abs((a0*f + a1*f**2 + a2*f**3) + a3*(1- L/C * (np.exp(1j * phi))/(1+2j*L*((f-fr)/fr)))))
+def full_fit (f, a, a0, a1, a2, a3, L, C, fr, phi, fmin) :
+    return ((a + a0*f + a1*f**2 + a2*f**3) + a3*np.abs(1- L/C * (np.exp(1j * phi))/(1+2j*L*((f-fr)/fr))))
 
 def fit_resonance(f, power):
 
@@ -52,8 +52,8 @@ def fit_resonance(f, power):
     def chi_square(A, B, C, D, QL, fr):
         return np.sum(((power - skewed_lorentzian(f, A, B, C, D, QL, fr))**2))
 
-    def chi_square_2 (a0, a1, a2, a3, L, C, fr, phi, fmin) :
-        return np.sum(((power - full_fit(f, a0, a1, a2, a3, L, C, fr, phi, fmin))**2))
+    def chi_square_2 (a, a0, a1, a2, a3, L, C, fr, phi, fmin) :
+        return np.sum(((power - full_fit(f, a, a0, a1, a2, a3, L, C, fr, phi, fmin))**2))
 
     # inizializzo i parametri
     A0 = 1.0
@@ -88,12 +88,14 @@ def fit_resonance(f, power):
 
 
     # eseguo il fit totale
-    minuit2 = Minuit(chi_square_2, L=params["QL"], a0=10e-9, a1=10e-18, a2 = 10e-27, a3 = 1,  fr=params["fr"], C=params["QL"], phi=np.pi, fmin=params["fr"])
+    minuit2 = Minuit(chi_square_2, L= 820 ,a = 0.15- 0.075, a0 = 0, a1 = 10e-18 , a2 = 10e-27, a3 = 0.27,  fr=params["fr"], C=2000, phi=0.3, fmin=params["fr"])
     minuit2.fixed["fmin"] = True
     #minuit2.fixed["fr"] = True
-    minuit2.limits["fr"] = (params["fr"]-params["fr"]/100000, params["fr"]+params["fr"]/100000)
-    #minuit2.limits["L"] = (params["QL"]-params["QL"]/10, params["QL"]+params["QL"]/10)
-    minuit2.limits["phi"] = (0., 10)
+    minuit2.limits["a3"] = (0, None)
+    minuit2.limits["fr"] = (0,None)
+    minuit2.limits["L"] = (0, None)
+    minuit2.limits["C"] = (0, None)
+    minuit2.limits["phi"] = (-np.pi, np.pi)
     #minuit2.fixed["L"] = True
     #minuit2.fixed["b"] = True
     #minuit2.fixed["a1"] = True
