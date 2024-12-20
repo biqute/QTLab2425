@@ -45,6 +45,7 @@ git push
 - <https://www.keysight.com/us/en/assets/9921-02561/programming-guides/FFProgrammingHelp.pdf>
 - <https://micro-electronics.ru/upload/iblock/db7/db7419e1ab4b21017b4a7493870abd8b.pdf>
 - <https://download.tek.com/manual/MDO4000-MSO4000B-and-DPO4000B-Oscilloscope-Programmer-Manual.pdf>
+- <https://github.com/Wheeler1711/submm_python_routines/blob/main/submm/demo/res_fit.ipynb>
 
 # TODO
 - `VNA.py`:
@@ -54,3 +55,5 @@ git push
     - turn_on() and turn_off() seem to do nothing
     - check the existence of the COM, if it doesn't return list of available COMs
 - a -> polynomial in f (up to third order)
+- `Fitter.py`:
+    - if xscale is not linear errobars in the residuals aren't uniformely distributed
