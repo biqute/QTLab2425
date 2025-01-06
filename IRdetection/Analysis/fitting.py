@@ -8,8 +8,8 @@ def chi2(y: np.ndarray, yerr: Optional[np.ndarray], model: Callable, params: np.
     return np.sum(((y - model(*params)) / yerr) ** 2)
 
 def S21_model(f: np.ndarray, f0: float, phi: float, Qt: float, Qc: float, B: float, C: float, D: float, K: float) -> np.ndarray:
-    complex = (B*f + C*f**2 + D*f**3) + K * (1 - (Qt/Qc)*np.exp(1j*phi)/(1 + 2j*Qt*(f - f0)/f0))
-    return np.abs(complex)
+    
+    return (B*f + C*f**2 + D*f**3) + np.abs(K * (1 - (Qt/np.abs(Qc))*np.exp(1j*phi)/(1 + 2j*Qt*(f - f0)/f0)))
 
 def fit_S21(f: np.ndarray, S21: np.ndarray, S21_err: Optional[np.ndarray] = None, f0_guess: Optional[float] = None, phi_guess: Optional[float] = None, Qt_guess: Optional[float] = None, Qc_guess: Optional[float] = None, B_guess: Optional[float] = None, C_guess: Optional[float] = None, D_guess: Optional[float] = None, K_guess: Optional[float] = None) -> Minuit:
     f = f.copy()
@@ -19,14 +19,14 @@ def fit_S21(f: np.ndarray, S21: np.ndarray, S21_err: Optional[np.ndarray] = None
     # Normalize the frequency axis scale between -1 and 1
     #f /= np.max(np.abs(f))
     # Normalize the S21 data
-    S21 /= np.max(S21)
+    #S21 /= np.max(S21)
 
     if f0_guess is None:
         f0_guess = 0.01
     if phi_guess is None:
         phi_guess = 0.01
     if Qt_guess is None:
-        Qt_guess = 1e3
+        Qt_guess = 1.004e3
     if Qc_guess is None:
         Qc_guess = 1e3
     if B_guess is None:
@@ -45,8 +45,8 @@ def fit_S21(f: np.ndarray, S21: np.ndarray, S21_err: Optional[np.ndarray] = None
 
     m = Minuit(fit_model, f0=f0_guess, phi=phi_guess, Qt=Qt_guess, Qc=Qc_guess, B=B_guess, C=C_guess, D=D_guess, K=K_guess)
     # Set the limits for the parameters
-    m.limits['Qt'] = (600, 1400)
-    m.limits['Qc'] = (600, 1400)
+    m.limits['Qt'] = (1000, 1100)
+    #m.limits['Qc'] = (600, 1400)
     m.migrad()
     return m
 
