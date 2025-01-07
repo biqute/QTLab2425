@@ -46,6 +46,8 @@ git push
 - <https://micro-electronics.ru/upload/iblock/db7/db7419e1ab4b21017b4a7493870abd8b.pdf>
 - <https://download.tek.com/manual/MDO4000-MSO4000B-and-DPO4000B-Oscilloscope-Programmer-Manual.pdf>
 - <https://github.com/Wheeler1711/submm_python_routines/blob/main/submm/demo/res_fit.ipynb>
+- <https://markimicrowave.com/>
+- [An analysis method for asymmetric resonator transmission applied to superconducting devices](https://arxiv.org/pdf/1108.3117)
 
 # TODO
 - `VNA.py`:

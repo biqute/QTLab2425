@@ -5,7 +5,7 @@ def peak_width(datax, datay):
     """
     peak_width(datax, datay)
 
-    Estimates the width of the peak at $1/\sqrt(2)$ of the total height (-3dB).
+    Estimates the width of the peak at $1/\\sqrt(2)$ of the total height (-3dB).
     
     The peak is expected to be at the maximum of `datay`.
     `datax` is expected to be sorted either in increasing or decreasing order.

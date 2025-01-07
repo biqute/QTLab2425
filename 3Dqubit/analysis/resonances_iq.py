@@ -17,18 +17,19 @@ def model_modulus_notch(f, a, b, c, d, A, phi, Q_l, Q_c, f_r):
     )
     return y
 
-data = np.loadtxt("..\\data\\resonances\\500mK_-20dBm.txt")
+data = np.loadtxt("..\\data\\gap_run12_iq\\Q_res40.txt", delimiter=",")
+
 
 fitter = Fitter()
 fitter.datax = data[:, 0]
-fitter.datay = np.power(10 + fitter.datax*0, data[:, 1]/20)
+fitter.datay = np.sqrt(data[:, 1]**2 + data[:, 2]**2)
 fitter.sigmay = np.maximum(1e-5 + fitter.datax*0, np.abs(fitter.datay*0.01))
 fitter.scaley = "dB" # "linear" (default), "log", "dB"
 fitter.scalex = "linear" # "linear" (default), "log", "dB"
 fitter.model = model_modulus_notch
 fitter.show_initial_model = True
 
-Q_c = 2e3 # coupling quality factor
+Q_c = 50e3 # coupling quality factor
 f_r = fitter.datax[np.argmin(fitter.datay)]
 
 # estimating full width half max FWHM
@@ -36,7 +37,7 @@ Q_i = f_r / peak_width(fitter.datax, -fitter.datay) # internal quality factor
 Q_l = 1/(1/Q_c + 1/Q_i) # loaded quality factor
 
 A = ( np.max(fitter.datay) - np.min(fitter.datay) ) * Q_c / Q_l
-#print(A)
+print(A)
 a = fitter.datay[0] - fitter.model(fitter.datax[0], 0.0, b = 0, c = 0, d = 0, A = A, phi = 0, Q_l = Q_l, Q_c = Q_c, f_r = f_r)
 
 fitter.params = {

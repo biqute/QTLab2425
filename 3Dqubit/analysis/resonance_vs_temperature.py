@@ -62,12 +62,11 @@ for T, dBm in zip(Ts, dBms):
 
 fitted_Qis = (fitted_Qls * fitted_Qcs) / (fitted_Qcs - fitted_Qls)
 
-plt.plot(Ts, fitted_freqs, label="$f_r$")
-# plt.plot(Ts, fitted_Qcs, label="$Q_c$")
-#plt.plot(Ts, 1 / fitted_Qis, label="$Q_i$")
-# plt.plot(Ts, fitted_Qls, label="$Q_l$")
-plt.title("1 / Q_i vs. T")
+#plt.plot(Ts, fitted_freqs, label="$f_r$")
+plt.plot(Ts, 1 / fitted_Qis, label="$Q_i$")
+plt.title("$Q_i^{-1}$ vs. T")
 plt.xlabel("T [mK]")
 plt.ylabel("1 / Q")
+plt.legend()
 plt.grid()
 plt.show()
