@@ -1,4 +1,5 @@
 from iminuit import Minuit
+from iminuit.cost import LeastSquares
 import numpy as np
 from typing import Callable, Optional
 
@@ -7,11 +8,11 @@ def chi2(y: np.ndarray, yerr: Optional[np.ndarray], model: Callable, params: np.
         yerr = np.ones_like(y)
     return np.sum(((y - model(*params)) / yerr) ** 2)
 
-def S21_model(f: np.ndarray, f0: float, phi: float, Qt: float, Qc: float, B: float, C: float, D: float, K: float) -> np.ndarray:
-    
-    return (B*f + C*f**2 + D*f**3) + np.abs(K * (1 - (Qt/np.abs(Qc))*np.exp(1j*phi)/(1 + 2j*Qt*(f - f0)/f0)))
+def S21_model(f: np.ndarray, f0: float, phi: float, Qt: float, Qc: float, A: float, B: float, C: float, D: float, K: float) -> np.ndarray:
+    fmin=5.478e9
+    return (A + B*f + C*f**2 + D*f**3) + np.abs(K * (1 - (Qt/np.abs(Qc))*np.exp(1j*phi)/(1 + 2j*Qt*(f - f0)/fmin)))
 
-def fit_S21(f: np.ndarray, S21: np.ndarray, S21_err: Optional[np.ndarray] = None, f0_guess: Optional[float] = None, phi_guess: Optional[float] = None, Qt_guess: Optional[float] = None, Qc_guess: Optional[float] = None, B_guess: Optional[float] = None, C_guess: Optional[float] = None, D_guess: Optional[float] = None, K_guess: Optional[float] = None) -> Minuit:
+def fit_S21(f: np.ndarray, S21: np.ndarray, S21_err: Optional[np.ndarray] = None, f0_guess: Optional[float] = None, phi_guess: Optional[float] = None, Qt_guess: Optional[float] = None, Qc_guess: Optional[float] = None, A_guess: Optional[float] = None, B_guess: Optional[float] = None, C_guess: Optional[float] = None, D_guess: Optional[float] = None, K_guess: Optional[float] = None) -> Minuit:
     f = f.copy()
     S21 = S21.copy()
     # Shift the frequency axis to zero
@@ -21,6 +22,10 @@ def fit_S21(f: np.ndarray, S21: np.ndarray, S21_err: Optional[np.ndarray] = None
     # Normalize the S21 data
     #S21 /= np.max(S21)
 
+    A_guess = 1.0 if A_guess is None else A_guess   
+    
+    if A_guess is None:
+        A_guess = 1.0
     if f0_guess is None:
         f0_guess = 0.01
     if phi_guess is None:
@@ -39,11 +44,10 @@ def fit_S21(f: np.ndarray, S21: np.ndarray, S21_err: Optional[np.ndarray] = None
         K_guess = 1.0
                 
     # Define the fitting model
-    def fit_model(f0, phi, Qt, Qc, B, C, D, K):
-        return chi2(S21, S21_err, S21_model, (f, f0, phi, Qt, Qc, B, C, D, K))
-        
-
-    m = Minuit(fit_model, f0=f0_guess, phi=phi_guess, Qt=Qt_guess, Qc=Qc_guess, B=B_guess, C=C_guess, D=D_guess, K=K_guess)
+    if S21_err is None:
+        S21_err = np.ones_like(S21)
+    least_squares = LeastSquares(f, S21, S21_err, S21_model)
+    m = Minuit(least_squares, f0=f0_guess, phi=phi_guess, Qt=Qt_guess, Qc=Qc_guess, A=A_guess, B=B_guess, C=C_guess, D=D_guess, K=K_guess)
     # Set the limits for the parameters
     m.limits['Qt'] = (1000, 1100)
     #m.limits['Qc'] = (600, 1400)
