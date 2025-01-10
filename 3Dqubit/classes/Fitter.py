@@ -156,15 +156,26 @@ class Fitter():
         zeroy = np.zeros(len(self.datax))
         N = int(len(self.datax) / self.number_of_errorbars)
 
-        second.errorbar(
-            scalex_pass(self.datax[::N]), 
-            residualsy[::N], 
-            yerr = self.sigmay[::N],
-            ecolor = "lightblue",
-            capsize = 5,
-            fmt = '',
-            linestyle=''
-        )
+        if N == 0:
+            second.errorbar(
+                scalex_pass(self.datax), 
+                residualsy, 
+                yerr = self.sigmay,
+                ecolor = "lightblue",
+                capsize = 5,
+                fmt = '',
+                linestyle=''
+            )
+        else:
+            second.errorbar(
+                scalex_pass(self.datax[::N]), 
+                residualsy[::N], 
+                yerr = self.sigmay[::N],
+                ecolor = "lightblue",
+                capsize = 5,
+                fmt = '',
+                linestyle=''
+            )
         second.plot(scalex_pass(self.datax), zeroy, color = "red")
         second.plot(scalex_pass(self.datax), residualsy, color = "blue")
 
