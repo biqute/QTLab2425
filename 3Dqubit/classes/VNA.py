@@ -28,18 +28,6 @@ class VNA(EthernetDevice):
         self.point_count = 400 
         self.bandwidth = 10e3
         self.avg_count = 1
-
-    # TIMEOUT
-
-    @property
-    def timeout(self):
-        return self.__timeout
-    
-    @timeout.setter
-    def timeout(self, millis):
-        """Set request response timeout (in milliseconds)"""
-        self.__res.timeout = millis
-        self.__timeout = millis
     
     # MIN_FREQ
 

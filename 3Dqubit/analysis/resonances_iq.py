@@ -17,7 +17,7 @@ def model_modulus_notch(f, a, b, c, d, A, phi, Q_l, Q_c, f_r):
     )
     return y
 
-data = np.loadtxt("..\\data\\gap_run12_iq\\Q_res40.txt", delimiter=",")
+data = np.loadtxt("..\\data\\gap_run12_iq\\Q_res50.txt", delimiter=",")
 
 
 fitter = Fitter()
@@ -31,14 +31,23 @@ fitter.show_initial_model = True
 
 Q_c = 50e3 # coupling quality factor
 f_r = fitter.datax[np.argmin(fitter.datay)]
-
-# estimating full width half max FWHM
-Q_i = f_r / peak_width(fitter.datax, -fitter.datay) # internal quality factor
+width = peak_width(fitter.datax, -fitter.datay)
+Q_i = f_r / width # internal quality factor
 Q_l = 1/(1/Q_c + 1/Q_i) # loaded quality factor
-
 A = ( np.max(fitter.datay) - np.min(fitter.datay) ) * Q_c / Q_l
-print(A)
 a = fitter.datay[0] - fitter.model(fitter.datax[0], 0.0, b = 0, c = 0, d = 0, A = A, phi = 0, Q_l = Q_l, Q_c = Q_c, f_r = f_r)
+
+deltaf = ( fitter.datax[-1] - fitter.datax[0] ) / len(fitter.datax)
+min_f = f_r - 2.5*width
+max_f = f_r + 2.5*width
+min_f_idx = int((min_f - fitter.datax[0]) / deltaf)
+max_f_idx = int((max_f - fitter.datax[0]) / deltaf)
+min_f_idx = max(0, min_f_idx)
+max_f_idx = min(len(fitter.datax) - 1, max_f_idx)
+
+fitter.datax = fitter.datax[min_f_idx:max_f_idx]
+fitter.datay = fitter.datay[min_f_idx:max_f_idx]
+fitter.sigmay = np.maximum(1e-5 + fitter.datax*0, np.abs(fitter.datay*0.01)) # TODO
 
 fitter.params = {
     "A":   (0.0, A, None),

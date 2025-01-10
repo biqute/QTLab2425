@@ -7,7 +7,8 @@ from peak_width import peak_width
 from Fitter import Fitter
 import math
 
-data = np.loadtxt("..\\data\\gap_run12_iq\\Q_res40.txt", delimiter=",")
+# data = np.loadtxt("..\\data\\gap_run12_iq\\Q_res40.txt", delimiter=",")
+data = np.loadtxt("..\\data\\cableS21.csv", delimiter=",")
 
 plt.scatter(data[:, 1], data[:, 2])
 plt.title("Circle")

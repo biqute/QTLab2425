@@ -17,6 +17,7 @@ class EthernetDevice:
     _name = ""
     _ip = ""
     __timeout = 0
+    __res = None
     debug = True
     debug_prefix = ""
 
@@ -76,6 +77,7 @@ class EthernetDevice:
     @timeout.setter
     def timeout(self, millis):
         """Set request response timeout (in milliseconds)"""
+        if self.__res is None: raise Exception("No connection.")
         self.__res.timeout = millis
         self.__timeout = millis
 
