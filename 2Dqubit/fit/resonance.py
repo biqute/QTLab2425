@@ -47,15 +47,15 @@ def fit(file_path, unit = "linear"):
         
     least_squares = LeastSquares(f, amp, amp_err, model)
 
-    minuit = Minuit (least_squares,
-                        a = 0,
-                        b = 0,
-                        c = 0,
-                        d = 0,
-                        k = 0,
-                        phi = 0,
-                        Qt = 0,
-                        Qc = 0,
+    minuit = Minuit (least_squares,                        
+                        a = 1,
+                        b = 10e-9,
+                        c = 10e-18,
+                        d = 10e-27,
+                        k = 1,
+                        phi = np.pi/2,
+                        Qt = 5000,
+                        Qc = 1000,
                         fr = fmin)
     
     minuit.limits["a"] = (None, None)
@@ -90,7 +90,7 @@ def fit(file_path, unit = "linear"):
 
     fig, ax = plt.subplots ()
     plt.plot (f, amp)
-    plt.plot (f, model(a_fit, b_fit, c_fit, d_fit, k_fit, phi_fit, Qt_fit, Qc_fit, fr_fit))
+    plt.plot (f, model(f, a_fit, b_fit, c_fit, d_fit, k_fit, phi_fit, Qt_fit, Qc_fit, fr_fit))
     plt.show()
 
 
