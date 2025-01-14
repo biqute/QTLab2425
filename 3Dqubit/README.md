@@ -59,3 +59,4 @@ git push
 - a -> polynomial in f (up to third order)
 - `Fitter.py`:
     - if xscale is not linear errobars in the residuals aren't uniformely distributed
+    - plot data as scatter plot not as line

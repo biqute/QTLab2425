@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.offsetbox import AnchoredText
 from iminuit import Minuit
 from iminuit.cost import LeastSquares
 from scipy import stats
@@ -63,7 +64,10 @@ class Fitter():
     scalex = "linear"
 
     number_of_errorbars = 50
+    show_plot = False
     show_initial_model = False
+    show_model = True
+    file_name = ""
 
     def fit(self):
         separated = separate_values_from_limits(self.params)
@@ -94,7 +98,8 @@ class Fitter():
         final_values = {}
         for key, value in res["params"].items():
             final_values[key] = value["value"]
-        fig, axes = plt.subplots(2, 1, gridspec_kw={'height_ratios': [2, 1]})
+        fig, axes = plt.subplots(2, 1, gridspec_kw={"height_ratios": [2, 1]})
+        fig.set_size_inches(8, 6)
         first = axes[0]
         second = axes[1]
 
@@ -107,8 +112,9 @@ class Fitter():
         scalex_pass = (lambda data: 20*np.log(data)) if self.scalex == "dB" else (lambda data: data)
         scaley_pass = (lambda data: 20*np.log(data)) if self.scaley == "dB" else (lambda data: data)
 
-        first.plot(scalex_pass(self.datax), scaley_pass(self.datay), color="blue", label="data")
-        first.plot(scalex_pass(modelx), scaley_pass(modely), color="red", label="model")
+        first.scatter(scalex_pass(self.datax), scaley_pass(self.datay), label="data", marker="o", facecolors="none", edgecolors="#1f73f0")
+        if self.show_model:
+            first.plot(scalex_pass(modelx), scaley_pass(modely), color="#f01f1f", label="model")
         if self.show_initial_model:
             separated_initial = separate_values_from_limits(self.params)
             initialy = [self.model(f, **separated_initial["values"]) for f in modelx]
@@ -128,11 +134,6 @@ class Fitter():
         first.set_xlim(scalex_pass(np.min(self.datax)), scalex_pass(np.max(self.datax)))
         first.set_xticklabels([''] * 25)
         first.grid(linestyle='--', linewidth=0.5)
-        legend = first.legend(loc="upper right", frameon=True)
-        legend.get_frame().set_facecolor('white')
-        legend.get_frame().set_edgecolor('black')
-        legend.get_frame().set_alpha(1.0)
-        legend.get_frame().set_boxstyle("Square")
 
         # Box
         text = ""
@@ -143,13 +144,26 @@ class Fitter():
 
         xaxis_min, xaxis_max = first.get_xlim()
         yaxis_min, yaxis_max = first.get_ylim()
-        first.text(
-            xaxis_min + (xaxis_max - xaxis_min)*0.02, 
-            yaxis_min + (yaxis_max - yaxis_min)*0.05, 
+
+        loc = 2
+        if (yaxis_max + yaxis_min) / 2.0 < self.datay[np.argmin(self.datax)]: loc = 3
+        anchored_text = AnchoredText(
             text, 
-            fontsize = 12, 
-            bbox = dict(facecolor='white', edgecolor='black', boxstyle='square, pad=0.5')
+            loc = loc,
+            pad = 0.5,
+            borderpad = 0.5,
+            prop = dict(fontsize = 12), 
         )
+        first.add_artist(anchored_text)
+
+        # Legend
+        loc = 1
+        if (yaxis_max + yaxis_min) / 2.0 < self.datay[np.argmax(self.datax)]: loc = 4
+        legend = first.legend(loc=loc, frameon=True, borderaxespad=0.8, fontsize=12)
+        legend.get_frame().set_facecolor('white')
+        legend.get_frame().set_edgecolor('black')
+        legend.get_frame().set_alpha(1.0)
+        legend.get_frame().set_boxstyle("Square")
 
         # RESIDUALS PLOT
         residualsy = [ scaley_pass(self.datay[i]) - scaley_pass(self.model(self.datax[i], **final_values)) for i in range(len(self.datax)) ]
@@ -161,7 +175,7 @@ class Fitter():
                 scalex_pass(self.datax), 
                 residualsy, 
                 yerr = self.sigmay,
-                ecolor = "lightblue",
+                ecolor = "#1f73f0",
                 capsize = 5,
                 fmt = '',
                 linestyle=''
@@ -171,13 +185,13 @@ class Fitter():
                 scalex_pass(self.datax[::N]), 
                 residualsy[::N], 
                 yerr = self.sigmay[::N],
-                ecolor = "lightblue",
+                ecolor = "#1f73f0",
                 capsize = 5,
                 fmt = '',
                 linestyle=''
             )
-        second.plot(scalex_pass(self.datax), zeroy, color = "red")
-        second.plot(scalex_pass(self.datax), residualsy, color = "blue")
+        second.plot(scalex_pass(self.datax), zeroy, color = "#f01f1f")
+        second.scatter(scalex_pass(self.datax), residualsy, marker="o", facecolors="none", edgecolors="#1f73f0")
 
         # Axis
         if self.scalex == "log": second.set_xscale("log")
@@ -191,6 +205,9 @@ class Fitter():
         second.set_xticks(np.linspace(first.get_xlim()[0], first.get_xlim()[1], 25))
         plt.xticks(rotation=90)
         second.grid(linestyle='--', linewidth=0.5)
+
+        if self.file_name != "": plt.savefig(self.file_name, bbox_inches='tight', dpi=200)
+        if self.show_plot: plt.show()
 
         res["plot"] = plt
         return res

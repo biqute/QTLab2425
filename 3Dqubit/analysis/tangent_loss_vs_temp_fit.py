@@ -9,6 +9,11 @@ import matplotlib.pyplot as plt
 from scipy.special import iv
 from scipy.special import kv
 
+# Physical constants
+h = 6.62607015e-34 # Planck constant [J*s]
+kB = 1.380649e-23 # Boltzmann constant [J/K]
+
+
 # |S_21(f)|
 # https://arxiv.org/pdf/1410.3365 eq. (1)
 def model_modulus_notch(f, a, b, c, d, A, phi, Q_l, Q_c, f_r):
@@ -20,24 +25,30 @@ def model_modulus_notch(f, a, b, c, d, A, phi, Q_l, Q_c, f_r):
     )
     return y
 
+# fonte: mail Faverzani 2025/Jan/10 
+# sigma_1/sigma_n/Delta*h*f   Eq. (2.28)
+def s1(f, T, Delta0):
+    xi = h*f / (2*kB*T)
+    return 4*np.exp(-Delta0 / kB / T) * np.sinh(xi) * kv(0, xi)
+
+# fonte: mail Faverzani 2025/Jan/10
+# sigma_2/sigma_n/Delta*h*f   Eq. (2.29)
+def s2(f, T, Delta0):
+    xi = h*f / (2*kB*T)
+    return math.pi*(1 - 2*np.exp(-Delta0/kB/T - xi) * iv(0, -xi))
+
 # Q_i^{-1}(T)
 # mail Faverzani 2025/Jan/10  Eq. (4.4)
 def model_tangent_loss(T, Delta0, alpha, Q_i0, Ts, f_rs):
     f_r = f_rs[np.argmax(Ts == T)]
-    h = 6.62607015e-34 # Planck constant [J*s]
-    kB = 1.380649e-23 # Boltzmann constant [J/K]
+    return 1/Q_i0 + 0.5*alpha * s1(f_r, T, Delta0) / s2(f_r, T, Delta0)
 
-    # sigma_1/sigma_n/Delta*h*f   Eq. (2.28)
-    def s1(f, T, Delta0):
-        xi = h*f / (2*kB*T)
-        return 4*np.exp(-Delta0 / kB / T) * np.sinh(xi) * kv(0, xi)
+# f_r(T)
+# https://arxiv.org/pdf/1709.10421
+def model_resonance_freqs(T, Delta0, alpha, f_r0, Ts, f_rs):
+    f_r = f_rs[np.argmax(Ts == T)]
+    return f_r0 * (1 - 0.5*alpha * (s2(f_r, T, Delta0) - s2(f_r0, 0.01, Delta0) / s2(f_r0, 0.01, Delta0)))
 
-    # sigma_2/sigma_n/Delta*h*f   Eq. (2.29)
-    def s2(f, T, Delta0):
-        xi = h*f / (2*kB*T)
-        return math.pi*(1 - 2*np.exp(-Delta0/kB/T - xi) * iv(0, -xi))
-
-    return 1/Q_i0 + (alpha/2) * s1(f_r, T, Delta0) / s2(f_r, T, Delta0)
 
 fitted_freqs = np.array([])
 fitted_Qcs = np.array([])
@@ -47,7 +58,7 @@ N = int((116 - 40) / 2)
 n = 40
 T = 410e-3 # K
 Ts = np.array([])
-for _ in range(0, N):
+for _ in range(0, N+1):
     Ts = np.append(Ts, T)
     data = np.loadtxt(f"..\\data\\gap_run12_iq\\Q_res{n}.txt", delimiter=",")
 
@@ -102,6 +113,31 @@ for _ in range(0, N):
     n += 2
     T -= 10e-3
 
+alpha = 0.8 # kinetic inductance / total inductance
+
+'''
+# RESONANCE FREQUENCIES
+f_r0 = fitted_freqs[np.argmin(Ts)]
+
+fitter = Fitter()
+fitter.datax = Ts
+fitter.datay = fitted_freqs
+fitter.sigmay = np.max(fitter.datay) * 0.001
+fitter.title = "$f_r$ vs. T"
+fitter.labelx = "T [K]"
+fitter.labely = "$f_r$"
+fitter.model = lambda T, Delta0: model_resonance_freqs(T, Delta0, alpha, f_r0, Ts, fitted_freqs)
+fitter.params = { "Delta0": (0, 0.52e-22, 1e-21) } # 1.5e-22 Joule = 1meV which is the typical Cooper pair energy
+fitter.param_units = { "Delta0": "J" } # Joule
+fitter.param_displayed_names = { "Delta0": "\\Delta_0" } # Joule
+fitter.show_plot = True
+fitter.show_initial_model = True
+fitter.file_name = "..\\plots\\res_freqs_vs_temp_fit.png"
+res = fitter.plot_fit()
+'''
+
+
+# TANGENT LOSS
 fitted_Qis = (fitted_Qls * fitted_Qcs) / (fitted_Qcs - fitted_Qls)
 Q_i0 = fitted_Qis[np.argmin(Ts)]
 
@@ -112,8 +148,10 @@ fitter.sigmay = np.max(fitter.datay) * 0.001
 fitter.title = "$Q_i^{-1}$ vs. T"
 fitter.labelx = "T [K]"
 fitter.labely = "$Q_i^{-1}$"
-fitter.model = lambda T, Delta0: model_tangent_loss(T, Delta0, 0.8, Q_i0, Ts, fitted_freqs)
-fitter.params = { "Delta0": (0, 1.5e-22, None) } # 1.5e-22 Joule = 1meV which is the typical Cooper pair energy
+fitter.model = lambda T, Delta0: model_tangent_loss(T, Delta0, alpha, Q_i0, Ts, fitted_freqs)
+fitter.params = { "Delta0": (0, 1.5e-22, 1e-21) } # 1.5e-22 Joule = 1meV which is the typical Cooper pair energy
 fitter.param_units = { "Delta0": "J" } # Joule
+fitter.param_displayed_names = { "Delta0": "\\Delta_0" } # Joule
+fitter.show_plot = True
+fitter.file_name = "..\\plots\\tangent_loss_vs_temp_fit.png"
 res = fitter.plot_fit()
-res["plot"].show()
