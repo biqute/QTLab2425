@@ -9,9 +9,40 @@ from number_to_text import number_to_text
 
 
 class Fitter():
-    '''
-    Fitter
-    '''
+    """
+    Fitter has the following parameters:
+     - datax (numpy.ndarray)
+     - datay (numpy.ndarray)
+     - sigmay (numpy.ndarray)
+     - model (function)    
+     - params (dict)
+     - param_units (dict)
+     - param_displayed_names (dict)
+     - title (str)
+     - labelx (str)
+     - labely (str)
+     - unitx (str)
+     - unity (str)
+     - scaley (str)
+     - scalex (str)
+     - number_of_errorbars (int)
+     - show_initial_model (bool)
+
+    ## `fit(self)`
+    Returns a dictionary with fields
+     - "chi2": non-reduced chi squared
+     - "ndof": number of degrees of freedom
+     - "reduced_chi2": reduced chi squared
+     - "pvalue": p-value of the fit
+     - "params": dictionary where the keys are the names of the parameters and the values are dictionary `{"value": float, "sigma": float}`
+
+
+    ## `plot_fit(self)`
+    Returns a dictionary with the same fields as `fit` plus the field "plot" which is the matplotlib plotting object.
+
+    ## Conventions
+     - All arrays are numpy arrays
+    """
 
     datax = np.array([])
     datay = np.array([])
@@ -27,6 +58,9 @@ class Fitter():
     labely = "y"
     unitx = ""
     unity = ""
+
+    scaley = "linear"
+    scalex = "linear"
 
     number_of_errorbars = 50
     show_initial_model = False
@@ -55,6 +89,7 @@ class Fitter():
         }
     
     def plot_fit(self):
+        # FITTING
         res = self.fit()
         final_values = {}
         for key, value in res["params"].items():
@@ -69,34 +104,28 @@ class Fitter():
         modelx = np.linspace(np.min(self.datax), np.max(self.datax), 2000)
         modely = [self.model(f, **final_values) for f in modelx]
 
-        first.plot(self.datax, self.datay, color="blue", label="data")
-        first.plot(modelx, modely, color="red", label="model")
+        scalex_pass = (lambda data: 20*np.log(data)) if self.scalex == "dB" else (lambda data: data)
+        scaley_pass = (lambda data: 20*np.log(data)) if self.scaley == "dB" else (lambda data: data)
+
+        first.plot(scalex_pass(self.datax), scaley_pass(self.datay), color="blue", label="data")
+        first.plot(scalex_pass(modelx), scaley_pass(modely), color="red", label="model")
         if self.show_initial_model:
             separated_initial = separate_values_from_limits(self.params)
             initialy = [self.model(f, **separated_initial["values"]) for f in modelx]
-            first.plot(modelx, initialy, color="green", label="initial")
+            first.plot(scalex_pass(modelx), scaley_pass(initialy), color="green", label="initial")
 
         first.set_title(self.title)
 
-        # Box
-        text = ""
-        for key, par in res["params"].items():
-            name = self.param_displayed_names[key] if key in self.param_displayed_names else key
-            text += rf"${name}$ = ${number_to_text(par["value"], par["sigma"], self.param_units[key])}$" + "\n"
-        text += f"p-value = {res["pvalue"]:.2f}"
-        first.text(
-            np.min(self.datax) + (np.max(self.datax) - np.min(self.datax))*0.02, 
-            np.min(self.datay) + (np.max(self.datay) - np.min(self.datay))*0.02, 
-            text, 
-            fontsize = 12, 
-            bbox = dict(facecolor='white', edgecolor='black', boxstyle='square, pad=0.5')
-        )
-
         # Axis
-        labely_with_unit = f"{self.labely} [{self.unity}]" if self.unity != "1" else self.labely
+        if self.scalex == "log": first.set_xscale("log")
+        if self.scaley == "log": first.set_yscale("log")
+
+        final_unity = ("dB" if self.scaley == "dB" else "") + (self.unity if self.unity != "1" else "")
+        labely_with_unit = f"{self.labely} [{final_unity}]" if (final_unity != "1" and final_unity != "") else self.labely
         first.set(ylabel=labely_with_unit)
-        first.set_xticks(np.linspace(np.min(self.datax), np.max(self.datax), 25))
-        first.set_xlim(np.min(self.datax), np.max(self.datax))
+
+        first.set_xticks(np.linspace(np.min(scalex_pass(self.datax)), np.max(scalex_pass(self.datax)), 25))
+        first.set_xlim(scalex_pass(np.min(self.datax)), scalex_pass(np.max(self.datax)))
         first.set_xticklabels([''] * 25)
         first.grid(linestyle='--', linewidth=0.5)
         legend = first.legend(loc="upper right", frameon=True)
@@ -105,33 +134,66 @@ class Fitter():
         legend.get_frame().set_alpha(1.0)
         legend.get_frame().set_boxstyle("Square")
 
+        # Box
+        text = ""
+        for key, par in res["params"].items():
+            name = self.param_displayed_names[key] if key in self.param_displayed_names else key
+            text += rf"${name}$ = ${number_to_text(par["value"], par["sigma"], self.param_units[key])}$" + "\n"
+        text += f"p-value = {res["pvalue"]:.2f}"
+
+        xaxis_min, xaxis_max = first.get_xlim()
+        yaxis_min, yaxis_max = first.get_ylim()
+        first.text(
+            xaxis_min + (xaxis_max - xaxis_min)*0.02, 
+            yaxis_min + (yaxis_max - yaxis_min)*0.05, 
+            text, 
+            fontsize = 12, 
+            bbox = dict(facecolor='white', edgecolor='black', boxstyle='square, pad=0.5')
+        )
+
         # RESIDUALS PLOT
-        residualsy = [ self.datay[i] - self.model(self.datax[i], **final_values) for i in range(len(self.datax)) ]
+        residualsy = [ scaley_pass(self.datay[i]) - scaley_pass(self.model(self.datax[i], **final_values)) for i in range(len(self.datax)) ]
         zeroy = np.zeros(len(self.datax))
         N = int(len(self.datax) / self.number_of_errorbars)
 
-        second.errorbar(
-            self.datax[::N], 
-            residualsy[::N], 
-            yerr = self.sigmay[::N],
-            ecolor = "lightblue",
-            capsize = 5,
-            fmt = '',
-            linestyle=''
-        )
-        second.plot(self.datax, zeroy, color = "red")
-        second.plot(self.datax, residualsy, color = "blue")
+        if N == 0:
+            second.errorbar(
+                scalex_pass(self.datax), 
+                residualsy, 
+                yerr = self.sigmay,
+                ecolor = "lightblue",
+                capsize = 5,
+                fmt = '',
+                linestyle=''
+            )
+        else:
+            second.errorbar(
+                scalex_pass(self.datax[::N]), 
+                residualsy[::N], 
+                yerr = self.sigmay[::N],
+                ecolor = "lightblue",
+                capsize = 5,
+                fmt = '',
+                linestyle=''
+            )
+        second.plot(scalex_pass(self.datax), zeroy, color = "red")
+        second.plot(scalex_pass(self.datax), residualsy, color = "blue")
 
         # Axis
-        labelx_with_unit = f"{self.labelx} [{self.unitx}]" if self.unitx != "1" else self.labelx
-        label_residuals_with_unit = f"Residuals [{self.unity}]" if self.unity != "1" else "Residuals"
+        if self.scalex == "log": second.set_xscale("log")
+
+        final_unitx = ("dB" if self.scalex == "dB" else "") + (self.unitx if self.unitx != "1" else "")
+        labelx_with_unit = f"{self.labelx} [{final_unitx}]" if (final_unitx != "1" and final_unitx != "") else self.labelx
+        label_residuals_with_unit = f"Residuals [{final_unity}]" if (final_unity != "1" and final_unity != "") else "Residuals"
         second.set(xlabel=labelx_with_unit, ylabel=label_residuals_with_unit)
-        second.set_xlim(np.min(self.datax), np.max(self.datax))
-        second.set_xticks(np.linspace(np.min(self.datax), np.max(self.datax), 25))
+
+        second.set_xlim(*first.get_xlim())
+        second.set_xticks(np.linspace(first.get_xlim()[0], first.get_xlim()[1], 25))
         plt.xticks(rotation=90)
         second.grid(linestyle='--', linewidth=0.5)
 
-        plt.show()
+        res["plot"] = plt
+        return res
 
 def separate_values_from_limits(params):
     params_values = {}

@@ -2,3 +2,7 @@ numpy
 serial
 matplotlib
 pyvisa
+ipykernel
+ipywidgets
+iminuit
+scipy
