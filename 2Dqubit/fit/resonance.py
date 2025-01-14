@@ -19,7 +19,7 @@ def read_data(file_path):
         Q = data[:, 2]
         amp = np.sqrt(I**2 + Q**2)
     else: amp = data[:, 1]
-    amp /= np.min(amp)     
+    amp /= -np.min(amp)     
     return f, amp
 
 
@@ -44,18 +44,43 @@ def fit(file_path, unit = "linear"):
 
     i = np.argmin(amp)
     fmin = f[i]
-        
+    
+    """amp_min = min(amp)
+    amp_max = max(amp)
+    amp_fwhm = (amp_max - amp_min)/2
+    print(amp_fwhm)
+
+    tolerance = 1
+
+    # Trova indici di valori entro la tolleranza
+    indices = np.where(np.abs(amp - amp_fwhm) <= tolerance)[0]
+
+    if len(indices) > 0:
+        print(f"Valori trovati: {amp[indices]}")
+        print(f"Indici: {indices}")
+    else:
+        print("Nessun valore trovato entro la tolleranza")
+
+    f1 = f[indices[0]]
+    f2 = f[indices[1]]"""
+
+
     least_squares = LeastSquares(f, amp, amp_err, model)
+
+    Qt_def = 1000 #fmin/np.abs(f1 - f2)
+    print(Qt_def)
+    Qc_def = 1000
+    k_def = (np.max(amp) - np.min(amp)) * Qc_def / Qt_def
 
     minuit = Minuit (least_squares,                        
                         a = 1,
                         b = 10e-9,
                         c = 10e-18,
                         d = 10e-27,
-                        k = 1,
-                        phi = np.pi/2,
-                        Qt = 5000,
-                        Qc = 1000,
+                        k = k_def,
+                        phi = 0.01,
+                        Qt = Qt_def,
+                        Qc = Qc_def,
                         fr = fmin)
     
     minuit.limits["a"] = (None, None)
@@ -64,9 +89,9 @@ def fit(file_path, unit = "linear"):
     minuit.limits["d"] = (None, None)
     minuit.limits["k"] = (0, None)
     minuit.limits["phi"] = (-np.pi, np.pi)
-    minuit.limits["Qt"] = (0, None)
-    minuit.limits["Qc"] = (0, None)
-    minuit.limits["fr"] = (0, None)
+    minuit.limits["Qt"] = (0, 10e6)
+    minuit.limits["Qc"] = (0, 10e6)
+    minuit.limits["fr"] = (fmin-1e6,fmin+1e6)
 
     minuit.migrad ()  # finds minimum of least_squares function
     minuit.hesse ()   # accurately computes uncertainties
@@ -74,6 +99,15 @@ def fit(file_path, unit = "linear"):
     # global characteristics of the fit
     is_valid = minuit.valid
     print ('success of the fit: ', is_valid)
+    
+    chi2 = minuit.fval  # Minimum chi-squared
+    ndof = len(f) - len(minuit.parameters)  # Degrees of freedom: data points - parameters
+    p_value = 1 - stats.chi2.cdf(chi2, ndof)  # p-value from chi-squared distribution
+    
+    print(f"Chi-squared: {chi2:.2f}")
+    print(f"Degrees of freedom: {ndof}")
+    print(f"Reduced Chi-squared: {chi2/ndof:.2f}")
+    print(f"p-value: {p_value:.4f}")
 
     for par, val, err in zip (minuit.parameters, minuit.values, minuit.errors) :
         print(f'{par} = {val:.3f} +/- {err:.3f}') # formatted output
@@ -92,6 +126,8 @@ def fit(file_path, unit = "linear"):
     plt.plot (f, amp)
     plt.plot (f, model(f, a_fit, b_fit, c_fit, d_fit, k_fit, phi_fit, Qt_fit, Qc_fit, fr_fit))
     plt.show()
+
+    return fr_fit, Qc_fit 
 
 
 
