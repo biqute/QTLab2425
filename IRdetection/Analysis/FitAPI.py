@@ -84,7 +84,7 @@ class Fitter:
         self.loss_function = loss_function  
         self.params_range = params_range
     
-    def fit_quasi_magicus(self, N_fixed_params: Optional[int] = None, pvalue_treshold: Optional[float] = 0.05, try_total_fit_first: Optional[bool] = True):
+    def fit_quasi_magicus(self, N_fixed_params: Optional[int] = None, pvalue_treshold: Optional[float] = 0.005, try_total_fit_first: Optional[bool] = True):
         """
         Fit the data using quasi-magicus method
         
@@ -160,7 +160,9 @@ class Fitter:
         #set params limits
         if self.params_range is not None:
             for p_name, p_range in self.params_range.items():
+                print('limit: ', p_name, p_range)
                 m.limits[p_name] = p_range
+
                 
         m.migrad()
         return m
