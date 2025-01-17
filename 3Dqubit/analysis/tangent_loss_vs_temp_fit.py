@@ -47,7 +47,12 @@ def model_tangent_loss(T, Delta0, alpha, Q_i0, Ts, f_rs):
 # https://arxiv.org/pdf/1709.10421
 def model_resonance_freqs(T, Delta0, alpha, f_r0, Ts, f_rs):
     f_r = f_rs[np.argmax(Ts == T)]
-    return f_r0 * (1 - 0.5*alpha * (s2(f_r, T, Delta0) - s2(f_r0, 0.01, Delta0) / s2(f_r0, 0.01, Delta0)))
+    # return f_r0 * (1 - 0.5*alpha * (s2(f_r, T, Delta0) - s2(f_r0, 0.01, Delta0)) / s2(f_r0, 0.01, Delta0))
+    return f_r0 * (1 - 0.5*alpha * abs(s2(f_r, T, Delta0) - s2(f_r0, 0.01, Delta0)) / s2(f_r0, 0.01, Delta0))
+
+def model_normalized_resonance_freqs(T, Delta0, alpha, f_r0, Ts, f_rs):
+    f_r = f_rs[np.argmax(Ts == T)]
+    return -0.5*alpha * abs(s2(f_r, T, Delta0) - s2(f_r0, 0.01, Delta0)) / s2(f_r0, 0.01, Delta0)
 
 
 fitted_freqs = np.array([])
@@ -115,14 +120,14 @@ for _ in range(0, N+1):
 
 alpha = 0.8 # kinetic inductance / total inductance
 
-'''
-# RESONANCE FREQUENCIES
 f_r0 = fitted_freqs[np.argmin(Ts)]
 
+'''
+# RESONANCE FREQUENCIES
 fitter = Fitter()
 fitter.datax = Ts
 fitter.datay = fitted_freqs
-fitter.sigmay = np.max(fitter.datay) * 0.001
+fitter.sigmay = np.max(fitter.datay) * 0 + 1
 fitter.title = "$f_r$ vs. T"
 fitter.labelx = "T [K]"
 fitter.labely = "$f_r$"
@@ -136,7 +141,27 @@ fitter.file_name = "..\\plots\\res_freqs_vs_temp_fit.png"
 res = fitter.plot_fit()
 '''
 
+# NORMALIZED RESONANCE FREQUENCIES
+fitter = Fitter()
+fitter.datax = Ts
+fitter.datay = (fitted_freqs - f_r0) / f_r0 
+fitter.sigmay = np.max(fitter.datay) * 0 + 0.001
+fitter.title = "$\\delta f_r/f_{r0}$ vs. T"
+fitter.labelx = "T [K]"
+fitter.labely = "$\\delta f_r/f_{r0}$"
+fitter.model = lambda T, Delta0: model_normalized_resonance_freqs(T, Delta0, alpha, f_r0, Ts, fitted_freqs)
+fitter.params = { "Delta0": (0, 0.52e-22, 1e-21) } # 1.5e-22 Joule = 1meV which is the typical Cooper pair energy
+fitter.param_units = { "Delta0": "J" } # Joule
+fitter.param_displayed_names = { "Delta0": "\\Delta_0" } # Joule
+fitter.show_plot = True
+fitter.show_initial_model = False
+fitter.show_model = True
+fitter.show_errorbars = False
+fitter.show_pvalue = False
+fitter.file_name = "..\\plots\\normalized_res_freqs_vs_temp_fit.png"
+res = fitter.plot_fit()
 
+'''
 # TANGENT LOSS
 fitted_Qis = (fitted_Qls * fitted_Qcs) / (fitted_Qcs - fitted_Qls)
 Q_i0 = fitted_Qis[np.argmin(Ts)]
@@ -155,3 +180,4 @@ fitter.param_displayed_names = { "Delta0": "\\Delta_0" } # Joule
 fitter.show_plot = True
 fitter.file_name = "..\\plots\\tangent_loss_vs_temp_fit.png"
 res = fitter.plot_fit()
+'''

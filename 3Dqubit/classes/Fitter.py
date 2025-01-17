@@ -67,6 +67,8 @@ class Fitter():
     show_plot = False
     show_initial_model = False
     show_model = True
+    show_errorbars = True
+    show_pvalue = True
     file_name = ""
 
     def fit(self):
@@ -140,7 +142,8 @@ class Fitter():
         for key, par in res["params"].items():
             name = self.param_displayed_names[key] if key in self.param_displayed_names else key
             text += rf"${name}$ = ${number_to_text(par["value"], par["sigma"], self.param_units[key])}$" + "\n"
-        text += f"p-value = {res["pvalue"]:.2f}"
+        if self.show_pvalue: text += f"p-value = {res["pvalue"]:.2f}"
+        text = text.strip()
 
         xaxis_min, xaxis_max = first.get_xlim()
         yaxis_min, yaxis_max = first.get_ylim()
@@ -170,7 +173,7 @@ class Fitter():
         zeroy = np.zeros(len(self.datax))
         N = int(len(self.datax) / self.number_of_errorbars)
 
-        if N == 0:
+        if N == 0 and self.show_errorbars:
             second.errorbar(
                 scalex_pass(self.datax), 
                 residualsy, 
@@ -180,7 +183,7 @@ class Fitter():
                 fmt = '',
                 linestyle=''
             )
-        else:
+        elif self.show_errorbars:
             second.errorbar(
                 scalex_pass(self.datax[::N]), 
                 residualsy[::N], 

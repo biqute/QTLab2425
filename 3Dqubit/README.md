@@ -48,6 +48,7 @@ git push
 - <https://github.com/Wheeler1711/submm_python_routines/blob/main/submm/demo/res_fit.ipynb>
 - <https://markimicrowave.com/>
 - [An analysis method for asymmetric resonator transmission applied to superconducting devices](https://arxiv.org/pdf/1108.3117)
+- [Materials loss measurements using superconducting microwave resonators](https://arxiv.org/pdf/2006.04718)
 
 # TODO
 - `VNA.py`:
