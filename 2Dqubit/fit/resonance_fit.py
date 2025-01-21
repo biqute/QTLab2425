@@ -8,29 +8,35 @@ from scipy import stats
 import re
 
 
-def read_data(file_path):
+def read_data(file_path, Del = None):
     '''
     funzione per leggere i dati
     '''
-    data = np.loadtxt(file_path, delimiter = None)
+    data = np.loadtxt(file_path, delimiter = Del)
     num_columns = data.shape[1]
     f = data[:, 0]    
     if num_columns == 3:  
         I = data[:, 1]     
         Q = data[:, 2]
-        amp = np.sqrt(I**2 + Q**2)
-    else: amp = data[:, 1]
-    amp = - amp / np.min(amp)     
+        amp =  np.sqrt(I**2 + Q**2)
+        amp = amp / np.max(amp)
+    else:
+        amp = data[:, 1]
+        #amp = - amp / np.min(amp)     
     return f, amp
 
 
-def converter (amp, unit="linear"):
+def converter (amp, unit = None):
     '''
     Funzione per convertire dBm to mW o viceversa
     '''
-    if unit == "linear":
-        return 10**(amp/20)  
-    else: return 20 * np.log10(amp)
+    if unit== "log" :
+        amp2 = 20 * np.log10(amp)
+        return ( amp2 / np.max(amp2)) #Se serve è da controllare la normalizzazione
+    elif unit == "linear":
+        amp2 = 10**(amp/20)
+        return  ( amp2 / np.max(amp2))
+    else: return amp
 
 
 def extract_temperature(filename):
@@ -73,8 +79,8 @@ def model (f, a, b, c, d, k, phi, Qt, Qc, fr):
     return a + b*x + c*x**2 + d*x**3 + k*np.abs(1 - Qt*np.exp(1j*phi) / np.abs(Qc) / (1 + 2j*Qt*x/fr))
 
 
-def fit(file_path, unit = "linear"):
-    f, amp = read_data(file_path)
+def fit(file_path, unit = None, Del = None):
+    f, amp = read_data(file_path, Del)
     amp_err = np.ones(len(amp))*10e-5
     amp = converter(amp, unit)
 
@@ -85,7 +91,7 @@ def fit(file_path, unit = "linear"):
     amp_FWHM = amp_min + (amp_max - amp_min)/2
 
     # Trova gli indici dove y è vicino a y_half
-    tolleranza = 0.2*1e-3  # Puoi regolare la tolleranza a seconda dei tuoi dati
+    tolleranza = 0.2*1e-2  # Puoi regolare la tolleranza a seconda dei tuoi dati
     indici = np.where(np.abs(amp - amp_FWHM) < tolleranza)[0]
     if (len(indici) < 2):
         print ("non è stato possibile trovare due indici, aumentare la tolleranza")
@@ -93,8 +99,9 @@ def fit(file_path, unit = "linear"):
     # Trova le frequenze corrispondenti
     frequenze_half = f[indici]
 
-    Qc_guess = 1000
+    Qc_guess = 1400
     Qt_guess = fmin / np.abs(frequenze_half[0] - frequenze_half[-1])
+    #Qt_guess = 1800
 
     print ("frequenza di FWHM sx: ", frequenze_half[0],"frequenza di FWHM dx: ", frequenze_half[-1], "Qt guessed: ", Qt_guess)
 
@@ -122,7 +129,7 @@ def fit(file_path, unit = "linear"):
     minuit.limits["phi"] = (-np.pi, np.pi)
     minuit.limits["Qt"] = (0, 1000000)
     minuit.limits["Qc"] = (0, 1000000)
-    minuit.limits["fr"] = (fmin - 1e6, fmin + 1e6)
+    minuit.limits["fr"] = (fmin - 5e4, fmin + 5e4)
 
     minuit.migrad ()  # finds minimum of least_squares function
     minuit.hesse ()   # accurately computes uncertainties
