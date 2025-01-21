@@ -57,7 +57,3 @@ git push
 - `LO.py`:
     - turn_on() and turn_off() seem to do nothing
     - check the existence of the COM, if it doesn't return list of available COMs
-- a -> polynomial in f (up to third order)
-- `Fitter.py`:
-    - if xscale is not linear errobars in the residuals aren't uniformely distributed
-    - plot data as scatter plot not as line

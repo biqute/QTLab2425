@@ -210,7 +210,8 @@ class Fitter():
         second.grid(linestyle='--', linewidth=0.5)
 
         if self.file_name != "": plt.savefig(self.file_name, bbox_inches='tight', dpi=200)
-        if self.show_plot: plt.show()
+        if self.show_plot: plt.show() 
+        else: plt.close()
 
         res["plot"] = plt
         return res
