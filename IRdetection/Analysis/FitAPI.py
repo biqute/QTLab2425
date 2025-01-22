@@ -143,6 +143,10 @@ class Fitter:
         # Final fit with all params
         self.model.set_active_params(self.model.param_names)
         return self.fit()
+    
+    def fit_non_magicus(self):
+        self.model.set_active_params(self.model.param_names)
+        return self.fit()
         
     def fit(self):
         active_params_names = [p_name for p_name, is_active in self.model.active_params.items() if is_active]
@@ -160,7 +164,6 @@ class Fitter:
         #set params limits
         if self.params_range is not None:
             for p_name, p_range in self.params_range.items():
-                print('limit: ', p_name, p_range)
                 m.limits[p_name] = p_range
 
                 
