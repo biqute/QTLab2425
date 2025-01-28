@@ -69,7 +69,7 @@ class QuickSyn(serial.Serial):
         encoded_command = command_str.encode(encoding='utf-8')
         self.ser.write(encoded_command)
         
-    def close_conncetion(self):
+    def close_connection(self):
         #turn off the output
         self.__write('OUTP:STAT OFF')
         # Close the serial port
