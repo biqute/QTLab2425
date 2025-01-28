@@ -2,7 +2,6 @@ import pyvisa as visa
 import time
 import numpy as np
 import struct
-import matplotlib.pyplot as plt
 
 class VNA:
     def __init__(self, resource_name='GPIB0::16::INSTR'):

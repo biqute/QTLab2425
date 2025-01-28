@@ -1,8 +1,10 @@
 numpy
-serial
+pyserial
 matplotlib
 pyvisa
 ipykernel
 ipywidgets
 iminuit
 scipy
+niscope
+h5py
