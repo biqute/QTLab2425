@@ -7,6 +7,7 @@ from scipy import stats
 
 import sys; sys.path.append("../utils")
 from number_to_text import number_to_text 
+from error_propagation import error_propagation 
 
 
 class Fitter():
@@ -17,6 +18,7 @@ class Fitter():
      - sigmay (numpy.ndarray)
      - model (function)    
      - params (dict)
+     - derived_params (dict)
      - param_units (dict)
      - param_displayed_names (dict)
      - title (str)
@@ -27,7 +29,12 @@ class Fitter():
      - scaley (str)
      - scalex (str)
      - number_of_errorbars (int)
+     - show_plot (bool)
      - show_initial_model (bool)
+     - show_model (bool)
+     - show_errorbars (bool)
+     - show_pvalue (bool)
+     - file_name (str)
 
     ## `fit(self)`
     Returns a dictionary with fields
@@ -36,7 +43,7 @@ class Fitter():
      - "reduced_chi2": reduced chi squared
      - "pvalue": p-value of the fit
      - "params": dictionary where the keys are the names of the parameters and the values are dictionary `{"value": float, "sigma": float}`
-
+     - "derived_params": like above
 
     ## `plot_fit(self)`
     Returns a dictionary with the same fields as `fit` plus the field "plot" which is the matplotlib plotting object.
@@ -86,12 +93,20 @@ class Fitter():
         for p, v, e in zip(m.parameters, m.values, m.errors):
             final_params[p] = {"value": v, "sigma": e}
 
+        final_derived_params = {}
+        for name, func in self.derived_params.items():
+            final_derived_params[name] = {
+                "value": func(final_params),
+                "sigma": error_propagation(func, final_params)
+            }
+
         return {
             "chi2": m.fval,
             "ndof": m.ndof,
             "reduced_chi2": m.fmin.reduced_chi2,
             "pvalue": 1 - stats.chi2.cdf(m.fval, m.ndof),
             "params": final_params,
+            "derived_params": final_derived_params,
         }
     
     def plot_fit(self):
@@ -139,9 +154,16 @@ class Fitter():
 
         # Box
         text = ""
+
         for key, par in res["params"].items():
             name = self.param_displayed_names[key] if key in self.param_displayed_names else key
-            text += rf"${name}$ = ${number_to_text(par["value"], par["sigma"], self.param_units[key])}$" + "\n"
+            if name != "":
+                text += rf"${name}$ = ${number_to_text(par["value"], par["sigma"], self.param_units[key])}$" + "\n"
+        for key, par in res["derived_params"].items():
+            name = self.param_displayed_names[key] if key in self.param_displayed_names else key
+            if name != "":
+                text += rf"${name}$ = ${number_to_text(par["value"], par["sigma"], self.param_units[key])}$" + "\n"
+        
         if self.show_pvalue: text += f"p-value = {res["pvalue"]:.2f}"
         text = text.strip()
 
@@ -149,7 +171,7 @@ class Fitter():
         yaxis_min, yaxis_max = first.get_ylim()
 
         loc = 2
-        if (yaxis_max + yaxis_min) / 2.0 < self.datay[np.argmin(self.datax)]: loc = 3
+        if (yaxis_max + yaxis_min) / 2.0 < scaley_pass(self.datay[np.argmin(self.datax)]): loc = 3
         anchored_text = AnchoredText(
             text, 
             loc = loc,
@@ -161,7 +183,7 @@ class Fitter():
 
         # Legend
         loc = 1
-        if (yaxis_max + yaxis_min) / 2.0 < self.datay[np.argmax(self.datax)]: loc = 4
+        if (yaxis_max + yaxis_min) / 2.0 < scaley_pass(self.datay[np.argmax(self.datax)]): loc = 4
         legend = first.legend(loc=loc, frameon=True, borderaxespad=0.8, fontsize=12)
         legend.get_frame().set_facecolor('white')
         legend.get_frame().set_edgecolor('black')
