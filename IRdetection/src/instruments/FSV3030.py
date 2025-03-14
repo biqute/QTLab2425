@@ -3,36 +3,61 @@ import sys
 import re
 import time
 import json
+import os
+from src.abstract.Instrument import Instrument
 
-class FSV3030:
+class FSV3030(Instrument):
     """
     class to control the Rohde & Schwarz FSV3030 Spectrum Analyzer.
     """
-    def __init__(self, ip_address, port=5025, set_defaults=True):
+    def __init__(self, ip_address, port=5025, set_defaults=True, name=None):
         """
         Initialize the connection to the device.
         
         :param ip_address: IP address of the device
         :param port: Port number
         """
+        name = name if name else 'FSV3030_' + str(ip_address)
+        super().__init__(name)
+
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.ip_address = ip_address
         self.port = port
         self.sock.settimeout(3)
-        
+        self.set_defaults = set_defaults
+    
+
+    def initialize(self):
+        """
+        Initialize the instrument by activating remote mode.
+        """
         # Connect to the server
         try:
-            self.sock.connect((ip_address, port))
+            self.sock.connect((self.ip_address, self.port))
         except socket.error as e:
             print(f"Socket error: {e}")
             sys.exit(1)
             
         # Set default parameters if required
-        if set_defaults:
+        if self.set_defaults:
             self.set_sweep_type('FFT')
-            set
             
-    def get_spectrum(self, center_freq='auto', span='auto', num_points='auto', sweep_count='auto', trace_mode='auto') -> tuple[list[float], list[float]]:
+
+    def info(self, verbose=False):
+        """
+        Get information about the instrument.
+        
+        :param verbose: If True, display detailed information.
+        """
+        info = f"FSV3030 Spectrum Analyzer connected at {self.ip_address}:{self.port}"
+        info += f"\nName: {self.name}"
+        if verbose:
+            info += "\nIDN string:"
+            info += "\n" + self.query('*IDN?')
+        return info
+
+
+    def acq_get_spectrum(self, center_freq='auto', span='auto', num_points='auto', sweep_count='auto', trace_mode='auto') -> tuple[list[float], list[float]]:
         """
         Get the power spectrum from the device.
         
@@ -86,7 +111,7 @@ class FSV3030:
         return x_data, y_data
         
     # ----------------- Analysis functions -----------------
-    def get_peak(self, x_data: list[float], y_data: list[float]) -> tuple:
+    def acq_get_peak(self, x_data: list[float], y_data: list[float]) -> tuple:
         peak_idx = y_data.index(max(y_data))
         peak_freq = x_data[peak_idx]
         peak_power = y_data[peak_idx]
@@ -328,7 +353,7 @@ class FSV3030:
                 raise TimeoutError('Timeout waiting for OPC')
             time.sleep(time_sleep)
             
-    def set_auto(self, center_freq:float, config: str ='IRdetection/Instruments/FSV3030_default_configs.json'):
+    def set_auto(self, center_freq:float, config: str ='FSV3030_default_configs.json'):
         """
         set the instrument to default parameters read from json config file
         
@@ -338,8 +363,13 @@ class FSV3030:
         self._reset()
         # Set center frequency
         self.set_frequency_center(center_freq)
+        
+        # Calculate path to config file relative to the current file
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        config_path = os.path.join(current_dir, '..', 'cfgs', config)
+        
         # Read the config file
-        with open(config, 'r') as f:
+        with open(config_path, 'r') as f:
             config_dict = json.load(f)
             self.set_frequency_span(config_dict["frequency_span"])
             self.set_resolution_bandwidth(config_dict["resolution_bandwidth"])
@@ -355,8 +385,29 @@ class FSV3030:
         
         self.wait_opc()
 
-    def _reset(self):
-        self.send_command('*RST')        
+    def _Instrument__activate(self):
+        """
+        For the FSV3030, no activation is required. This is a dummy function.
+        """
+        pass
+
+    def reset(self):
+        self.send_command('*RST') 
+        self.wait_opc()  # Wait for the operation to complete
+        print("FSV3030 reset to default state.")      
     
     def close_connection(self):
         self.sock.close()
+        print("FSV3030 connection closed.")
+        
+    def shutdown(self): # To implement real shutdown in the future
+        self.close_connection()
+        print("FSV3030 shutdown.")
+        
+    def kill(self):
+        self.reset()
+        self.close_connection()
+        print("FSV3030 kill.")
+        
+    def __del__(self):
+        self.close_connection()

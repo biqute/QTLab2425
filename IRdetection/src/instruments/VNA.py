@@ -2,28 +2,35 @@ import pyvisa as visa
 import time
 import numpy as np
 import struct
+from src.abstract.Instrument import Instrument
 
-class VNA:
-    def __init__(self, resource_name='GPIB0::16::INSTR'):
+class VNA(Instrument):
+    def __init__(self, resource_name='GPIB0::16::INSTR', name=None):
+        name = name if name is not None else "VNA_" + str(resource_name)
+        super().__init__(name)
+        
+        self.resource_name = resource_name
+        
         # SET INSTRUMENT LIMITS
         self.MAX_FREQUENCY = 6e9
         self.MIN_FREQUENCY = 3e4
         
         self.rm = visa.ResourceManager()
-        self.vna = self.rm.open_resource(resource_name)
+        
+    def initialize(self):
+        self.vna = self.rm.open_resource(self.resource_name)
         self.vna.timeout = 5000  # Set timeout to 25 seconds
         self.set_array_output_dtype('float32')
-        print(self.vna.query('*IDN?'))
         
     # -------------------- DATA --------------------
-    def get_sweep_data(self):
+    def acq_get_sweep_data(self):
         """
         Get sweep data from VNA. The data is returned as a numpy array of complex numbers.
         """
         raw_data = self.query_raw('OUTPFORM;')
         return self.decode_raw(raw_data)
 
-    def read_data(self, matrix_element=None, dtype='float64'):
+    def acq_read_data(self, matrix_element=None, dtype='float64'):
         """
         Read data from VNA. The data is returned as a numpy array of complex numbers.
         """
@@ -291,6 +298,50 @@ class VNA:
     def complex_to_dB(self, data):
         return 20*np.log10(np.absolute(data))
     
-    def clear_all(self):
-        self.write('*RST')
     
+# ---- Instrument methods ----
+
+    def info(self, verbose=False):
+        """
+        Get information about the instrument.
+        """
+        message = f"Device name: {self.name}"
+        message += f"\nResource name: {self.vna.resource_name}"
+        if verbose:
+            message += f"\nMax frequency: {self.MAX_FREQUENCY}"
+            message += f"\nMin frequency: {self.MIN_FREQUENCY}"
+            message += f"\nTimeout: {self.vna.timeout}"
+            # Instrument IDN response
+            message += f"\nIDN: {self.vna.query('*IDN?')}"
+        return message
+    
+    def _Instrument__activate(self): # Dummy method
+        pass
+    
+    def reset(self):
+        """
+        Reset the instrument.
+        """
+        self.write('*RST')
+        
+    def close_connection(self):
+        """
+        Close the connection to the instrument.
+        """
+        self.vna.close()
+        
+    def shutdown(self):
+        """ 
+        Shut down the instrument.
+        """
+        self.close_connection()
+        
+    def kill(self):
+        """
+        Kill the instrument.
+        """
+        self.reset()
+        self.close_connection()
+        
+    def __del__(self):
+        self.close_connection()

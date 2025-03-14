@@ -9,7 +9,7 @@ gen_2= QuickSyn('COM7')
 # gen_1.suicide()
 
 gen_1.set_frequency(6000, 'MHz')
-gen_2.set_frequency(6050, 'MHz')
+gen_2.set_frequency(6012, 'MHz')
 time.sleep(1)
 #
 result = gen_1.get_frequency('MHz')

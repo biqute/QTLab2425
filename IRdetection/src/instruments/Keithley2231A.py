@@ -1,27 +1,55 @@
 import serial
 import time
+from src.abstract.Instrument import Instrument
 
 ALLOWED_CHANNELS = [1, 2, 3]
 
-class Keithley2231A:
+class Keithley2231A(Instrument):
     """
     Class for interfacing with the Keithley 2231A device.
     """
 
-    def __init__(self, port_name):
+    def __init__(self, port_name, name=None):
         """
         Initialize the connection to the device.
 
         :param port_name: Serial port name
         """
-        self.ser = serial.Serial(port_name)  # Open serial port
+        name = name if name is not None else "Keithley2231A_" + str(port_name)
+        super().__init__(name)
 
+        self.port_name = port_name
+       
+
+    def initialize(self):
+        """
+        Initialize the instrument by activating remote mode.
+        """
+        self.ser = serial.Serial(self.port_name)  # Open serial port
         # Clear the input buffer to ensure there are no pending commands
         self.ser.flushInput()
-        # Activate the device
-        self.__activate()
+        # Activate the device using the abstract interface method
+        self._Instrument__activate()
         if not self.ser.is_open:
             raise ValueError('Connection failed. Check the port name and the device.')
+        
+        return f"Keithley2231A initialized on port {self.port_name}"
+
+    def info(self, verbose=False):
+        """
+        Return information about the instrument.
+        
+        :param verbose: If True, include detailed serial connection parameters.
+        """
+        info_str = f"Keithley2231A on port {self.port_name}"
+        if verbose:
+            info_str += f"\nSerial settings: {self.ser}"
+        return info_str
+
+    def _Instrument__activate(self):
+        # Set the device to remote mode and enable the output
+        self.__write('SYSTem:REMote')
+        self.__write('OUTPut:STATe ON')  # Use this command before setting output channel values
 
     def set_voltage(self, voltage, current=None, channel=1):
         """
@@ -87,18 +115,13 @@ class Keithley2231A:
         encoded_command = command_str.encode(encoding='utf-8')
         self.ser.write(encoded_command)
 
-    def __activate(self):
-        # Set the device to remote mode and enable the output
-        self.__write('SYSTem:REMote')
-        self.__write('OUTPut:STATe ON') # NOTE: use this command before setting the values of the output channels
-
     def reset(self):
         """
         Reset the device to its default settings.
         """
         self.__write('*RST')
         time.sleep(0.5)
-        self.__activate()
+        self._Instrument__activate()
         self.ser.flushInput()
 
     def close_connection(self):
@@ -108,6 +131,19 @@ class Keithley2231A:
         self.ser.close()
         if self.ser.is_open:
             raise ValueError('Connection failed to close. Check the port name and the device.')
+        
+    def shutdown(self):
+        """
+        Shut down the device.
+        """
+        self.close_connection()
+        
+    def kill(self):
+        """
+        Kill the device.
+        """
+        self.reset()
+        self.close_connection()
 
     def __validate_channel(self, channel):
         """
@@ -118,3 +154,9 @@ class Keithley2231A:
         """
         if int(channel) not in ALLOWED_CHANNELS:
             raise ValueError(f'Channel should be one of: {ALLOWED_CHANNELS}.')
+        
+    def __del__(self):
+        # Toggle remote control off and close the connection
+        self.__write('SYSTem:LOCal')
+        self.close_connection()
+        print(f"Connection to {self.name} closed.")
