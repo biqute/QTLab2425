@@ -1,4 +1,3 @@
-import pyvisa
 import numpy as np
 from EthernetDevice import EthernetDevice
 
@@ -9,7 +8,6 @@ class VNA(EthernetDevice):
     __min_freq = 0
     __max_freq = 0
     __point_count = 0
-    __timeout = 0
     __bandwidth = 0
     __avg_count = 0
 
@@ -38,7 +36,7 @@ class VNA(EthernetDevice):
     @min_freq.setter
     def min_freq(self, f):
         """Set minimum frequency in Hz"""
-        self.write_expect("SENS:FREQ:START " + str(f))
+        self.write_expect(f"SENS:FREQ:START {f}")
         self.__min_freq = f
 
         if int(self.query("SENS:FREQ:START?")) != f: 
@@ -54,7 +52,7 @@ class VNA(EthernetDevice):
     @max_freq.setter
     def max_freq(self, f):
         """Set maximum frequency in Hz"""
-        self.write_expect("SENS:FREQ:STOP " + str(f))
+        self.write_expect(f"SENS:FREQ:STOP {f}")
         self.__max_freq = f
 
         if int(self.query("SENS:FREQ:STOP?")) != f: 
@@ -69,7 +67,7 @@ class VNA(EthernetDevice):
     @point_count.setter
     def point_count(self, n):
         """Set the number of datapoints"""
-        self.write_expect("SENS:SWE:POIN " + str(n))
+        self.write_expect(f"SENS:SWE:POIN {n}")
         self.__point_count = n
 
         if int(self.query("SENS:SWE:POIN?")) != n: 
@@ -84,7 +82,7 @@ class VNA(EthernetDevice):
     @bandwidth.setter
     def bandwidth(self, bw):
         """Set the bandwidth in Hz"""
-        self.write_expect("SENS:BWID " + str(bw))
+        self.write_expect(f"SENS:BWID {bw}")
         self.__bandwidth = bw
 
         if int(self.query("SENS:BWID?")) != bw: 
@@ -99,7 +97,7 @@ class VNA(EthernetDevice):
     @avg_count.setter
     def avg_count(self, n):
         """Set the number of averages (1 = no averages)"""
-        self.write_expect("AVER:COUN " + str(n))
+        self.write_expect(f"AVER:COUN {n}")
         self.__avg_count = n
 
         if int(self.query("AVER:COUN?")) != n: 

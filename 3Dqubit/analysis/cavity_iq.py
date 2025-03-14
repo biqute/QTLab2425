@@ -1,8 +1,8 @@
 import numpy as np
 import cmath
-import sys; sys.path.append("../classes")
 import sys; sys.path.append("../utils")
 from peak_width import peak_width
+import sys; sys.path.append("../classes")
 from Fitter import Fitter
 import math
 
@@ -18,20 +18,25 @@ def model_modulus_resonance(f, a, b, c, d, A, phi, Q_l, Q_c, f_r):
     return y
 
 
-data = np.loadtxt("..\\data\\cavityS21.csv", delimiter=",")
+data = np.loadtxt("..\\data\\dense_cavityS21.csv", delimiter=",")
 
 
 fitter = Fitter()
-fitter.datax = data[:, 0]
-fitter.datay = np.sqrt(data[:, 1]**2 + data[:, 2]**2)
+fitter.datax = data[:, 0] # Hz
+fitter.datay = np.sqrt(data[:, 1]**2 + data[:, 2]**2) # 1
 fitter.sigmay = np.maximum(1e-5 + fitter.datax*0, np.abs(fitter.datay*0.01))
 fitter.scaley = "dB" # "linear" (default), "log", "dB"
-fitter.scalex = "linear" # "linear" (default), "log", "dB"
+fitter.unity = "1"
+fitter.scalex = lambda x: x / 1e9 # "linear" (default), "log", "dB"
+fitter.unitx = "GHz"
+fitter.labelx = "Frequency"
+fitter.labely = "$|S_{21}|$"
 fitter.model = model_modulus_resonance
 fitter.show_initial_model = False
 fitter.show_plot = True
 fitter.show_pvalue = False
 fitter.file_name = "..\\plots\\cavityS21.pdf"
+fitter.figure_size = (30, 24)
 
 Q_c = 10e3 # coupling quality factor
 f_r = fitter.datax[np.argmax(fitter.datay)]
@@ -89,8 +94,6 @@ fitter.param_displayed_names = {
     "d": "", 
     "phi": ""
 }
-fitter.unitx = "Hz"
-fitter.unity = "1"
 fitter.title = "Resonance"
 
 

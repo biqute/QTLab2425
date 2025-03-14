@@ -49,6 +49,8 @@ git push
 - <https://markimicrowave.com/>
 - [An analysis method for asymmetric resonator transmission applied to superconducting devices](https://arxiv.org/pdf/1108.3117)
 - [Materials loss measurements using superconducting microwave resonators](https://arxiv.org/pdf/2006.04718)
+- [AWG device manual](https://www.silcon.cz/download/SDG6000X_UserManual.pdf)
+- [AWG programming manual](https://tm-co.co.jp/wp/wp-content/uploads/2022/10/SDG_Programming-Guide_PG02-E05C.pdf)
 
 # TODO
 - `VNA.py`:
