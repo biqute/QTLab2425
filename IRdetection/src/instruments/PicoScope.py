@@ -6,6 +6,8 @@ from picosdk.functions import adc2mV, assert_pico_ok
 import time
 from src.abstract.Instrument import Instrument
 import threading
+import os
+import json
 
 class PicoScope(Instrument):
     def __init__(self, resolution: str, serial: str = None, name: str = None):
@@ -19,6 +21,8 @@ class PicoScope(Instrument):
         # Create chandle and status ready for use
         self.chandle = ctypes.c_int16()
         self.status = {}
+        
+        self.pico_strings = None
     
     def initialize(self):
          # Returns handle to chandle for use in future API functions
@@ -159,3 +163,27 @@ class PicoScope(Instrument):
             return np.concatenate(self._streamed_data)
         else:
             return np.array([], dtype=np.int16)
+        
+    def set_channel(self, channel, enabled, coupling, range, offset):
+        """
+        Set the channel configuration.
+        """
+        status_key = f"setCh{channel}"
+        range = ps.PS5000A_RANGE[self.get_command_value('RANGE', range)]
+        self.status[status_key] = ps.ps5000aSetChannel(self.chandle,
+                                                    ps.PS5000A_CHANNEL[f'PS5000A_CHANNEL_{channel}'],
+                                                    enabled,
+                                                    ps.PS5000A_COUPLING['PS5000A_DC' if coupling == 'DC' else 'PS5000A_AC'],
+                                                    range,
+                                                    offset)
+    
+    def get_command_value(self, dict_name, key):
+        if self.pico_strings is None:  
+            # Read the json PicoStrings file
+            python_file_dir = os.path.dirname(__file__)
+            with open(os.path.join(python_file_dir, 'cfgs/PicoStrings.json')) as f:
+                self.pico_strings = json.load(f)
+                
+        # Get the value
+        return self.pico_strings[dict_name][key]
+            
