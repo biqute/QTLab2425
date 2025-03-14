@@ -51,6 +51,7 @@ class QuickSyn(serial.Serial):
         self.__write('FREQ?')
         frequency = self.ser.readline().decode('utf-8').strip() # default order is mlHz
         
+        
         if order == "GHz":
             frequency = float(frequency) / 1e12
         elif order == "MHz":
@@ -70,10 +71,25 @@ class QuickSyn(serial.Serial):
         self.ser.write(encoded_command)
         
     def close_connection(self):
-        #turn off the output
-        self.__write('OUTP:STAT OFF')
+        # #turn off the output
+        # self.__write('OUTP:STAT OFF')
         # Close the serial port
         self.ser.close()
         # Check if the port is closed
         if self.ser.is_open:
             raise ValueError('Connection failed to close. Check the port name and the device.')
+    
+    def shutdown(self):
+        self.__write('OUTP:STAT OFF')
+        self.close_connection()
+    
+    def suicide(self):
+        self.__write("*RST")
+        time.sleep(0.5)
+        # Reset to factory settings
+        self.__write("*RCL 0")
+        self.shutdown()
+        print("Device has been suicided :)")
+    
+    def __del__(self):
+        self.close_connection()
