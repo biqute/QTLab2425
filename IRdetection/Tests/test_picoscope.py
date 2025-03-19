@@ -12,6 +12,8 @@ if __name__ == '__main__':
     scope = PicoScope("PS5000A_DR_12BIT") 
     scope.initialize()
     
+    print(scope.resolution)
+    
     # Set up channel A as in the example:
     enabled = 1
     analogue_offset = 0.0
@@ -24,13 +26,29 @@ if __name__ == '__main__':
                                                 analogue_offset)
     assert_pico_ok(scope.status["setChA"])
     print("Channel A set up.")
+    
+    # TEST SAMPLING INTERVAL AND TME BASE
+    
+    print('best timebase ' + str(scope.get_best_timebase()))
+    
+    time_base = scope.calculate_timebase(3)
+    print(f'Timebase: {time_base}')
+    sampling_interval = scope.get_sampling_interval(time_base)
+    print(f'Sampling interval: {sampling_interval}') 
+    
+       
 
     # Start streaming acquisition
     print("Starting streaming acquisition for 5 seconds...")
-    scope.acq_streaming(sample_interval=250, buffer_size=500)
+    
+    sample_interval = 2000
+    sample_units = scope.get_command_value("TIME_UNITS", "PS")
+    scope.acq_streaming(sample_interval=sample_interval, sample_units=sample_units, buffer_size=500)
+    
 
     # Let the scope stream data for 5 seconds
-    time.sleep(5)
+    # time.sleep(5e-7*sample_interval)
+    time.sleep(1)
 
     # Stop streaming
     scope.stop_streaming()
