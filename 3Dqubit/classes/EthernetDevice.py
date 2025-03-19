@@ -1,4 +1,5 @@
 import pyvisa
+import sys
 
 class EthernetDevice:
     """
@@ -45,7 +46,9 @@ class EthernetDevice:
 
         result = self.query(f"{command}; *OPC?")
 
-        if self.debug: print(f"{self.debug_prefix}[{command}] {result.strip()}")
+        if self.debug: 
+            print(f"{self.debug_prefix}[{command}] {result.strip()}")
+            sys.stdout.flush()
         if '0' in result:
             if error_msg is None:
                 raise Exception(f"Operation '{command}' could not complete.")
@@ -59,7 +62,9 @@ class EthernetDevice:
         data = self.query(f"{command}")
         result = self.query("*OPC?")
 
-        if self.debug: print(f"[{command}] {result.strip()}")
+        if self.debug: 
+            print(f"[{command}] {result.strip()}")
+            sys.stdout.flush()
         if '0' in result:
             if error_msg is None:
                 raise Exception(f"Operation '{command}' could not complete.")
