@@ -77,15 +77,131 @@ class PicoScope(Instrument):
         
         # Display status returns
         print(self.status)
+        
+    def calculate_timebase(self, sampling_interval: float, bit_mode = None) -> int:
+        """
+        Calculate the oscilloscope timebase corresponding to a given sampling interval and bit mode.
+        
+        The formulas are the inverse of the ones defined in the documentation:
+        
+        8-bit mode:
+            - For sampling_interval < 8: timebase = log2(sampling_interval * 1)
+            - For sampling_interval >= 8: timebase = round(sampling_interval * 125e-3) + 2
+            
+        12-bit mode:
+            - For sampling_interval < 16: timebase = log2(sampling_interval * 5e-1) + 1
+              (minimum value is 1)
+            - For sampling_interval >= 16: timebase = round(sampling_interval * 62.5e-3) + 3
+            
+        14-bit mode and 15-bit mode:
+            - For sampling_interval <= 8: timebase = 3
+            - For sampling_interval > 8: timebase = round(sampling_interval * 125e-3) + 2
+            
+        16-bit mode:
+            - For sampling_interval <= 16: timebase = 4
+            - For sampling_interval > 16: timebase = round(sampling_interval * 62.5e-3) + 3
+        
+        Parameters:
+        sampling_interval : float
+            The desired sampling interval in seconds.
+        bit_mode : int
+            The resolution mode (8, 12, 14, 15, or 16).
+            
+        Returns:
+        int
+            The calculated timebase.
+            
+        Raises:
+        ValueError: If an unsupported bit mode is provided.
+        """
+        bit_mode = self.get_command_value('RESOLUTION_BITMODE_INT', str(self.resolution)) if bit_mode is None else bit_mode
+ 
+        if bit_mode == 8:
+            # 8-bit mode:
+            if sampling_interval < 8:
+                if sampling_interval < 1:
+                    raise ValueError("Sampling interval must be at least 1 ns for 8-bit mode.")
+                # Inverse: n = log2(sampling_interval)
+                return int(round(np.log2(sampling_interval))) 
+            else:
+                # Inverse: n = sampling_interval * 1.25e-1 + 2
+                return int(round(sampling_interval * 1.25e-1)) + 2
+
+        elif bit_mode == 12:
+            # 12-bit mode: available timebases are 1, 2, 3, then n>=4.
+            if sampling_interval < 16:
+                if sampling_interval < 2:
+                    raise ValueError("Sampling interval must be at least 2 ns for 12-bit mode.")
+                # Inverse: n = log2(sampling_interval * 5e-1) + 1
+                dep =  int(round(np.log2(sampling_interval * 5e-1))) + 1
+                return dep if dep > 0 else 1
+            else:
+                # Inverse: n = sampling_interval * 0.0625 + 3
+                return int(round(sampling_interval * 6.25e-2)) + 3
+
+        elif bit_mode in (14, 15):
+            if sampling_interval < 8:
+                raise ValueError("Sampling interval must be at least 8 ns for 14/15-bit mode.")
+            # 14-bit and 15-bit mode: valid timebases start at 3.
+            if sampling_interval <= 8:
+                return 3
+            else:
+                # Inverse: n = sampling_interval * 0.125 + 2
+                return int(round(sampling_interval * 0.125)) + 2
+
+        elif bit_mode == 16:
+            if sampling_interval < 16:
+                raise ValueError("Sampling interval must be at least 16 ns for 16-bit mode.")
+            # 16-bit mode: valid timebases start at 4.
+            if sampling_interval <= 16:
+                return 4
+            else:
+                # Inverse: n = sampling_interval * 0.0625 + 3
+                return int(round(sampling_interval * 6.25e-2)) + 3
+
+        else:
+            raise ValueError(f"Unsupported bit mode: {bit_mode}")
+        
+    def get_sampling_interval(self, timebase: int) -> float:
+        """
+        Calculate the sampling interval corresponding to a given timebase.
+        
+        Use the picoscope library "ps5000aGetTimebase" function.
+        """
+        sampling_interval = ctypes.c_float()
+        max_samples = ctypes.c_int32()
+        self.status["SamplingInterval"] = ps.ps5000aGetTimebase2(self.chandle, timebase, 1000, ctypes.byref(sampling_interval), ctypes.byref(max_samples), 0)
+        
+        print(sampling_interval.value)
+        
+        if sampling_interval.value < 1:
+            raise ValueError("Sampling interval should be at least 1 ns. Something went wrong. Try different timebase.")
+        
+        return sampling_interval.value
+    
+    def get_best_timebase(self) -> int:
+        status_key = "BestTimebase"
+        timebase = ctypes.c_uint32()
+        sampling_interval = ctypes.c_double()
+        self.status[status_key] = ps.ps5000aGetMinimumTimebaseStateless(self.chandle,
+                                                        self.get_command_value('CHANNEL_FLAGS', 'A'),
+                                                        ctypes.byref(timebase),
+                                                        ctypes.byref(sampling_interval),
+                                                        self.resolution)
+        return timebase.value
+    
+    def acq_block(self, sample_interval: int, sample_units, num_samples: int, buffer_size: int = 500):
+        pass
     
     def acq_streaming(self, sample_interval: int = 250, 
-                    sample_units = ps.PS5000A_TIME_UNITS['PS5000A_US'], 
+                    sample_units = ps.PS5000A_TIME_UNITS['PS5000A_NS'], 
                     buffer_size: int = 500):
         """
         Start streaming data acquisition continuously until stop_streaming() is called.
         The method sets up a single buffer (for channel A) and registers a callback that appends
         each received chunk to self._streamed_data.
         """
+        sample_units = sample_units if isinstance(sample_units, int) else ps.PS5000A_TIME_UNITS[sample_units]
         self._streaming_stop = False
         self._streamed_data = []  # reset storage
         self._buffer_size = buffer_size
@@ -120,7 +236,7 @@ class PicoScope(Instrument):
                                                         ps.PS5000A_RATIO_MODE['PS5000A_RATIO_MODE_NONE'],
                                                         buffer_size)
         assert_pico_ok(self.status[status_key])
-        print(f"Streaming started at sample interval {sample_interval_ct.value * 1000} ns.")
+        print(f"Streaming started at sample interval {sample_interval_ct.value} ns.")
 
         # Define callback function which the driver will call when new data is available.
         def streaming_callback(handle, noOfSamples, startIndex, overflow, triggerAt, triggered, autoStop, param):
@@ -186,4 +302,3 @@ class PicoScope(Instrument):
                 
         # Get the value
         return self.pico_strings[dict_name][key]
-            

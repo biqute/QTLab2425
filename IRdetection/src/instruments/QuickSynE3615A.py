@@ -110,6 +110,10 @@ class QuickSyn(Instrument):
             # add freqency settings
             message += "Frequency: " + str(self.get_frequency()) + " GHz\n"
         return message
+    
+    def reset(self):
+        # Default is 10 MHz
+        self.set_frequency(10, 'MHz')
             
     
     def __del__(self):

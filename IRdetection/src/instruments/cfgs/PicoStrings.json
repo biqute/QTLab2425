@@ -6,6 +6,15 @@
         "15": "PS5000A_DR_15BIT",
         "16": "PS5000A_DR_16BIT"
     },
+
+    "RESOLUTION_BITMODE_INT": {
+        "0": 8,
+        "1": 12,
+        "2": 14,
+        "3": 15,
+        "4": 16
+    },
+
     "COUPLING": {
         "AC": "PS5000A_AC",
         "DC": "PS5000A_DC"
@@ -117,5 +126,15 @@
     "CONDITIONS_INFO": {
         "CLEAR": "PS5000A_CLEAR",
         "ADD": "PS5000A_ADD"
+    },
+    "CHANNEL_FLAGS":{
+        "A": 1,
+        "B": 2,
+        "C": 4,
+        "D": 8,
+        "PORT0": 65536,
+        "PORT1": 131072,
+        "PORT2": 262144,
+        "PORT3": 524288
     }
 }
