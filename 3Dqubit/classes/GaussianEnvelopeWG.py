@@ -1,8 +1,8 @@
 import numpy as np
 from EthernetDevice import EthernetDevice
 
-class AWG(EthernetDevice):
-    """Arbitrary Waveform Generator (AWG)"""
+class GaussianEnvelopeWG(EthernetDevice):
+    """Wave generator of sinusoid modulated in amplitude by gaussian envelope"""
 
     __output = False
     __freq = 0
@@ -35,34 +35,6 @@ class AWG(EthernetDevice):
             "modulation": arr3[1] == "ON",
         }
     
-    def upload_waveform(self, name, func, duration, samples_per_second = 2.4e9):
-        points = int(duration * samples_per_second)
-
-        if " " in name or "," in name: 
-            raise Exception(f"name should not contain spaces ' ' nor commas ',', but \"{name}\" was found") 
-        if samples_per_second > 2.4e9: 
-            raise Exception(f"The maximum value of samples_per_second is 2.4e9, but {samples_per_second} was found")  
-        if points > 1e6: 
-            raise Exception(f"The maximum number of points is 1e6, but {points} was found")
-
-        # dat = "Xpos,value"
-        # for i in range(0,points):
-        #     dat += f"\n{i},{func(i / samples_per_second)}" 
-        # self.write_expect(f"C1:WVDT WVNM,{name},WAVEDATA,'{dat}'")
-
-        bin = ""
-        for i in range(0,points):
-            f = func(i / samples_per_second)
-            n = int((2**16)*f)
-            if n < -32768: n = -32768
-            if n > +32767: n = +32767
-            string = hex(n)[2:]
-            string = (4 - len(string))*"0" + string
-            bin += string
-
-        print(bin)
-
-        self.write(f"C1:WVDT WVNM,{name},WAVEDATA, b'0x{bin}'")
 
     # OUTPUT
 
