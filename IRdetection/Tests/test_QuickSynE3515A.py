@@ -4,8 +4,8 @@ from src.instruments.QuickSynE3615A import QuickSyn
 
 print('Test QuickSynE3615A')
 
-gen_1= QuickSyn('COM8')#COM8: syn1, COM7: syn2
-gen_2= QuickSyn('COM7')
+gen_1= QuickSyn('COM3')#COM8: syn1, COM7: syn2
+gen_2= QuickSyn('COM4')
 gen_1.initialize()
 gen_2.initialize()
 # gen_1.suicide()
