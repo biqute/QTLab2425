@@ -11,7 +11,7 @@ gen_2.initialize()
 # gen_1.suicide()
 
 gen_1.set_frequency(6000, 'MHz')
-gen_2.set_frequency(6012, 'MHz')
+gen_2.set_frequency(6002, 'MHz')
 time.sleep(1)
 #
 result = gen_1.get_frequency('MHz')
