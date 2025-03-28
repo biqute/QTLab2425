@@ -23,8 +23,8 @@ class EthernetDevice:
     debug_prefix = ""
 
     def __init__(self, ip_address_string):
-        res_manager = pyvisa.ResourceManager()
-        self.__res = res_manager.open_resource(f"tcpip0::{ip_address_string}::INSTR")
+        self.__res_manager = pyvisa.ResourceManager()
+        self.__res = self.__res_manager.open_resource(f"tcpip0::{ip_address_string}::INSTR")
 
         self._ip = ip_address_string
         self._name = self.query_expect("*IDN?")
@@ -33,6 +33,13 @@ class EthernetDevice:
 
         if self.on_init:
             self.on_init(ip_address_string)
+    
+    def __del__(self):
+        self.close()
+
+    def close(self):
+        if self.debug: print("[CLOSE]")
+        self.__res_manager.close()
     
     def write(self, command):
         self.__res.write(command)

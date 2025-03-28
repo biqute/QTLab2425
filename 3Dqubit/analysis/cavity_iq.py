@@ -2,6 +2,7 @@ import numpy as np
 import cmath
 import sys; sys.path.append("../utils")
 from peak_width import peak_width
+from read_metadata import read_metadata
 import sys; sys.path.append("../classes")
 from Fitter import Fitter
 import math
@@ -17,9 +18,9 @@ def model_modulus_resonance(f, a, b, c, d, A, phi, Q_l, Q_c, f_r):
     )
     return y
 
-
-data = np.loadtxt("..\\data\\dense_cavityS21.csv", delimiter=",")
-
+basename = "empty_cavity\\40mK_1.0kHz_-5dBm"
+data = np.loadtxt(f"..\\data\\{basename}.csv", delimiter=",")
+metadata = read_metadata(f"..\\data\\{basename}_meta.csv")
 
 fitter = Fitter()
 fitter.datax = data[:, 0] # Hz
@@ -29,13 +30,14 @@ fitter.scaley = "dB" # "linear" (default), "log", "dB"
 fitter.unity = "1"
 fitter.scalex = lambda x: x / 1e9 # "linear" (default), "log", "dB"
 fitter.unitx = "GHz"
+fitter.title = f"Empty cavity resonance at {metadata["temperature"]} with power {metadata["power"]} and IF BW of {metadata["bandwidth"]}"
 fitter.labelx = "Frequency"
 fitter.labely = "$|S_{21}|$"
 fitter.model = model_modulus_resonance
 fitter.show_initial_model = False
 fitter.show_plot = True
 fitter.show_pvalue = False
-fitter.file_name = "..\\plots\\cavityS21.pdf"
+fitter.file_name = f"..\\plots\\{basename}.pdf"
 fitter.figure_size = (30, 24)
 
 Q_c = 10e3 # coupling quality factor
@@ -94,7 +96,6 @@ fitter.param_displayed_names = {
     "d": "", 
     "phi": ""
 }
-fitter.title = "Resonance"
 
 
 res = fitter.plot_fit()

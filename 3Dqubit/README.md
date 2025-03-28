@@ -59,3 +59,7 @@ git push
 - `LO.py`:
     - turn_on() and turn_off() seem to do nothing
     - check the existence of the COM, if it doesn't return list of available COMs
+- `EthernetDevice.py`:
+    - print executed command before getting OPC response
+- `cavity_iq.py`:
+    - change model to have $Q_i$ and $Q_c$ as parameters

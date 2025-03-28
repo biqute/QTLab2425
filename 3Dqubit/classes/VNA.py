@@ -3,13 +3,28 @@ from EthernetDevice import EthernetDevice
 
 
 class VNA(EthernetDevice):
-    """Vector Network Analyzer (VNA)"""
+    """
+    Vector Network Analyzer (VNA)
+
+    The class has the following properties
+    - min_freq 
+    - max_freq 
+    - point_count 
+    - bandwidth 
+    - avg_count 
+    - power 
+
+    The class has the following methods
+    - read_frequency_data
+    - read_data
+    """
 
     __min_freq = 0
     __max_freq = 0
     __point_count = 0
     __bandwidth = 0
     __avg_count = 0
+    __power = 0
 
     def on_init(self, ip_address_string):
         self.write_expect("*CLS") # clear settings
@@ -24,8 +39,9 @@ class VNA(EthernetDevice):
         self.min_freq = 4e9
         self.max_freq = 6e9
         self.point_count = 400 
-        self.bandwidth = 10e3
+        self.bandwidth = 10e3 # Hz
         self.avg_count = 1
+        self.power = -40 # dBm
     
     # MIN_FREQ
 
@@ -102,6 +118,21 @@ class VNA(EthernetDevice):
 
         if int(self.query("AVER:COUN?")) != n: 
             raise Exception(f"Could not set 'avg_count' to {n}.")
+        
+    # POWER
+
+    @property
+    def power(self):
+        return self.__power
+
+    @power.setter
+    def power(self, value):
+        """Set output power in dBm"""
+        self.write_expect(f"SOUR:POW {value}")
+        self.__power = value
+
+        if float(self.query("SOUR:POW?").strip()) != value: 
+            raise Exception(f"Could not set 'power' to {value}.")
 
     # FREQUENCY SPECTRUM
 

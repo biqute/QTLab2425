@@ -7,6 +7,7 @@ def error_propagation(func, params):
     for par in params:
         sx = params[par]["sigma"]
         dx = sx / 1e4
+        if dx == 0: dx = 1e-6
         new_params = copy.deepcopy(params)
         new_params[par]["value"] = params[par]["value"] + dx
         derivative = ( func(new_params) -  original) / dx
