@@ -17,10 +17,7 @@ class PicoScope(Instrument):
         name = name if name else "PicoScope_no_ID"
         super().__init__(name)
         
-        # Store a reference to the ps module to prevent cleanup order issues
-        self._ps = ps
-        
-        self.resolution = self._ps.PS5000A_DEVICE_RESOLUTION[resolution]
+        self.resolution = ps.PS5000A_DEVICE_RESOLUTION[resolution]
         self.serial = serial
         
         # Create chandle and status ready for use
@@ -143,7 +140,7 @@ class PicoScope(Instrument):
         """
         sampling_interval = ctypes.c_float()
         max_samples = ctypes.c_int32()
-        self.status["SamplingInterval"] = self._ps.ps5000aGetTimebase2(self.chandle, timebase, 1000, ctypes.byref(sampling_interval), ctypes.byref(max_samples), 0)
+        self.status["SamplingInterval"] = ps.ps5000aGetTimebase2(self.chandle, timebase, 1000, ctypes.byref(sampling_interval), ctypes.byref(max_samples), 0)
         
         if sampling_interval.value < 1:
             raise ValueError("Sampling interval should be at least 1 ns. Something went wrong. Try different timebase.")
@@ -157,7 +154,7 @@ class PicoScope(Instrument):
         sampling_interval = ctypes.c_double()
         def concat_channels(channels):
             return sum([self.get_command_value('CHANNEL_FLAGS', ch) for ch in channels])
-        self.status[status_key] = self._ps.ps5000aGetMinimumTimebaseStateless(self.chandle,
+        self.status[status_key] = ps.ps5000aGetMinimumTimebaseStateless(self.chandle,
                                                         concat_channels(channels),
                                                         ctypes.byref(timebase),
                                                         ctypes.byref(sampling_interval),
@@ -178,36 +175,139 @@ class PicoScope(Instrument):
         :auto_trigger (int): Number of milliseconds after which the scope will trigger automatically if no trigger event occurs. default: 1000 ms.
         """
         try:
-            c_source = self._ps.PS5000A_CHANNEL[f"PS5000A_CHANNEL_{source}"]
+            c_source = ps.PS5000A_CHANNEL[f"PS5000A_CHANNEL_{source}"]
         except KeyError:
             raise ValueError(f"Unsupported trigger source: {source}. Supported sources are A, B, C, D")
         direction = direction.upper()
         if direction not in ['ABOVE', 'BELOW', 'RISING', 'FALLING', 'RISING_OR_FALLING']:
             raise ValueError(f"Unsupported trigger direction: {direction}. Supported directions are ABOVE, BELOW, RISING, FALLING, RISING_OR_FALLING")
     
-        direction = self._ps.PS5000A_THRESHOLD_DIRECTION[self.get_command_value('THRESHOLD_DIRECTION', direction)]
+        direction = ps.PS5000A_THRESHOLD_DIRECTION[self.get_command_value('THRESHOLD_DIRECTION', direction)]
         
         # Get the channel range for the trigger source
         channel_range = self.channel_info[source]['range']
         
         # Convert threshold to ADC counts
         maxADC = ctypes.c_int16()
-        self.status["maximumValue"] = self._ps.ps5000aMaximumValue(self.chandle, ctypes.byref(maxADC))
+        self.status["maximumValue"] = ps.ps5000aMaximumValue(self.chandle, ctypes.byref(maxADC))
         assert_pico_ok(self.status["maximumValue"])
         threshold = int(mV2adc(threshold, channel_range, maxADC))
         
-        self.status["trigger"] = self._ps.ps5000aSetSimpleTrigger(self.chandle, 1, c_source, threshold, direction, delay, auto_trigger)
+        self.status["trigger"] = ps.ps5000aSetSimpleTrigger(self.chandle, 1, c_source, threshold, direction, delay, auto_trigger)
         assert_pico_ok(self.status["trigger"])
     
     def disable_trigger(self):
         """
         Disable the trigger.
         """
-        self.status["trigger"] = self._ps.ps5000aSetSimpleTrigger(self.chandle, 0, 0, 0, 0, 0, 0)
+        self.status["trigger"] = ps.ps5000aSetSimpleTrigger(self.chandle, 0, 0, 0, 0, 0, 0)
         assert_pico_ok(self.status["trigger"])
     
-    def acq_block(self, sample_interval: int, sample_units, num_samples: int, buffer_size: int = 500):
-        pass
+    def acq_block(
+        self, 
+        sample_rate: float, 
+        post_trigger_samples: int, 
+        pre_trigger_samples: int = 0, 
+        memory_segment_index: int = 0, 
+        time_out: int = 3000, 
+        downsampling_mode: str = 'NONE', 
+        downsampling_ratio: int = 1
+    ):
+        """
+        Acquire a block of data.
+        
+        Parameters:
+        sample_rate (float): The desired sampling rate in Hz.
+        post_trigger_samples (int): The number of samples to acquire after the trigger event.
+        pre_trigger_samples (int): The number of samples to acquire before the trigger event. Default is 0.
+        memory_segment_index (int): The index of the memory segment to use. Default is 0.
+        time_out (int): The timeout in milliseconds. Default is 3000 ms. Max allowed time to block ready.
+        
+        Note that if no trigger is set, the number of samples acquired will be equal to pre_trigger_samples + post_trigger_samples.
+        Note: to check block status we use ps5000aIsReady instead of ps5000aBlockReady callback.
+        """
+        no_of_samples = pre_trigger_samples + post_trigger_samples
+        downsampling_mode = downsampling_mode.upper()
+        downsampling_mode = ps.PS5000A_RATIO_MODE[self.get_command_value('RATIO_MODE', downsampling_mode)]
+        
+        # Get timebase for the given sample rate
+        timebase = self.calculate_timebase(sample_rate)
+        
+        # Hanldlers for returned values
+        timeIndisposedMs = ctypes.c_int32()
+        pParameter = ctypes.c_void_p()
+        
+        # Run the block acquisition
+        self.status["runBlock"] = ps.ps5000aRunBlock(
+            self.chandle,
+            pre_trigger_samples,
+            post_trigger_samples,
+            timebase,
+            ctypes.byref(timeIndisposedMs),
+            memory_segment_index,
+            None,
+            ctypes.byref(pParameter)
+        )
+        assert_pico_ok(self.status["runBlock"])
+        
+        # Check for data collection to finish using ps5000aIsReady
+        ready = ctypes.c_int16(0)
+        check = ctypes.c_int16(0)
+        start_time = time.time() # Set a timeout for the acquisition
+        while ready.value == check.value:
+            self.status["isReady"] = ps.ps5000aIsReady(self.chandle, ctypes.byref(ready))
+            if time.time() - start_time > time_out / 1000:  # Convert milliseconds to seconds
+                raise TimeoutError("Block acquisition timed out.")
+               
+        assert_pico_ok(self.status["isReady"])
+        
+        # Calculate the number of samples to be collected
+        if downsampling_mode != 0:
+            no_of_samples = no_of_samples // downsampling_ratio if downsampling_ratio > 1 else no_of_samples
+        
+        # Create max and min buffers ready for assigning pointers for data collection for active channels
+        buffers = {}
+        for ch in self.channel_info.keys():
+            if self.channel_info[ch]['enabled']:
+                buffers[ch] = {'Max': (ctypes.c_int16 * no_of_samples)(), 'Min': (ctypes.c_int16 * no_of_samples)()}
+            
+        # Set data buffer location for data collection from active channels
+        for ch in buffers.keys():
+            source = ps.PS5000A_CHANNEL[f"PS5000A_CHANNEL_{ch}"]
+            status_key = f"setDataBuffers{ch}"
+            self.status[status_key] = ps.ps5000aSetDataBuffers(
+                self.chandle,
+                source,
+                ctypes.byref(buffers[ch]['Max']),
+                ctypes.byref(buffers[ch]['Min']),
+                no_of_samples,
+                memory_segment_index,
+                downsampling_mode
+            )
+            assert_pico_ok(self.status[status_key])
+        
+        overflow = ctypes.c_int16()
+        cmaxSamples = ctypes.c_int32(no_of_samples)
+        
+        self.status["getValues"] = ps.ps5000aGetValues(self.chandle, 0, ctypes.byref(cmaxSamples), downsampling_ratio, downsampling_mode, memory_segment_index, ctypes.byref(overflow))
+        assert_pico_ok(self.status["getValues"])
+        if overflow.value != 0:
+            print(f"Overflow occurred: {overflow.value} samples lost. type: {type(overflow)}, {type(overflow.value)}")
+            self.status["overflow"] = overflow.value
+        
+        # convert ADC counts data to mV
+        maxADC = ctypes.c_int16()
+        self.status["maximumValue"] = ps.ps5000aMaximumValue(self.chandle, ctypes.byref(maxADC))
+        assert_pico_ok(self.status["maximumValue"])
+        data = {}
+        for ch in buffers.keys():
+            data[ch] =  adc2mV(buffers[ch]['Max'], self.channel_info[ch]['range'], maxADC)
+
+        # Create time data
+        data['time'] = np.linspace(0, (cmaxSamples.value - 1) / sample_rate, cmaxSamples.value)
+        
+        return data
+    
     
     def acq_streaming(self, sample_rate: float = 4e6,  # 4 MHz default, corresponds to 250ns interval
                     sample_units = ps.PS5000A_TIME_UNITS['PS5000A_NS'], 
@@ -225,7 +325,7 @@ class PicoScope(Instrument):
         buffer_size : int
             Size of the buffer for data acquisition.
         """
-        sample_units = sample_units if isinstance(sample_units, int) else self._ps.PS5000A_TIME_UNITS[sample_units]
+        sample_units = sample_units if isinstance(sample_units, int) else ps.PS5000A_TIME_UNITS[sample_units]
         self._streaming_stop = False
         self._streamed_data = []  # reset storage
         self._buffer_size = buffer_size
@@ -238,12 +338,12 @@ class PicoScope(Instrument):
 
         # Register the data buffer with the driver for channel A
         status_key = "setDataBufferA_stream"
-        self.status[status_key] = self._ps.ps5000aSetDataBuffer(self.chandle,
-                                                        self._ps.PS5000A_CHANNEL['PS5000A_CHANNEL_A'],
+        self.status[status_key] = ps.ps5000aSetDataBuffer(self.chandle,
+                                                        ps.PS5000A_CHANNEL['PS5000A_CHANNEL_A'],
                                                         self._bufferA.ctypes.data_as(ctypes.POINTER(ctypes.c_int16)),
                                                         buffer_size,
                                                         0,
-                                                        self._ps.PS5000A_RATIO_MODE['PS5000A_RATIO_MODE_NONE'])
+                                                        ps.PS5000A_RATIO_MODE['PS5000A_RATIO_MODE_NONE'])
         assert_pico_ok(self.status[status_key])
 
         # Streaming mode: no pretrigger, no autoStop (0 means continuous)
@@ -254,14 +354,14 @@ class PicoScope(Instrument):
 
         sample_interval_ct = ctypes.c_int32(sample_interval)
         status_key = "runStreaming_stream"
-        self.status[status_key] = self._ps.ps5000aRunStreaming(self.chandle,
+        self.status[status_key] = ps.ps5000aRunStreaming(self.chandle,
                                                         ctypes.byref(sample_interval_ct),
                                                         sample_units,
                                                         maxPreTriggerSamples,
                                                         totalSamples,
                                                         autoStopOn,
                                                         downsampleRatio,
-                                                        self._ps.PS5000A_RATIO_MODE['PS5000A_RATIO_MODE_NONE'],
+                                                        ps.PS5000A_RATIO_MODE['PS5000A_RATIO_MODE_NONE'],
                                                         buffer_size)
         assert_pico_ok(self.status[status_key])
         print(f"Streaming started at sample interval {sample_interval_ct.value} ns (rate: {1e9/sample_interval_ct.value:.2f} Hz).")
@@ -276,15 +376,15 @@ class PicoScope(Instrument):
             return 0
 
         # Convert Python callback to C function pointer
-        cFuncPtr = self._ps.StreamingReadyType(streaming_callback)
+        cFuncPtr = ps.StreamingReadyType(streaming_callback)
 
         # Start a thread that continuously polls for streaming data until stopped.
         def streaming_thread():
             while not self._streaming_stop:
-                self.status["getStreaming"] = self._ps.ps5000aGetStreamingLatestValues(self.chandle, cFuncPtr, None)
+                self.status["getStreaming"] = ps.ps5000aGetStreamingLatestValues(self.chandle, cFuncPtr, None)
                 time.sleep(0.01)
             # When stop is signaled, stop the scope streaming
-            self.status["stop_stream"] = self._ps.ps5000aStop(self.chandle)
+            self.status["stop_stream"] = ps.ps5000aStop(self.chandle)
             assert_pico_ok(self.status["stop_stream"])
             print("Streaming acquisition stopped.")
 
@@ -323,13 +423,13 @@ class PicoScope(Instrument):
         enabled = 1 if enabled else 0
         status_key = f"setCh{channel}"
         try:
-            range_value = self._ps.PS5000A_RANGE[self.get_command_value('RANGE', range)]
+            range_value = ps.PS5000A_RANGE[self.get_command_value('RANGE', range)]
         except KeyError:
             raise ValueError(f"Invalid range: {range}. Check the available ranges on the json file.")
-        self.status[status_key] = self._ps.ps5000aSetChannel(self.chandle,
-                                                    self._ps.PS5000A_CHANNEL[f'PS5000A_CHANNEL_{channel}'],
+        self.status[status_key] = ps.ps5000aSetChannel(self.chandle,
+                                                    ps.PS5000A_CHANNEL[f'PS5000A_CHANNEL_{channel}'],
                                                     enabled,
-                                                    self._ps.PS5000A_COUPLING['PS5000A_DC' if coupling == 'DC' else 'PS5000A_AC'],
+                                                    ps.PS5000A_COUPLING['PS5000A_DC' if coupling == 'DC' else 'PS5000A_AC'],
                                                     range_value,
                                                     offset)
         assert_pico_ok(self.status[status_key])
@@ -357,7 +457,7 @@ class PicoScope(Instrument):
 
     def initialize(self):
          # Returns handle to chandle for use in future API functions
-        self.status["openunit"] = self._ps.ps5000aOpenUnit(ctypes.byref(self.chandle), None, self.resolution) #handle: generated id of scope, serial: serial of the scope to connect to, resolution: resolution of the scope
+        self.status["openunit"] = ps.ps5000aOpenUnit(ctypes.byref(self.chandle), None, self.resolution) #handle: generated id of scope, serial: serial of the scope to connect to, resolution: resolution of the scope
 
         try:
             assert_pico_ok(self.status["openunit"])
@@ -366,9 +466,9 @@ class PicoScope(Instrument):
             powerStatus = self.status["openunit"]
 
             if powerStatus == 286:
-                self.status["changePowerSource"] = self._ps.ps5000aChangePowerSource(self.chandle, powerStatus)
+                self.status["changePowerSource"] = ps.ps5000aChangePowerSource(self.chandle, powerStatus)
             elif powerStatus == 282:
-                self.status["changePowerSource"] = self._ps.ps5000aChangePowerSource(self.chandle, powerStatus)
+                self.status["changePowerSource"] = ps.ps5000aChangePowerSource(self.chandle, powerStatus)
             else:
                 raise
 
@@ -392,7 +492,7 @@ class PicoScope(Instrument):
     
     def close_connection(self):
         # Disconnect the scope
-        self.status["close"] = self._ps.ps5000aCloseUnit(self.chandle)
+        self.status["close"] = ps.ps5000aCloseUnit(self.chandle)
         assert_pico_ok(self.status["close"])
     
     def shutdown(self):
@@ -401,7 +501,7 @@ class PicoScope(Instrument):
         
     def kill(self):
         # Stop the scope
-        self.status["stop"] = self._ps.ps5000aStop(self.chandle)
+        self.status["stop"] = ps.ps5000aStop(self.chandle)
         assert_pico_ok(self.status["stop"])
     
         self.close_connection()
