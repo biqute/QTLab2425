@@ -63,3 +63,5 @@ git push
     - print executed command before getting OPC response
 - `cavity_iq.py`:
     - change model to have $Q_i$ and $Q_c$ as parameters
+- `Fitter.py`:
+    - allow use of already calculated derived params for following params
