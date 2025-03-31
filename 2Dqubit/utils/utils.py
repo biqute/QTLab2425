@@ -8,9 +8,10 @@ class Data :
 
 
     def __init__ (self, x = None, y = None) :
-        if x != None and y != None :
+        if any(val is not None for val in [x, y]) :
             
-            if len (x) != len (y) :
+            if  len(x) != len(y):
+            
                 raise ValueError("I vettori x e y devono avere la stessa lunghezza.")
 
         self.x = np.array(x)
@@ -22,7 +23,7 @@ class Data :
         
         try :
 
-            np.savetxt(f"../data/{nome}.txt", self.vect, fmt="%.18g", newline="\n", delimiter="\t", header=commento)
+            np.savetxt(f"../presa_dati/cavity_resonances/{nome}.txt", self.vect, fmt="%.18g", newline="\n", delimiter="\t", header=commento)
             return True
         
         except Exception as e :
