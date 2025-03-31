@@ -1,17 +1,30 @@
-import pyvisa
 import numpy as np
 from EthernetDevice import EthernetDevice
 
 
 class VNA(EthernetDevice):
-    """Vector Network Analyzer (VNA)"""
+    """
+    Vector Network Analyzer (VNA)
+
+    The class has the following properties
+    - min_freq 
+    - max_freq 
+    - point_count 
+    - bandwidth 
+    - avg_count 
+    - power 
+
+    The class has the following methods
+    - read_frequency_data
+    - read_data
+    """
 
     __min_freq = 0
     __max_freq = 0
     __point_count = 0
-    __timeout = 0
     __bandwidth = 0
     __avg_count = 0
+    __power = 0
 
     def on_init(self, ip_address_string):
         self.write_expect("*CLS") # clear settings
@@ -26,8 +39,9 @@ class VNA(EthernetDevice):
         self.min_freq = 4e9
         self.max_freq = 6e9
         self.point_count = 400 
-        self.bandwidth = 10e3
+        self.bandwidth = 10e3 # Hz
         self.avg_count = 1
+        self.power = -40 # dBm
     
     # MIN_FREQ
 
@@ -38,7 +52,7 @@ class VNA(EthernetDevice):
     @min_freq.setter
     def min_freq(self, f):
         """Set minimum frequency in Hz"""
-        self.write_expect("SENS:FREQ:START " + str(f))
+        self.write_expect(f"SENS:FREQ:START {f}")
         self.__min_freq = f
 
         if int(self.query("SENS:FREQ:START?")) != f: 
@@ -54,7 +68,7 @@ class VNA(EthernetDevice):
     @max_freq.setter
     def max_freq(self, f):
         """Set maximum frequency in Hz"""
-        self.write_expect("SENS:FREQ:STOP " + str(f))
+        self.write_expect(f"SENS:FREQ:STOP {f}")
         self.__max_freq = f
 
         if int(self.query("SENS:FREQ:STOP?")) != f: 
@@ -69,7 +83,7 @@ class VNA(EthernetDevice):
     @point_count.setter
     def point_count(self, n):
         """Set the number of datapoints"""
-        self.write_expect("SENS:SWE:POIN " + str(n))
+        self.write_expect(f"SENS:SWE:POIN {n}")
         self.__point_count = n
 
         if int(self.query("SENS:SWE:POIN?")) != n: 
@@ -84,7 +98,7 @@ class VNA(EthernetDevice):
     @bandwidth.setter
     def bandwidth(self, bw):
         """Set the bandwidth in Hz"""
-        self.write_expect("SENS:BWID " + str(bw))
+        self.write_expect(f"SENS:BWID {bw}")
         self.__bandwidth = bw
 
         if int(self.query("SENS:BWID?")) != bw: 
@@ -99,11 +113,26 @@ class VNA(EthernetDevice):
     @avg_count.setter
     def avg_count(self, n):
         """Set the number of averages (1 = no averages)"""
-        self.write_expect("AVER:COUN " + str(n))
+        self.write_expect(f"AVER:COUN {n}")
         self.__avg_count = n
 
         if int(self.query("AVER:COUN?")) != n: 
             raise Exception(f"Could not set 'avg_count' to {n}.")
+        
+    # POWER
+
+    @property
+    def power(self):
+        return self.__power
+
+    @power.setter
+    def power(self, value):
+        """Set output power in dBm"""
+        self.write_expect(f"SOUR:POW {value}")
+        self.__power = value
+
+        if float(self.query("SOUR:POW?").strip()) != value: 
+            raise Exception(f"Could not set 'power' to {value}.")
 
     # FREQUENCY SPECTRUM
 

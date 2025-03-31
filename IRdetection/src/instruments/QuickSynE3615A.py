@@ -1,15 +1,23 @@
 import serial
 import time
+from src.abstract.Instrument import Instrument
 
-class QuickSyn(serial.Serial):
+class QuickSyn(Instrument):
     
-    def __init__(self, name):
-        self.ser = serial.Serial(name)  # open serial port
+    def __init__(self, port_name, name=None):
+        name = name if name is not None else "QuickSyn_" + str(port_name)
+        super().__init__(name)
+        self.port_name = port_name
+      
+    def initialize(self):
+        self.ser = serial.Serial(self.port_name)  # open serial port
         # Clear the input buffer to ensure there are no pending commands
         self.ser.flushInput()
         #check
         if not self.ser.is_open:
             raise ValueError('Connection failed. Check the port name and the device.')
+        # Set the output state to ON
+        self._Instrument__activate()
     
     def set_frequency(self, frequency, order="GHz"):
         """
@@ -24,7 +32,7 @@ class QuickSyn(serial.Serial):
         self.__write(f'FREQ {float(frequency)}{order}')
         # Set output state to ON
         time.sleep(0.5)
-        self.__write('OUTP:STAT ON')
+        
     
     def set_output_state(self, state):
         """
@@ -51,6 +59,7 @@ class QuickSyn(serial.Serial):
         self.__write('FREQ?')
         frequency = self.ser.readline().decode('utf-8').strip() # default order is mlHz
         
+        
         if order == "GHz":
             frequency = float(frequency) / 1e12
         elif order == "MHz":
@@ -69,11 +78,43 @@ class QuickSyn(serial.Serial):
         encoded_command = command_str.encode(encoding='utf-8')
         self.ser.write(encoded_command)
         
-    def close_conncetion(self):
-        #turn off the output
-        self.__write('OUTP:STAT OFF')
+    def close_connection(self):
+        # #turn off the output
+        # self.__write('OUTP:STAT OFF')
         # Close the serial port
         self.ser.close()
         # Check if the port is closed
         if self.ser.is_open:
             raise ValueError('Connection failed to close. Check the port name and the device.')
+    
+    def shutdown(self):
+        self.__write('OUTP:STAT OFF')
+        self.close_connection()
+    
+    def kill(self):
+        self.__write("*RST")
+        time.sleep(0.5)
+        # Reset to factory settings
+        self.__write("*RCL 0")
+        self.shutdown()
+        print("Device has been killed :)")
+        
+    def _Instrument__activate(self):
+        self.__write('OUTP:STAT ON')
+        
+    def info(self, verbose=False):
+        message = "Device: " + self.name + "\n"
+        message += "Port: " + self.ser.name + "\n"
+        if verbose:
+            message += "Serial connection: " + str(self.ser.is_open) + "\n"
+            # add freqency settings
+            message += "Frequency: " + str(self.get_frequency()) + " GHz\n"
+        return message
+    
+    def reset(self):
+        # Default is 10 MHz
+        self.set_frequency(10, 'MHz')
+            
+    
+    def __del__(self):
+        self.close_connection()

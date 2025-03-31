@@ -309,7 +309,7 @@ def fit(file_path, unit=None, Del=None, cut=None, initial_params=None):
     # Plot del fit e dei residui
     fig = plt.figure(figsize=(10, 6))
     gs = GridSpec(2, 1, height_ratios=[3, 2], hspace=0.4)
-
+    
     # Grafico del fit
     ax_fit = fig.add_subplot(gs[0])
     ax_fit.plot(f_cut, amp_cut, label="Dati", marker="o", markersize=2, linestyle="none")
@@ -331,5 +331,6 @@ def fit(file_path, unit=None, Del=None, cut=None, initial_params=None):
     ax_res.grid()
 
     plt.show()
+
 
     return fr_fit, Qc_fit, Qt_fit, a_fit, b_fit, c_fit, d_fit, k_fit, phi_fit

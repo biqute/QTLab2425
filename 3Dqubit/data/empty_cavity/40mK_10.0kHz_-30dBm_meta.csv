@@ -1,0 +1,7 @@
+min_freq, 7200000000.0
+max_freq, 7600000000.0
+point_count, 10000
+timeout, 180000.0
+avg_count, 1
+bandwidth, 10000.0
+power, -30
