@@ -7,8 +7,8 @@ import os
 class Data :
 
 
-    def __init__ (self, x = None, y = None) :
-        if any(val is not None for val in [x, y]) :
+    def __init__ (self, x = None, y = None, z = None) :
+        if any(val is not None for val in [x, y, z]) :
             
             if  len(x) != len(y):
             
@@ -16,14 +16,15 @@ class Data :
 
         self.x = np.array(x)
         self.y = np.array(y)
-        self.vect = np.column_stack((self.x, self.y))
+        self.z = np.array(z)
+        self.vect = np.column_stack((self.x, self.y, self.z))
 
 
     def save_txt (self, nome, commento="colonne x e y") :
         
         try :
 
-            np.savetxt(f"../presa_dati/cavity_resonances/{nome}.txt", self.vect, fmt="%.18g", newline="\n", delimiter="\t", header=commento)
+            np.savetxt(f"../presa_dati/cavity_resonances/Res4/risonanza/{nome}.txt", self.vect, fmt="%.18g", newline="\n", delimiter="\t", header=commento)
             return True
         
         except Exception as e :

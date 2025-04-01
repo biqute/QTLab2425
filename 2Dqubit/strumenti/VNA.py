@@ -119,7 +119,7 @@ class VNA :
     
     def get_phase(self) :
         real, imag =  self.get_S_parameters("S21")
-        phase = np.arctan2(imag, real)
+        phase = np.unwrap(np.arctan2(imag, real))
         return phase
     
     def get_dbm (self) :

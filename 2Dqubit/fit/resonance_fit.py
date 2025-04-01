@@ -211,7 +211,7 @@ if __name__ == "__main__":
 
 def fit(file_path, unit=None, Del=None, cut=None, initial_params=None):
     f, amp = read_data(file_path, Del)
-    amp = converter(amp, unit)
+    #amp = converter(amp, unit)
 
     i = np.argmin(amp)
     fmin = f[i]
@@ -304,7 +304,7 @@ def fit(file_path, unit=None, Del=None, cut=None, initial_params=None):
 
     # Calcolo dei residui
     amp_fit = model(f_cut, a_fit, b_fit, c_fit, d_fit, k_fit, phi_fit, Qt_fit, Qc_fit, fr_fit)
-    residui = amp_cut - amp_fit
+    residui = (amp_cut - amp_fit)/amp_cut
 
     # Plot del fit e dei residui
     fig = plt.figure(figsize=(10, 6))
@@ -316,6 +316,7 @@ def fit(file_path, unit=None, Del=None, cut=None, initial_params=None):
     ax_fit.plot(f_cut, amp_fit, label="Modello", color="red")
     ax_fit.axhline(y=amp_FWHM, color='green', linestyle='--', label="FWHM")
     ax_fit.set_title("Fit di risonanze")
+    ax_fit.set_yscale("log")
     ax_fit.set_xlabel("Frequenza (Hz)")
     ax_fit.set_ylabel("Ampiezza")
     ax_fit.legend()
