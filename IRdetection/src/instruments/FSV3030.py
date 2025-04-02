@@ -385,7 +385,7 @@ class FSV3030(Instrument):
         
         self.wait_opc()
 
-    def _Instrument__activate(self):
+    def _Instrument_activate(self):
         """
         For the FSV3030, no activation is required. This is a dummy function.
         """

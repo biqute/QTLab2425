@@ -29,7 +29,7 @@ class Keithley2231A(Instrument):
         # Clear the input buffer to ensure there are no pending commands
         self.ser.flushInput()
         # Activate the device using the abstract interface method
-        self._Instrument__activate()
+        self._Instrument_activate()
         if not self.ser.is_open:
             raise ValueError('Connection failed. Check the port name and the device.')
         

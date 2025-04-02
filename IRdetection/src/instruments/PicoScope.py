@@ -479,7 +479,7 @@ class PicoScope(Instrument):
         # Disable all channels
         self.disable_all_channels()
         
-    def _Instrument__activate(self): # Dummy method
+    def _Instrument_activate(self): # Dummy method
         pass
     
     def reset(self):
