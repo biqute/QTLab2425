@@ -19,6 +19,7 @@ class EthernetDevice:
     _ip = ""
     __timeout = 0
     __res = None
+    __res_manager = None
     debug = True
     debug_prefix = ""
 
@@ -79,6 +80,17 @@ class EthernetDevice:
                 raise Exception(error_msg)
         
         return data
+    
+    def write_binary_values(self, command, data):
+        """Send binary values to device"""
+        if self.__res is None: raise Exception("No connection.")
+
+        self.__res.write_binary_values(command, data, datatype='H', is_big_endian=False)
+
+        if self.debug: 
+            print(f"[{command}]")
+            sys.stdout.flush()
+        
 
     # TIMEOUT
 

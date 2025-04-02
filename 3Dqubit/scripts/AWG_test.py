@@ -11,13 +11,13 @@ mu = 1e-6
 sigma = 1e-7
 
 # SDG6052X
-myAWG = AWG("192.168.40.15")
+myAWG = AWG("192.168.3.15") # Check IP: Utility > Interface > LAN Setup > IP Address
 myAWG.timeout = 10e3
 myAWG.upload_waveform(
     name = "test", 
     func = gaussian(mu, sigma), 
     duration = 2*mu, 
-    samples_per_second = 2000e6
+    samples_per_second = 200e6
 )
 # myAWG.modulation = True
 # myAWG.modulation_shape = ""
