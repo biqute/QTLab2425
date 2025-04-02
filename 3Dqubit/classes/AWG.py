@@ -50,19 +50,29 @@ class AWG(EthernetDevice):
         #     dat += f"\n{i},{func(i / samples_per_second)}" 
         # self.write_expect(f"C1:WVDT WVNM,{name},WAVEDATA,'{dat}'")
 
-        bin = ""
+        # bin = ""
+        # for i in range(0,points):
+        #     f = func(i / samples_per_second)
+        #     n = int((2**16)*f)
+        #     if n < -32768: n = -32768
+        #     if n > +32767: n = +32767
+        #     string = hex(n)[2:]
+        #     string = (4 - len(string))*"0" + string
+        #     bin += string
+
+        #print(bin)
+        
+
+        # test = [0x0080, 0x0070, 0x0060, 0x0050, 0x0060, 0x0070, 0x0080]
+        
+        array = np.zeros(points, dtype=np.int16)
+        N = 7
         for i in range(0,points):
             f = func(i / samples_per_second)
-            n = int((2**16)*f)
-            if n < -32768: n = -32768
-            if n > +32767: n = +32767
-            string = hex(n)[2:]
-            string = (4 - len(string))*"0" + string
-            bin += string
-
-        print(bin)
-
-        self.write(f"C1:WVDT WVNM,{name},WAVEDATA, b'0x{bin}'")
+            n = int(round((2**N)*f))
+            if n > (2**N - 1): n = 2**N - 1
+            array[i] = n
+        self.write_binary_values(f"C1:WVDT WVNM,TEST,LENGTH,{points*2},WAVEDATA,", array) # https://pyvisa.readthedocs.io/en/1.8/rvalues.html#writing-binary-values !!!
 
     # OUTPUT
 
