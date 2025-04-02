@@ -179,6 +179,7 @@ class Experiment(ABC):
             self.on_shutdown(**kwargs)
 
             if self.config['parameters']['predefined_shutdown']:
+                print("Predefined shutdown")
                 self._predefined_shutdown()
 
             self.trigger("on_experiment_end")
@@ -270,4 +271,12 @@ class Experiment(ABC):
             raise InstrumentError(f"Required instrument '{name}' not found")
         return instrument
     
+    def get_current_run_dir(self) -> str:
+        """
+        Get the directory for the current run.
+        
+        Returns:
+            The directory path for the current run
+        """
+        return os.path.join(self.experiment_dir, f'run-{self.config["run_id"]}')
     

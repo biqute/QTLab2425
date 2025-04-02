@@ -78,7 +78,7 @@ applied_watt = 1e-3 * math.pow(10, applied_dBm / 10) # watt = 1mW * 10^(power/10
 Q_l_lambda = lambda params: 1/(1/params["Q_i"]["value"] + 1/params["Q_c"]["value"])
 fitter.derived_params = {
     "Q_l": Q_l_lambda,
-    "n": lambda params: 2 / constants.hbar / params["f_r"]["value"] * (Q_l_lambda(params))**2 / params["Q_c"]["value"] * applied_watt, # https://arxiv.org/pdf/2006.04718 Eq. (20)
+    "n": lambda params: 4 * constants.pi / constants.hbar / params["f_r"]["value"]**2 * (Q_l_lambda(params))**2 / params["Q_c"]["value"] * applied_watt, # https://arxiv.org/pdf/2006.04718 Eq. (20)
 }
 fitter.param_units = {
     "A":   "1", 
