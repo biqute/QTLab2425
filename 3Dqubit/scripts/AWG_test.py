@@ -17,15 +17,18 @@ sigma = 1e-7
 # SDG6052X
 myAWG = AWG("192.168.3.15") # Check IP: Utility > Interface > LAN Setup > IP Address
 myAWG.timeout = 10e3
-myAWG.upload_waveform(
-    name = "TEST", 
-    # func = gaussian(0, sigma), 
-    func = modulated_harmonic(1, 15/T, 0, 0, sigma), 
-    interval = (-T/2, T/2), 
-)
-# myAWG.modulation = True
-# myAWG.modulation_shape = ""
-# myAWG.output = True
+
+# myAWG.upload_waveform(
+#     name = "TEST", 
+#     # func = gaussian(0, sigma), 
+#     func = modulated_harmonic(1, 15/T, 0, 0, sigma), 
+#     interval = (-T/2, T/2), 
+# )
+
+myAWG.freq = 2e3 # 2kHz
+myAWG.amplitude = 4 # 2Vpp
+myAWG.waveform = "Local/TEST.bin"
+myAWG.output = True
 
 # import matplotlib.pyplot as plt
 # datax = np.linspace(0, 2e-6)

@@ -9,6 +9,7 @@ class AWG(EthernetDevice):
     __freq = 0
     __amplitude = 0
     __modulation = False
+    __waveform = None
 
     def on_init(self, ip_address_string):
         self.write_expect("*RST") # clear settings
@@ -22,6 +23,9 @@ class AWG(EthernetDevice):
         arr1 = self.query_expect(f"C1:BASIC_WAVE?").strip()[8:].split(",")
         arr2 = self.query_expect(f"C1:OUTP?").strip()[8:].split(",")
         arr3 = self.query_expect(f"C1:MODULATEWAVE?").strip()[8:].split(",")
+        arr4 = self.query_expect(f"C1:ARWV?").strip()[8:].split(",")
+        
+        print(arr4)
 
         read_from_arr = lambda arr, field: arr[arr.index(field) + 1] # panics if the field is not found
 
@@ -34,6 +38,7 @@ class AWG(EthernetDevice):
             "amplitude": float(read_from_arr(arr1, "AMP")[:-1]),
             "output": arr2[0] == "ON",
             "modulation": read_from_arr(arr3, "STATE") == "ON",
+            "waveform": read_from_arr(arr4, "NAME"),
         }
     
     def upload_waveform(self, name, func, interval, samples_per_second = None, samples = None):
@@ -68,7 +73,7 @@ class AWG(EthernetDevice):
             raise Exception(f"The maximum number of samples is 1e6, but {samples} was found")
         
         array = np.zeros(samples, dtype=np.int16)
-        N = 15
+        N = 16
         cropped = 0
         for i in range(0,samples):
             f = func(interval[0] + i / samples_per_second)
@@ -159,4 +164,30 @@ class AWG(EthernetDevice):
         s = self.status()
         if self.modulation != s["modulation"]: 
             raise Exception(f"There's a mismatch between the value of 'modulation', which is {self.modulation}, and the corresponding value on the device, which is {s["modulation"]}.")
+    
+    # WAVEFORM
+
+    @property
+    def waveform(self):
+        return self.__waveform
+
+    @waveform.setter
+    def waveform(self, name):
+        """Set waveform of the generated waveform"""
+        
+        # self.write_expect(f"C1:BASIC_WAVE WVTP,SINE,FRQ,1000,AMP,4")
+        self.write(f"C1:BASIC_WAVE WVTP,ARB")
+        # TODO: NEED A COMMAND TO SAY THAT THE WAVEFORM IS TAKEN FROM FILE
+        self.write(f"C1:ARWV NAME,\"{name}\"")
+        self.write(f"C1:SRATE MODE,DDS")
+        
+        # self.write(f"C1:SRATE MODE,TARB,VALUE,1e6")
+        # self.write_expect(f"C1:ARWV INDEX,{value}")
+    
+        self.__waveform = name
+
+        s = self.status()
+        if self.waveform != s["waveform"]: 
+            pass
+            # raise Exception(f"There's a mismatch between the value of 'waveform', which is '{self.waveform}', and the corresponding value on the device, which is '{s["waveform"]}'.")
     

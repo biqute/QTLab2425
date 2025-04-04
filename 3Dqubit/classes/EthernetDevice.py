@@ -131,4 +131,4 @@ class EthernetDevice:
         if self.__res is None: raise Exception("No connection.")
         self.__res.timeout = millis
         self.__timeout = millis
-
+        
