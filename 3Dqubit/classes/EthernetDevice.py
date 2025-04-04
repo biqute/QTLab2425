@@ -1,5 +1,6 @@
 import pyvisa
 import sys
+import time
 
 class EthernetDevice:
     """
@@ -47,6 +48,10 @@ class EthernetDevice:
 
     def query(self, command):
         return self.__res.query(command)
+    
+    def write_binary_values(self, command, data, datatype, is_big_endian, header_fmt):
+        """Send binary values to device"""
+        return self.__res.write_binary_values(command, data, datatype=datatype, is_big_endian=is_big_endian, header_fmt=header_fmt)
 
     def write_expect(self, command, error_msg = None):
         """Send write command to device and check for operation complete"""
@@ -67,11 +72,15 @@ class EthernetDevice:
         """Send query command to device and check for operation complete. Returns the queried value if no error occurs."""
         if self.__res is None: raise Exception("No connection.")
 
+        if self.debug: 
+            print(f"[{command}]", end="")
+            sys.stdout.flush()
+            
         data = self.query(f"{command}")
         result = self.query("*OPC?")
 
         if self.debug: 
-            print(f"[{command}] {result.strip()}")
+            print(f" {result.strip()}")
             sys.stdout.flush()
         if '0' in result:
             if error_msg is None:
@@ -81,15 +90,33 @@ class EthernetDevice:
         
         return data
     
-    def write_binary_values(self, command, data):
-        """Send binary values to device"""
+    def write_binary_values_expect(self, command, data, datatype='h', error_msg = None):
+        """
+        Send binary values to device
+        
+        Parameters
+         - command: string (for example "C1:WVDT WVNM,filename,WAVEDATA,")
+         - data: np.array
+         - datatype: char (see [list of datatypes](https://docs.python.org/3/library/struct.html#format-characters))
+        """
         if self.__res is None: raise Exception("No connection.")
 
-        self.__res.write_binary_values(command, data, datatype='H', is_big_endian=False)
+        if self.debug: 
+            print(f"[{command}<{len(data)} points of type '{datatype}'>]", end="")
+            sys.stdout.flush()
+
+        self.write_binary_values(command, data, datatype=datatype, is_big_endian=False, header_fmt='empty')
+            
+        result = self.query("*OPC?")
 
         if self.debug: 
-            print(f"[{command}]")
+            print(f" {result.strip()}")
             sys.stdout.flush()
+        if '0' in result:
+            if error_msg is None:
+                raise Exception(f"Operation '{command}' could not complete.")
+            else:
+                raise Exception(error_msg)
         
 
     # TIMEOUT

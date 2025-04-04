@@ -1,5 +1,6 @@
 import numpy as np
 from EthernetDevice import EthernetDevice
+import warnings
 
 class AWG(EthernetDevice):
     """Arbitrary Waveform Generator (AWG)"""
@@ -22,57 +23,68 @@ class AWG(EthernetDevice):
         arr2 = self.query_expect(f"C1:OUTP?").strip()[8:].split(",")
         arr3 = self.query_expect(f"C1:MODULATEWAVE?").strip()[8:].split(",")
 
+        read_from_arr = lambda arr, field: arr[arr.index(field) + 1] # panics if the field is not found
+
         # Sanity checks
         if arr2[0] not in ["ON", "OFF"]: raise Exception(f"Output should be either ON or OFF, but '{arr2[0]}' was found") 
-        if arr3[1] not in ["ON", "OFF"]: raise Exception(f"Modulation should be either ON or OFF, but '{arr3[1]}' was found") 
-
-        print(arr3)
+        if read_from_arr(arr3, "STATE") not in ["ON", "OFF"]: raise Exception(f"Modulation should be either ON or OFF, but '{arr3[1]}' was found") 
 
         return {
-            "freq": int(arr1[3][:-2]),
-            "amplitude": int(arr1[7][:-1]),
+            "freq": float(read_from_arr(arr1, "FRQ")[:-2]),
+            "amplitude": float(read_from_arr(arr1, "AMP")[:-1]),
             "output": arr2[0] == "ON",
-            "modulation": arr3[1] == "ON",
+            "modulation": read_from_arr(arr3, "STATE") == "ON",
         }
     
-    def upload_waveform(self, name, func, duration, samples_per_second = 2.4e9):
-        points = int(duration * samples_per_second)
-
+    def upload_waveform(self, name, func, interval, samples_per_second = None, samples = None):
+        """
+        Upload a waveform to the AWG
+        
+        Parameters
+        - `name` (`string`): name of the waveform
+        - `func` (`function`): function to be used to generate the waveform. It should take a single argument (time) and return a single value (amplitude).
+        - `interval` (`tuple`): tuple of length two with the extremes of the interval of func to sample from (in units of time)
+        - `samples_per_second` (`float`): number of samples per unit of time (optional)
+        - `samples` (`int`): number of samples (optional)
+        """
+        
+        if len(interval) != 2: 
+            raise Exception(f"interval should be a tuple of length 2, but a length of \"{len(interval)}\" was found") 
+        if samples is not None and samples_per_second is not None:
+            raise Exception(f"You should not specify both samples and samples_per_second, but neither is set to None")
         if " " in name or "," in name: 
             raise Exception(f"name should not contain spaces ' ' nor commas ',', but \"{name}\" was found") 
+        
+        if samples is None and samples_per_second is None:
+            samples_per_second = 2.4e9
+        
+        duration = interval[1] - interval[0]
+        if samples is None: samples = int(duration * samples_per_second)
+        if samples_per_second is None: samples_per_second = samples / duration
+
         if samples_per_second > 2.4e9: 
             raise Exception(f"The maximum value of samples_per_second is 2.4e9, but {samples_per_second} was found")  
-        if points > 1e6: 
-            raise Exception(f"The maximum number of points is 1e6, but {points} was found")
-
-        # dat = "Xpos,value"
-        # for i in range(0,points):
-        #     dat += f"\n{i},{func(i / samples_per_second)}" 
-        # self.write_expect(f"C1:WVDT WVNM,{name},WAVEDATA,'{dat}'")
-
-        # bin = ""
-        # for i in range(0,points):
-        #     f = func(i / samples_per_second)
-        #     n = int((2**16)*f)
-        #     if n < -32768: n = -32768
-        #     if n > +32767: n = +32767
-        #     string = hex(n)[2:]
-        #     string = (4 - len(string))*"0" + string
-        #     bin += string
-
-        #print(bin)
+        if samples > 1e6: 
+            raise Exception(f"The maximum number of samples is 1e6, but {samples} was found")
         
-
-        # test = [0x0080, 0x0070, 0x0060, 0x0050, 0x0060, 0x0070, 0x0080]
-        
-        array = np.zeros(points, dtype=np.int16)
-        N = 7
-        for i in range(0,points):
-            f = func(i / samples_per_second)
+        array = np.zeros(samples, dtype=np.int16)
+        N = 15
+        cropped = 0
+        for i in range(0,samples):
+            f = func(interval[0] + i / samples_per_second)
             n = int(round((2**N)*f))
-            if n > (2**N - 1): n = 2**N - 1
+            if n > (2**N - 1): 
+                n = 2**N - 1
+                cropped += 1
+            if n < -2**N: 
+                n = -2**N
+                cropped += 1
             array[i] = n
-        self.write_binary_values(f"C1:WVDT WVNM,TEST,LENGTH,{points*2},WAVEDATA,", array) # https://pyvisa.readthedocs.io/en/1.8/rvalues.html#writing-binary-values !!!
+        
+        if cropped > 0 and self.debug: 
+            warnings.warn(f"The function 'func' was cropped to the range [-1, +1], for a total of {cropped} cropped samples.", stacklevel=2)
+            
+        self.write_binary_values_expect(f"C1:WVDT WVNM,{name},LENGTH,{samples*2},WAVEDATA,", array, datatype="h") # https://pyvisa.readthedocs.io/en/1.8/rvalues.html#writing-binary-values !!!
 
     # OUTPUT
 
