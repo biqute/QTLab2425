@@ -24,7 +24,7 @@ class Data :
         
         try :
 
-            np.savetxt(f"../presa_dati/cavity_resonances/Res4/risonanza/{nome}.txt", self.vect, fmt="%.18g", newline="\n", delimiter="\t", header=commento)
+            np.savetxt(f"../presa_dati/Cavity_resonances_1.4K/{nome}.txt", self.vect, fmt="%.18g", newline="\n", delimiter="\t", header=commento)
             return True
         
         except Exception as e :
