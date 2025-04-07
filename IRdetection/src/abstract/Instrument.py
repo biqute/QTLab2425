@@ -16,7 +16,7 @@ class Instrument(ABC):
         pass
 
     @abstractmethod
-    def __activate(self):
+    def _activate(self):
         """Activate the instrument. Put it in remote mode."""
         pass
 

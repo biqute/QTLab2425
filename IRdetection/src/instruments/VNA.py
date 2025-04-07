@@ -315,7 +315,7 @@ class VNA(Instrument):
             message += f"\nIDN: {self.vna.query('*IDN?')}"
         return message
     
-    def _Instrument__activate(self): # Dummy method
+    def _Instrument_activate(self): # Dummy method
         pass
     
     def reset(self):

@@ -1,0 +1,14 @@
+(2025-04-02 14:57:20)[SYSTEM]: Experiment `SimpleTest` started. Run ID 1.
+(2025-04-02 14:57:20)[INFO]: Instrument `test_device` initialized and activated.
+(2025-04-02 14:57:20)[INFO]: Initializing simple test experiment...
+(2025-04-02 14:57:20)[INFO]: Will run 5 iterations
+(2025-04-02 14:57:20)[SYSTEM]: Starting experiment routine...
+(2025-04-02 14:57:20)[INFO]: Running iteration 1/5
+(2025-04-02 14:57:20)[INFO]: Running iteration 2/5
+(2025-04-02 14:57:21)[INFO]: Running iteration 3/5
+(2025-04-02 14:57:21)[INFO]: Running iteration 4/5
+(2025-04-02 14:57:22)[INFO]: Running iteration 5/5
+(2025-04-02 14:57:22)[SYSTEM]: Experiment routine completed
+(2025-04-02 14:57:22)[INFO]: Cleaning up experiment resources...
+(2025-04-02 14:57:22)[INFO]: Instrument `test_device` shut down.
+(2025-04-02 14:57:22)[SYSTEM]: Experiment `SimpleTest` completed. Run ID 1.

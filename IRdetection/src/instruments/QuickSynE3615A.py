@@ -17,7 +17,7 @@ class QuickSyn(Instrument):
         if not self.ser.is_open:
             raise ValueError('Connection failed. Check the port name and the device.')
         # Set the output state to ON
-        self._Instrument__activate()
+        self._Instrument_activate()
     
     def set_frequency(self, frequency, order="GHz"):
         """

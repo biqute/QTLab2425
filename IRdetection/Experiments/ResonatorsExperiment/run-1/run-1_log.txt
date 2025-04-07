@@ -1,0 +1,8 @@
+(2025-04-02 17:32:03)[SYSTEM]: Experiment `ResonatorsExperiment` started. Run ID 1.
+(2025-04-02 17:32:05)[INFO]: Instrument `VNA` initialized and activated.
+(2025-04-02 17:32:10)[INFO]: first_peak acquired
+(2025-04-02 17:32:14)[INFO]: second_peak acquired
+(2025-04-02 17:32:17)[INFO]: third_peak acquired
+(2025-04-02 17:32:21)[INFO]: fourth_peak acquired
+(2025-04-02 17:32:21)[INFO]: Instrument `VNA` shut down.
+(2025-04-02 17:32:21)[SYSTEM]: Experiment `ResonatorsExperiment` completed. Run ID 1.
