@@ -134,8 +134,8 @@ class VNA(Instrument, EthernetDevice):
         self.write_expect("DISP:WIND:TRAC1:Y:AUTO") # Turn on autoscaling on the y axis
         
         self.timeout = 10e3
-        self.min_freq = 4e9
-        self.max_freq = 6e9
+        # self.min_freq = 4e9
+        # self.max_freq = 6e9
         self.point_count = 400 
         self.bandwidth = 10e3 # Hz
         self.avg_count = 1

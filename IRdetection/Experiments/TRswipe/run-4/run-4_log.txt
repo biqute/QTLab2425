@@ -1,0 +1,4 @@
+(2025-04-09 15:58:55)[SYSTEM]: Experiment `TRswipe` started. Run ID 4.
+(2025-04-09 15:58:55)[INFO]: Instrument `VNA` initialized and activated.
+(2025-04-09 15:59:23)[INFO]: peak_bc_0.0_uA acquired. Bias current: 0.0 uA, Frequency center: 6234000000.0 Hz
+(2025-04-09 16:01:59)[INFO]: peak_bc_0.25_uA acquired. Bias current: 0.25 uA, Frequency center: 6233000000.0 Hz
