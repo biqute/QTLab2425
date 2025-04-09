@@ -42,6 +42,11 @@ fitter.show_pvalue = False
 fitter.file_name = f"..\\plots\\{basename}.pdf"
 fitter.figure_size = (30, 24)
 
+# [res1, res2, res3] = simultaneous_fitting([fitter1, ftter2, fitter3])
+# fitter1.plot(res1)
+# fitter2.plot(res2)
+# fitter3.plot(res3)
+
 Q_c = 10e3 # coupling quality factor
 f_r = fitter.datax[np.argmax(fitter.datay)]
 width = peak_width(fitter.datax, fitter.datay) # no - in front of datay

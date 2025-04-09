@@ -47,9 +47,9 @@ class AWG(EthernetDevice):
         
         Parameters
         - `name` (`string`): name of the waveform
-        - `func` (`function`): function to be used to generate the waveform. It should take a single argument (time) and return a single value (amplitude).
-        - `interval` (`tuple`): tuple of length two with the extremes of the interval of func to sample from (in units of time)
-        - `samples_per_second` (`float`): number of samples per unit of time (optional)
+        - `func` (`function`): function to be used to generate the waveform. It should take a single argument (time in seconds) and return a single value (amplitude).
+        - `interval` (`tuple`): tuple of length two with the extremes of the interval of func to sample from (in seconds)
+        - `samples_per_second` (`float`): number of samples per second (optional)
         - `samples` (`int`): number of samples (optional)
         """
         
@@ -178,6 +178,7 @@ class AWG(EthernetDevice):
         # self.write_expect(f"C1:BASIC_WAVE WVTP,SINE,FRQ,1000,AMP,4")
         self.write(f"C1:BASIC_WAVE WVTP,ARB")
         # TODO: NEED A COMMAND TO SAY THAT THE WAVEFORM IS TAKEN FROM FILE
+        print(self.query_expect(f"STL? USER"))
         self.write(f"C1:ARWV NAME,\"{name}\"")
         self.write(f"C1:SRATE MODE,DDS")
         

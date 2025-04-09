@@ -26,7 +26,7 @@ myAWG.timeout = 10e3
 # )
 
 myAWG.freq = 2e3 # 2kHz
-myAWG.amplitude = 4 # 2Vpp
+myAWG.amplitude = 4 # Vpp
 myAWG.waveform = "Local/TEST.bin"
 myAWG.output = True
 

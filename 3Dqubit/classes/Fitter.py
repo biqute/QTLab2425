@@ -48,6 +48,9 @@ class Fitter():
 
     ## `plot_fit(self)`
     Returns a dictionary with the same fields as `fit` plus the field "plot" which is the matplotlib plotting object.
+    
+    ## `plot(self, res)`
+    Plot result of a call to fit().
 
     ## Conventions
      - All arrays are numpy arrays
@@ -61,6 +64,7 @@ class Fitter():
     params = {}
     param_units = {}
     param_displayed_names = {}
+    derived_params = {}
     
     title = "Title"
     labelx = "x"
@@ -82,7 +86,7 @@ class Fitter():
 
     def fit(self):
         separated = separate_values_from_limits(self.params)
-
+        
         least_squares = LeastSquares(self.datax, self.datay, self.sigmay, self.model)
         m = Minuit(least_squares, **separated["values"]) 
         
@@ -111,9 +115,8 @@ class Fitter():
             "derived_params": final_derived_params,
         }
     
-    def plot_fit(self):
+    def plot(self, res):
         # FITTING
-        res = self.fit()
         final_values = {}
         for key, value in res["params"].items():
             final_values[key] = value["value"]
@@ -247,6 +250,9 @@ class Fitter():
 
         res["plot"] = plt
         return res
+      
+    def plot_fit(self):
+        return self.plot(self.fit())
 
 def separate_values_from_limits(params):
     params_values = {}
