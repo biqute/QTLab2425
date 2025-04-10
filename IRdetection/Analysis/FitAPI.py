@@ -11,6 +11,12 @@ class Model:
         self.param_names = param_names
         for name in param_names:
             setattr(self, name, None)
+        
+        # By default all parameters are active and their value set to zero
+        self.active_params = {}
+        for p_name in param_names:
+            self.active_params[p_name] = True
+            setattr(self, p_name, 0.0)  # Set default value to 0.0
     
     def assing_params(self, params: dict[str, float]) -> None:
         for p_name in self.param_names:
@@ -86,6 +92,7 @@ class Fitter:
         self.loss_function = loss_function  
         self.params_range = params_range
 
+
     def fit_magicus(self, searcher):
         """
         It will fit the data.
@@ -114,11 +121,11 @@ class Fitter:
             self.model.set_active_params(self.model.param_names)
             fit_result = self.fit()
             if fit_result.valid:
-                if p_value(fit_result) > pvalue_treshold:
-                    print(f"First total fit converged good, p-value = {p_value(fit_result)}")
+                if self.p_value(fit_result) > pvalue_treshold:
+                    print(f"First total fit converged good, p-value = {self.p_value(fit_result)}")
                     return fit_result
                 else:
-                    print(f"First total fit converged bad, p-value = {p_value(fit_result)}")
+                    print(f"First total fit converged bad, p-value = {self.p_value(fit_result)}")
             else:
                 print("First total fit failed")
         
@@ -138,17 +145,17 @@ class Fitter:
             # Check if the fit converged
             if fit_result.valid:
                 # Check if the p-value is greater than the treshold
-                if p_value(fit_result) > pvalue_treshold: # Fit is good
+                if self.p_value(fit_result) > pvalue_treshold: # Fit is good
                     # pop first N_fixed_params
                     params_to_fit = params_to_fit[N_fixed_params:]
                     # Set inital guess of currently active params to the fitted values
                     result_values = fit_result.values.to_dict()
                     self.model.assing_params({p_name: result_values[p_name] for p_name in result_values})
-                    print(f"Partial fit {iter_counter} converged good , p-value = {p_value(fit_result)}")
+                    print(f"Partial fit {iter_counter} converged good , p-value = {self.p_value(fit_result)}")
                 else: # Fit is bad
                     # put first element at the end
                     params_to_fit = params_to_fit[1:] + [params_to_fit[0]]  
-                    print(f"Partial fit {iter_counter} converged bad , p-value = {p_value(fit_result)}")          
+                    print(f"Partial fit {iter_counter} converged bad , p-value = {self.p_value(fit_result)}")          
             else:
                 # put first element at the end
                 params_to_fit = params_to_fit[1:] + [params_to_fit[0]]
@@ -189,8 +196,8 @@ class Fitter:
         m.migrad()
         return m
 
-def p_value(m: Minuit) -> float:
-    return 1 - stats.chi2.cdf(m.fval, m.ndof)
+    def p_value(self, m: Minuit) -> float:
+        return 1 - stats.chi2.cdf(m.fval, m.ndof)
 
 
 
@@ -215,6 +222,24 @@ class Searcher(ABC):
         for p_name, p_value in self.params.items():
             if p_value is None:
                 raise ValueError(f"Parameter {p_name} is not set")
+
+
+class GridSearcher(Searcher):
+    def __init__(self, center: float, stride: float, number_of_points: int):
+        """
+        Searcher that searches for the best initial guess using a grid search.
+
+        Parameters
+        :param center: Center of the grid search.
+        :param stride: Stride of the grid search.
+        :param number_of_points: Number of points in the grid search.
+        """
+        super().__init__()
+        self.center = center
+        self.stride = stride
+        self.number_of_points = number_of_points
+        self.grid_points = np.linspace(center - stride * number_of_points / 2, center + stride * number_of_points / 2, number_of_points)
+
 
 class ResonancePeakSearcher(Searcher):
     def __init__(self):
@@ -260,11 +285,9 @@ class ResonancePeakSearcher(Searcher):
         
         # Estimate the resonance frequency (f0) as the frequency at the minimum amplitude (dip)
         index_dip = np.argmin(data[:, 1])
-        f0 = data[index_dip, 0]
-        self.params["f0"] = f0
-
-        # fmin is the frequency at the minimum amplitude (dip) and it will be fixed in the model
-        self.params["fmin"] = f0
+        fmin = data[index_dip, 0]  # fmin is the frequency at the minimum amplitude (dip)
+        self.params["fmin"] = fmin
+        self.params["f0"] = 0 # Shifted to about the center in the model function
 
         # Estimate the baseline from data endpoints (first and last 10% of points)
         N = data.shape[0]
@@ -273,59 +296,30 @@ class ResonancePeakSearcher(Searcher):
         baseline_right = np.median(data[-edge_count:, 1])
         baseline = (baseline_left + baseline_right) / 2
 
-        # Determine the dip depth and the half-depth level
-        y_min = data[index_dip, 1]
-        depth = baseline - y_min  # typically positive for a dip
-        half_level = baseline - depth / 2
-
-        # Find the frequency on the left side where y is closest to half_level
-        left_indices = np.where(data[:, 0] < f0)[0]
-        if len(left_indices) > 0:
-            left_index = left_indices[np.argmin(np.abs(data[left_indices, 1] - half_level))]
-            f_left = data[left_index, 0]
-        else:
-            f_left = f0
-
-        # Find the frequency on the right side where y is closest to half_level
-        right_indices = np.where(data[:, 0] > f0)[0]
-        if len(right_indices) > 0:
-            right_index = right_indices[np.argmin(np.abs(data[right_indices, 1] - half_level))]
-            f_right = data[right_index, 0]
-        else:
-            f_right = f0
-
-        # Estimate FWHM (full width at half minimum)
-        fwhm = f_right - f_left
+        fwhm = self._peak_width(data[:, 0], data[:, 1])
         if fwhm <= 0:
             # Fallback to using a fraction of the frequency range if a valid FWHM cannot be found
             fwhm = 0.05 * (np.max(data[:, 0]) - np.min(data[:, 0]))
 
         # Estimate total Q: Q_t ~ f0 / fwhm
-        Qt = f0 / fwhm if fwhm != 0 else 1e4
+        Qt = fmin / fwhm if fwhm != 0 else (29208/1.5)
         self.params["Qt"] = Qt
         
-        # Estimate coupling Q as a factor (for example, 1.5 times Qt)
-        Qc = 1.5 * Qt
+        # Qc is estimated as Qc = 1.1 * Qt
+        Qc = 1.1 * Qt 
         self.params["Qc"] = Qc
 
-        # Assume a zero phase shift initial guess
-        self.params["phi"] = 0.0
+        # Estimate the phase shift (phi) as a small negative value
+        self.params["phi"] = 0
 
         # Set baseline polynomial parameters: A is baseline, B, C, D are 0
         self.params["A"] = baseline
-        self.params["B"] = 0.0
-        self.params["C"] = 0.0
-        self.params["D"] = 0.0
+        self.params["B"] = 2.8643e-8
+        self.params["C"] = 8.0398e-15
+        self.params["D"] = -3.5988e-20
 
         # Compute the amplitude factor K.
-        # Model at resonance (f = f0, fmin provided) becomes:
-        #   y(f0) = A + K * |1 - (Qt/Qc)|
-        # Solve for K:
-        factor = abs(1 - (Qt / abs(Qc)))
-        if factor != 0:
-            K = (y_min - baseline) / factor
-        else:
-            K = 0.0
+        K = (np.max(data[:, 1]) - np.min(data[:, 1])) * Qc / Qt if Qt != 0 else 0.0
         self.params["K"] = K
 
         # Assign the found parameters to the model
@@ -334,3 +328,14 @@ class ResonancePeakSearcher(Searcher):
 
         # Fix fmin, it will be used as a parameter in the model
         model.set_fixed_params(["fmin"])
+
+    def _peak_width(self, datax, datay):
+        half_height_value = np.min(datay) + (np.max(datay) - np.min(datay)) / np.sqrt(2)
+        hits = []
+        above = datay[0] > half_height_value
+        for i in range(1, len(datay)):
+            new_above = datay[i] > half_height_value
+            if new_above != above: 
+                hits.append((datax[i] + datax[i-1]) / 2)
+                above = new_above
+        return abs(hits[-1] - hits[0])
