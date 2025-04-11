@@ -3,7 +3,12 @@ import sys; sys.path.append("../classes")
 from Fitter import Fitter
 
 def simultaneous_fit(fitters):
-    """Perform simultaneous fitting of multiple Fitter objects"""
+    """
+    Perform simultaneous fitting of multiple Fitter objects.
+    
+    parameters
+     - fitters: list of Fitter objects to be fitted simultaneously
+    """
     mfitter = Fitter()
     mfitter.datax = np.concat([f.datax for f in fitters])
     mfitter.datay = np.concat([f.datay for f in fitters])
