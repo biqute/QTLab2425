@@ -1,0 +1,10 @@
+info, empty cavity S21
+time, 2025-04-11 10:24:50.223802
+temperature, 40mK
+min_freq, 7411434420.0Hz
+max_freq, 7511434420.0Hz
+point_count, 10000
+timeout, 360000.0ms
+avg_count, 10
+bandwidth, 1000Hz
+power, -10dBm
