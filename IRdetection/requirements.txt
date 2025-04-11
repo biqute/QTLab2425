@@ -9,3 +9,5 @@ scipy
 niscope
 h5py
 pandas
+tqdm
+PyYAML

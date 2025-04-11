@@ -1,0 +1,132 @@
+(2025-04-11 13:27:47)[SYSTEM]: Experiment `TRswipeAuto` started. Run ID 0.
+(2025-04-11 13:27:48)[INFO]: Instrument `VNA` initialized and activated.
+(2025-04-11 13:27:48)[INFO]: Instrument `SIM928` initialized and activated.
+(2025-04-11 13:27:48)[INFO]: Sweep parameters set: f0=6.234427256 GHz, Span=7.5 MHz, Voltage range: 0.0V to 8.0V in 0.2V steps, Model parameters: a=12.6, b=9.28
+(2025-04-11 13:27:50)[INFO]: Set bias voltage to 0.000 V
+(2025-04-11 13:27:51)[INFO]: Calculated center frequency: 6.234430 GHz for bias current: 0.000 mA
+(2025-04-11 13:28:26)[INFO]: Acquired data at bias voltage: 0.000V (current: 0.000 mA)
+(2025-04-11 13:28:26)[INFO]: Set bias voltage to 0.200 V
+(2025-04-11 13:28:28)[INFO]: Calculated center frequency: 6.234230 GHz for bias current: 0.100 mA
+(2025-04-11 13:29:01)[INFO]: Acquired data at bias voltage: 0.200V (current: 0.100 mA)
+(2025-04-11 13:29:01)[INFO]: Set bias voltage to 0.400 V
+(2025-04-11 13:29:03)[INFO]: Calculated center frequency: 6.233640 GHz for bias current: 0.200 mA
+(2025-04-11 13:29:37)[INFO]: Acquired data at bias voltage: 0.400V (current: 0.200 mA)
+(2025-04-11 13:29:37)[INFO]: Set bias voltage to 0.600 V
+(2025-04-11 13:29:38)[INFO]: Calculated center frequency: 6.232650 GHz for bias current: 0.300 mA
+(2025-04-11 13:30:12)[INFO]: Acquired data at bias voltage: 0.600V (current: 0.300 mA)
+(2025-04-11 13:30:12)[INFO]: Set bias voltage to 0.800 V
+(2025-04-11 13:30:14)[INFO]: Calculated center frequency: 6.231270 GHz for bias current: 0.401 mA
+(2025-04-11 13:30:48)[INFO]: Acquired data at bias voltage: 0.800V (current: 0.401 mA)
+(2025-04-11 13:30:48)[INFO]: Set bias voltage to 1.000 V
+(2025-04-11 13:30:49)[INFO]: Calculated center frequency: 6.229480 GHz for bias current: 0.501 mA
+(2025-04-11 13:31:23)[INFO]: Acquired data at bias voltage: 1.000V (current: 0.501 mA)
+(2025-04-11 13:31:23)[INFO]: Set bias voltage to 1.200 V
+(2025-04-11 13:31:25)[INFO]: Calculated center frequency: 6.227280 GHz for bias current: 0.601 mA
+(2025-04-11 13:31:59)[INFO]: Acquired data at bias voltage: 1.200V (current: 0.601 mA)
+(2025-04-11 13:31:59)[INFO]: Set bias voltage to 1.400 V
+(2025-04-11 13:32:01)[INFO]: Calculated center frequency: 6.224680 GHz for bias current: 0.701 mA
+(2025-04-11 13:32:35)[INFO]: Acquired data at bias voltage: 1.400V (current: 0.701 mA)
+(2025-04-11 13:32:35)[INFO]: Set bias voltage to 1.600 V
+(2025-04-11 13:32:36)[INFO]: Calculated center frequency: 6.221650 GHz for bias current: 0.801 mA
+(2025-04-11 13:33:10)[INFO]: Acquired data at bias voltage: 1.600V (current: 0.801 mA)
+(2025-04-11 13:33:10)[INFO]: Set bias voltage to 1.800 V
+(2025-04-11 13:33:11)[INFO]: Calculated center frequency: 6.218200 GHz for bias current: 0.901 mA
+(2025-04-11 13:33:46)[INFO]: Acquired data at bias voltage: 1.800V (current: 0.901 mA)
+(2025-04-11 13:33:46)[INFO]: Set bias voltage to 2.000 V
+(2025-04-11 13:33:47)[INFO]: Calculated center frequency: 6.214310 GHz for bias current: 1.002 mA
+(2025-04-11 13:34:20)[INFO]: Acquired data at bias voltage: 2.000V (current: 1.002 mA)
+(2025-04-11 13:34:20)[INFO]: Set bias voltage to 2.200 V
+(2025-04-11 13:34:22)[INFO]: Calculated center frequency: 6.209980 GHz for bias current: 1.102 mA
+(2025-04-11 13:34:56)[INFO]: Acquired data at bias voltage: 2.200V (current: 1.102 mA)
+(2025-04-11 13:34:56)[INFO]: Set bias voltage to 2.400 V
+(2025-04-11 13:34:57)[INFO]: Calculated center frequency: 6.205190 GHz for bias current: 1.202 mA
+(2025-04-11 13:35:30)[INFO]: Acquired data at bias voltage: 2.400V (current: 1.202 mA)
+(2025-04-11 13:35:30)[INFO]: Set bias voltage to 2.600 V
+(2025-04-11 13:35:31)[INFO]: Calculated center frequency: 6.199940 GHz for bias current: 1.302 mA
+(2025-04-11 13:36:05)[INFO]: Acquired data at bias voltage: 2.600V (current: 1.302 mA)
+(2025-04-11 13:36:05)[INFO]: Set bias voltage to 2.800 V
+(2025-04-11 13:36:06)[INFO]: Calculated center frequency: 6.194200 GHz for bias current: 1.402 mA
+(2025-04-11 13:36:40)[INFO]: Acquired data at bias voltage: 2.800V (current: 1.402 mA)
+(2025-04-11 13:36:40)[INFO]: Set bias voltage to 3.000 V
+(2025-04-11 13:36:42)[INFO]: Calculated center frequency: 6.187980 GHz for bias current: 1.502 mA
+(2025-04-11 13:37:15)[INFO]: Acquired data at bias voltage: 3.000V (current: 1.502 mA)
+(2025-04-11 13:37:15)[INFO]: Set bias voltage to 3.200 V
+(2025-04-11 13:37:17)[INFO]: Calculated center frequency: 6.181240 GHz for bias current: 1.602 mA
+(2025-04-11 13:37:51)[INFO]: Acquired data at bias voltage: 3.200V (current: 1.602 mA)
+(2025-04-11 13:37:51)[INFO]: Set bias voltage to 3.400 V
+(2025-04-11 13:37:52)[INFO]: Calculated center frequency: 6.173980 GHz for bias current: 1.703 mA
+(2025-04-11 13:38:26)[INFO]: Acquired data at bias voltage: 3.400V (current: 1.703 mA)
+(2025-04-11 13:38:26)[INFO]: Set bias voltage to 3.600 V
+(2025-04-11 13:38:27)[INFO]: Calculated center frequency: 6.166180 GHz for bias current: 1.803 mA
+(2025-04-11 13:39:01)[INFO]: Acquired data at bias voltage: 3.600V (current: 1.803 mA)
+(2025-04-11 13:39:01)[INFO]: Set bias voltage to 3.800 V
+(2025-04-11 13:39:02)[INFO]: Calculated center frequency: 6.157820 GHz for bias current: 1.903 mA
+(2025-04-11 13:39:36)[INFO]: Acquired data at bias voltage: 3.800V (current: 1.903 mA)
+(2025-04-11 13:39:36)[INFO]: Set bias voltage to 4.000 V
+(2025-04-11 13:39:37)[INFO]: Calculated center frequency: 6.148890 GHz for bias current: 2.003 mA
+(2025-04-11 13:40:11)[INFO]: Acquired data at bias voltage: 4.000V (current: 2.003 mA)
+(2025-04-11 13:40:11)[INFO]: Set bias voltage to 4.200 V
+(2025-04-11 13:40:13)[INFO]: Calculated center frequency: 6.139350 GHz for bias current: 2.103 mA
+(2025-04-11 13:40:46)[INFO]: Acquired data at bias voltage: 4.200V (current: 2.103 mA)
+(2025-04-11 13:40:46)[INFO]: Set bias voltage to 4.400 V
+(2025-04-11 13:40:47)[INFO]: Calculated center frequency: 6.129200 GHz for bias current: 2.203 mA
+(2025-04-11 13:41:21)[INFO]: Acquired data at bias voltage: 4.400V (current: 2.203 mA)
+(2025-04-11 13:41:21)[INFO]: Set bias voltage to 4.600 V
+(2025-04-11 13:41:22)[INFO]: Calculated center frequency: 6.118410 GHz for bias current: 2.303 mA
+(2025-04-11 13:41:56)[INFO]: Acquired data at bias voltage: 4.600V (current: 2.303 mA)
+(2025-04-11 13:41:56)[INFO]: Set bias voltage to 4.800 V
+(2025-04-11 13:41:58)[INFO]: Calculated center frequency: 6.106960 GHz for bias current: 2.404 mA
+(2025-04-11 13:42:31)[INFO]: Acquired data at bias voltage: 4.800V (current: 2.404 mA)
+(2025-04-11 13:42:31)[INFO]: Set bias voltage to 5.000 V
+(2025-04-11 13:42:33)[INFO]: Calculated center frequency: 6.094820 GHz for bias current: 2.504 mA
+(2025-04-11 13:43:06)[INFO]: Acquired data at bias voltage: 5.000V (current: 2.504 mA)
+(2025-04-11 13:43:06)[INFO]: Set bias voltage to 5.200 V
+(2025-04-11 13:43:08)[INFO]: Calculated center frequency: 6.081970 GHz for bias current: 2.604 mA
+(2025-04-11 13:43:41)[INFO]: Acquired data at bias voltage: 5.200V (current: 2.604 mA)
+(2025-04-11 13:43:41)[INFO]: Set bias voltage to 5.400 V
+(2025-04-11 13:43:43)[INFO]: Calculated center frequency: 6.068390 GHz for bias current: 2.704 mA
+(2025-04-11 13:44:16)[INFO]: Acquired data at bias voltage: 5.400V (current: 2.704 mA)
+(2025-04-11 13:44:16)[INFO]: Set bias voltage to 5.600 V
+(2025-04-11 13:44:18)[INFO]: Calculated center frequency: 6.054040 GHz for bias current: 2.804 mA
+(2025-04-11 13:44:51)[INFO]: Acquired data at bias voltage: 5.600V (current: 2.804 mA)
+(2025-04-11 13:44:51)[INFO]: Set bias voltage to 5.800 V
+(2025-04-11 13:44:52)[INFO]: Calculated center frequency: 6.038900 GHz for bias current: 2.904 mA
+(2025-04-11 13:45:25)[INFO]: Acquired data at bias voltage: 5.800V (current: 2.904 mA)
+(2025-04-11 13:45:25)[INFO]: Set bias voltage to 6.000 V
+(2025-04-11 13:45:27)[INFO]: Calculated center frequency: 6.022930 GHz for bias current: 3.005 mA
+(2025-04-11 13:46:00)[INFO]: Acquired data at bias voltage: 6.000V (current: 3.005 mA)
+(2025-04-11 13:46:00)[INFO]: Set bias voltage to 6.200 V
+(2025-04-11 13:46:02)[INFO]: Calculated center frequency: 6.006120 GHz for bias current: 3.105 mA
+(2025-04-11 13:46:35)[INFO]: Acquired data at bias voltage: 6.200V (current: 3.105 mA)
+(2025-04-11 13:46:35)[INFO]: Set bias voltage to 6.400 V
+(2025-04-11 13:46:36)[INFO]: Calculated center frequency: 5.988420 GHz for bias current: 3.205 mA
+(2025-04-11 13:47:10)[INFO]: Acquired data at bias voltage: 6.400V (current: 3.205 mA)
+(2025-04-11 13:47:10)[INFO]: Set bias voltage to 6.600 V
+(2025-04-11 13:47:11)[INFO]: Calculated center frequency: 5.969820 GHz for bias current: 3.305 mA
+(2025-04-11 13:47:44)[INFO]: Acquired data at bias voltage: 6.600V (current: 3.305 mA)
+(2025-04-11 13:47:44)[INFO]: Set bias voltage to 6.800 V
+(2025-04-11 13:47:46)[INFO]: Calculated center frequency: 5.950260 GHz for bias current: 3.405 mA
+(2025-04-11 13:48:19)[INFO]: Acquired data at bias voltage: 6.800V (current: 3.405 mA)
+(2025-04-11 13:48:19)[INFO]: Set bias voltage to 7.000 V
+(2025-04-11 13:48:21)[INFO]: Calculated center frequency: 5.929720 GHz for bias current: 3.505 mA
+(2025-04-11 13:48:54)[INFO]: Acquired data at bias voltage: 7.000V (current: 3.505 mA)
+(2025-04-11 13:48:54)[INFO]: Set bias voltage to 7.200 V
+(2025-04-11 13:48:56)[INFO]: Calculated center frequency: 5.908170 GHz for bias current: 3.605 mA
+(2025-04-11 13:49:29)[INFO]: Acquired data at bias voltage: 7.200V (current: 3.605 mA)
+(2025-04-11 13:49:29)[INFO]: Set bias voltage to 7.400 V
+(2025-04-11 13:49:31)[INFO]: Calculated center frequency: 5.885570 GHz for bias current: 3.706 mA
+(2025-04-11 13:50:05)[INFO]: Acquired data at bias voltage: 7.400V (current: 3.706 mA)
+(2025-04-11 13:50:05)[INFO]: Set bias voltage to 7.600 V
+(2025-04-11 13:50:06)[INFO]: Calculated center frequency: 5.861880 GHz for bias current: 3.806 mA
+(2025-04-11 13:50:40)[INFO]: Acquired data at bias voltage: 7.600V (current: 3.806 mA)
+(2025-04-11 13:50:40)[INFO]: Set bias voltage to 7.800 V
+(2025-04-11 13:50:41)[INFO]: Calculated center frequency: 5.837060 GHz for bias current: 3.906 mA
+(2025-04-11 13:51:14)[INFO]: Acquired data at bias voltage: 7.800V (current: 3.906 mA)
+(2025-04-11 13:51:14)[INFO]: Set bias voltage to 8.000 V
+(2025-04-11 13:51:16)[INFO]: Calculated center frequency: 5.811080 GHz for bias current: 4.006 mA
+(2025-04-11 13:51:49)[INFO]: Acquired data at bias voltage: 8.000V (current: 4.006 mA)
+(2025-04-11 13:51:49)[INFO]: Voltage sweep completed successfully. Data saved to Experiments/TRswipeAuto/run-0/data//tr_sweep_data.h5
+(2025-04-11 13:51:49)[INFO]: Voltage source reset and shutdown properly
+(2025-04-11 13:51:49)[INFO]: Instrument `VNA` shut down.
+(2025-04-11 13:51:49)[INFO]: Instrument `SIM928` shut down.
+(2025-04-11 13:51:49)[SYSTEM]: Experiment `TRswipeAuto` completed. Run ID 0.

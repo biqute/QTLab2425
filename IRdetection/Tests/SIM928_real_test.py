@@ -24,7 +24,7 @@ def test_real_sim928(port_name, address=1):
     Parameters:
     -----------
     port_name : str
-        Serial port name (e.g., 'COM9' on Windows, '/dev/ttyUSB0' on Linux)
+        Serial port name (e.g., 'COM3' on Windows, '/dev/ttyUSB0' on Linux)
     address : int
         Module address in the SIM900 mainframe (usually 1-8)
     """
@@ -99,7 +99,7 @@ if __name__ == "__main__":
     else:
         # Detect OS and suggest default port format
         if os.name == 'nt':  # Windows
-            default_port = 'COM9'
+            default_port = 'COM3'
         else:  # Assume Linux/Mac
             default_port = '/dev/ttyUSB0'
             
