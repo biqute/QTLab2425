@@ -80,7 +80,7 @@ class Fitter():
     show_initial_model = False
     show_model = True
     show_errorbars = True
-    show_pvalue = True
+    show_pvalue = False
     figure_size = (20, 15)
     file_name = ""
 
@@ -110,7 +110,7 @@ class Fitter():
             "chi2": m.fval,
             "ndof": m.ndof,
             "reduced_chi2": m.fmin.reduced_chi2,
-            "pvalue": 1 - stats.chi2.cdf(m.fval, m.ndof),
+            "pvalue": float(1 - stats.chi2.cdf(m.fval, m.ndof)),
             "params": final_params,
             "derived_params": final_derived_params,
         }
