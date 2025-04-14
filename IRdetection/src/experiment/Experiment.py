@@ -97,7 +97,7 @@ class Experiment(ABC):
         for instrument_name, instrument in self.instruments.items():
             try:
                 instrument.initialize()
-                instrument._activate()
+                #instrument._activate()
                 self.logger.log_info(f'Instrument `{instrument.name}` initialized and activated.')
             except Exception as e:
                 self.logger.log_error(f'Failed to initialize instrument {instrument_name}: {e}')

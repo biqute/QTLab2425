@@ -115,6 +115,17 @@ class ResonatorsExperiment(Experiment):
 
 
 if __name__ == "__main__":
+
+    # debug - read the run-6 data file and remove the "peak_bc_1_uA" group
+    with h5py.File("Experiments/TRswipe/run-7/data/peaks_data.h5", "r+") as f:
+        to_del = ["peak_bc_0.25_uA"]
+        for key in to_del:
+            if key in f:
+                del f[key]
+            else:
+                print(f"Group '{key}' not found in the file.")
+
+    input("Press Enter to continue...")
     # Create and run the test experiment
     experiment = ResonatorsExperiment()
     # Add callbacks
