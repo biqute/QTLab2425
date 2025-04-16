@@ -1,0 +1,40 @@
+(2025-04-04 10:40:50)[SYSTEM]: Experiment `ResonatorsExperiment` started. Run ID 4.
+(2025-04-04 10:40:51)[INFO]: Instrument `VNA` initialized and activated.
+(2025-04-04 10:41:58)[INFO]: peak_1_-45_dBm acquired
+(2025-04-04 10:43:02)[INFO]: peak_2_-45_dBm acquired
+(2025-04-04 10:44:10)[INFO]: peak_3_-45_dBm acquired
+(2025-04-04 10:45:14)[INFO]: peak_4_-45_dBm acquired
+(2025-04-04 10:46:20)[INFO]: peak_1_-40_dBm acquired
+(2025-04-04 10:47:25)[INFO]: peak_2_-40_dBm acquired
+(2025-04-04 10:48:29)[INFO]: peak_3_-40_dBm acquired
+(2025-04-04 10:49:33)[INFO]: peak_4_-40_dBm acquired
+(2025-04-04 10:50:40)[INFO]: peak_1_-35_dBm acquired
+(2025-04-04 10:51:45)[INFO]: peak_2_-35_dBm acquired
+(2025-04-04 10:52:48)[INFO]: peak_3_-35_dBm acquired
+(2025-04-04 10:53:53)[INFO]: peak_4_-35_dBm acquired
+(2025-04-04 10:54:58)[INFO]: peak_1_-30_dBm acquired
+(2025-04-04 10:56:04)[INFO]: peak_2_-30_dBm acquired
+(2025-04-04 10:57:09)[INFO]: peak_3_-30_dBm acquired
+(2025-04-04 10:58:17)[INFO]: peak_4_-30_dBm acquired
+(2025-04-04 10:59:23)[INFO]: peak_1_-25_dBm acquired
+(2025-04-04 11:00:30)[INFO]: peak_2_-25_dBm acquired
+(2025-04-04 11:01:35)[INFO]: peak_3_-25_dBm acquired
+(2025-04-04 11:02:40)[INFO]: peak_4_-25_dBm acquired
+(2025-04-04 11:03:45)[INFO]: peak_1_-20_dBm acquired
+(2025-04-04 11:04:53)[INFO]: peak_2_-20_dBm acquired
+(2025-04-04 11:05:57)[INFO]: peak_3_-20_dBm acquired
+(2025-04-04 11:07:02)[INFO]: peak_4_-20_dBm acquired
+(2025-04-04 11:08:07)[INFO]: peak_1_-15_dBm acquired
+(2025-04-04 11:09:12)[INFO]: peak_2_-15_dBm acquired
+(2025-04-04 11:10:17)[INFO]: peak_3_-15_dBm acquired
+(2025-04-04 11:11:23)[INFO]: peak_4_-15_dBm acquired
+(2025-04-04 11:12:30)[INFO]: peak_1_-10_dBm acquired
+(2025-04-04 11:13:35)[INFO]: peak_2_-10_dBm acquired
+(2025-04-04 11:14:40)[INFO]: peak_3_-10_dBm acquired
+(2025-04-04 11:15:45)[INFO]: peak_4_-10_dBm acquired
+(2025-04-04 11:16:51)[INFO]: peak_1_-5_dBm acquired
+(2025-04-04 11:17:55)[INFO]: peak_2_-5_dBm acquired
+(2025-04-04 11:19:00)[INFO]: peak_3_-5_dBm acquired
+(2025-04-04 11:20:07)[INFO]: peak_4_-5_dBm acquired
+(2025-04-04 11:20:07)[INFO]: Instrument `VNA` shut down.
+(2025-04-04 11:20:07)[SYSTEM]: Experiment `ResonatorsExperiment` completed. Run ID 4.
