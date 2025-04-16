@@ -58,9 +58,13 @@ class Model:
                 param_dict[p_name] = next(param_iter)
             else:  # if the parameter is not active
                 param_dict[p_name] = getattr(self, p_name)
-        return self.model_function(data, **param_dict)
 
+        try:  
+            result = self.model_function(data, **param_dict)
+        except Exception as e:
+            raise RuntimeError(f"Model function evaluation failed with error: {e}")
     
+        return result
     
 class Fitter:
     def __init__(self, 
@@ -92,89 +96,29 @@ class Fitter:
         self.loss_function = loss_function  
         self.params_range = params_range
 
-
-    def fit_magicus(self, searcher):
-        """
-        It will fit the data.
-
-        Uses a searcher to find good initial guess for the fit.
-        """
-        # Check if the searcher is valid
-        if not isinstance(searcher, Searcher):
-            raise ValueError("Searcher must be an instance of Searcher class")
-        
-        # Search for the best initial guess
-        searcher.search(self.data, self.model)
-        
-        # Fit the model with the found parameters
-        self.model.assing_params(searcher.params)
-        return self.fit()
     
-    def fit_quasi_magicus(self, N_fixed_params: Optional[int] = None, pvalue_treshold: Optional[float] = 0.005, try_total_fit_first: Optional[bool] = True):
+        
+    def fit(self, searcher = None) -> Minuit:
         """
-        Fit the data using quasi-magicus method
-        
-        NOTE: It's Leviosa not Leviosar
+        Fit the data using the model and the loss function.
+
+        Args:
+            searcher: Searcher object to find good initial guess for the fit.
+                      If None, it will use the initial guess provided in the constructor.
+                      If a searcher is provided, it will be used to find the initial guess.
+
+        Returns:
+            Minuit object with the fit result.
         """
-        # Fit the model with all the parameters 
-        if try_total_fit_first:
-            self.model.set_active_params(self.model.param_names)
-            fit_result = self.fit()
-            if fit_result.valid:
-                if self.p_value(fit_result) > pvalue_treshold:
-                    print(f"First total fit converged good, p-value = {self.p_value(fit_result)}")
-                    return fit_result
-                else:
-                    print(f"First total fit converged bad, p-value = {self.p_value(fit_result)}")
-            else:
-                print("First total fit failed")
-        
-        if N_fixed_params is None:
-            N_fixed_params = len(self.model.param_names)//2 #default fixed params is half of the total params
-        
-        params_to_fit = self.model.param_names
-        #partial fit
-        iter_counter = 0
-        while len(params_to_fit) > 0:
-            print(f"Partial fit {iter_counter}")
-            # Set the fixed params
-            N_fixed_params = min(N_fixed_params, len(params_to_fit))
-            self.model.set_fixed_params(self.model.param_names[:N_fixed_params])
-            # Fit the model with the fixed params
-            fit_result = self.fit()
-            # Check if the fit converged
-            if fit_result.valid:
-                # Check if the p-value is greater than the treshold
-                if self.p_value(fit_result) > pvalue_treshold: # Fit is good
-                    # pop first N_fixed_params
-                    params_to_fit = params_to_fit[N_fixed_params:]
-                    # Set inital guess of currently active params to the fitted values
-                    result_values = fit_result.values.to_dict()
-                    self.model.assing_params({p_name: result_values[p_name] for p_name in result_values})
-                    print(f"Partial fit {iter_counter} converged good , p-value = {self.p_value(fit_result)}")
-                else: # Fit is bad
-                    # put first element at the end
-                    params_to_fit = params_to_fit[1:] + [params_to_fit[0]]  
-                    print(f"Partial fit {iter_counter} converged bad , p-value = {self.p_value(fit_result)}")          
-            else:
-                # put first element at the end
-                params_to_fit = params_to_fit[1:] + [params_to_fit[0]]
-                print(f"Partial fit {iter_counter} did not converge")
-            
-            # Check if all partial fits failed
-            if iter_counter == len(self.model.param_names):
-                raise RuntimeError("The fit did not converge. All partial fits failed")
-            iter_counter += 1
-        
-        # Final fit with all params
-        self.model.set_active_params(self.model.param_names)
-        return self.fit()
-    
-    def fit_non_magicus(self):
-        self.model.set_active_params(self.model.param_names)
-        return self.fit()
-        
-    def fit(self):
+        if searcher is not None:
+            # Check if the searcher is valid
+            if not isinstance(searcher, Searcher):
+                raise ValueError("Searcher must be an instance of Searcher class")
+            # Search for the best initial guess
+            searcher.search(self.data, self.model)
+            # Fit the model with the found parameters
+            self.model.assing_params(searcher.params)
+
         active_params_names = [p_name for p_name, is_active in self.model.active_params.items() if is_active]
         active_params = {p_name: getattr(self.model, p_name) for p_name in active_params_names}
 
@@ -185,19 +129,20 @@ class Fitter:
         else:
             loss = self.loss_function(self.x, self.y, self.xerr, self.yerr, self.model, name=active_params_names)
         
-        m = Minuit(loss, **active_params)
+        self.m = Minuit(loss, **active_params)
 
         #set params limits
         if self.params_range is not None:
             for p_name, p_range in self.params_range.items():
-                m.limits[p_name] = p_range
+                self.m.limits[p_name] = p_range
 
                 
-        m.migrad()
-        return m
+        self.m.migrad()
+        return self.m
+    
 
-    def p_value(self, m: Minuit) -> float:
-        return 1 - stats.chi2.cdf(m.fval, m.ndof)
+    def p_value(self) -> float:
+        return 1 - stats.chi2.cdf(self.m.fval, self.m.ndof)
 
 
 
@@ -222,23 +167,6 @@ class Searcher(ABC):
         for p_name, p_value in self.params.items():
             if p_value is None:
                 raise ValueError(f"Parameter {p_name} is not set")
-
-
-class GridSearcher(Searcher):
-    def __init__(self, center: float, stride: float, number_of_points: int):
-        """
-        Searcher that searches for the best initial guess using a grid search.
-
-        Parameters
-        :param center: Center of the grid search.
-        :param stride: Stride of the grid search.
-        :param number_of_points: Number of points in the grid search.
-        """
-        super().__init__()
-        self.center = center
-        self.stride = stride
-        self.number_of_points = number_of_points
-        self.grid_points = np.linspace(center - stride * number_of_points / 2, center + stride * number_of_points / 2, number_of_points)
 
 
 class ResonancePeakSearcher(Searcher):
@@ -339,3 +267,68 @@ class ResonancePeakSearcher(Searcher):
                 hits.append((datax[i] + datax[i-1]) / 2)
                 above = new_above
         return abs(hits[-1] - hits[0])
+    
+
+
+
+# GRAVEYARD: Here lies old code, made with love and care, never worked, but still loved.
+
+# def fit_quasi_magicus(self, N_fixed_params: Optional[int] = None, pvalue_treshold: Optional[float] = 0.005, try_total_fit_first: Optional[bool] = True):
+#         """
+#         Fit the data using quasi-magicus method
+        
+#         NOTE: It's Leviosa not Leviosar
+#         """
+#         # Fit the model with all the parameters 
+#         if try_total_fit_first:
+#             self.model.set_active_params(self.model.param_names)
+#             fit_result = self.fit()
+#             if fit_result.valid:
+#                 if self.p_value(fit_result) > pvalue_treshold:
+#                     print(f"First total fit converged good, p-value = {self.p_value(fit_result)}")
+#                     return fit_result
+#                 else:
+#                     print(f"First total fit converged bad, p-value = {self.p_value(fit_result)}")
+#             else:
+#                 print("First total fit failed")
+        
+#         if N_fixed_params is None:
+#             N_fixed_params = len(self.model.param_names)//2 #default fixed params is half of the total params
+        
+#         params_to_fit = self.model.param_names
+#         #partial fit
+#         iter_counter = 0
+#         while len(params_to_fit) > 0:
+#             print(f"Partial fit {iter_counter}")
+#             # Set the fixed params
+#             N_fixed_params = min(N_fixed_params, len(params_to_fit))
+#             self.model.set_fixed_params(self.model.param_names[:N_fixed_params])
+#             # Fit the model with the fixed params
+#             fit_result = self.fit()
+#             # Check if the fit converged
+#             if fit_result.valid:
+#                 # Check if the p-value is greater than the treshold
+#                 if self.p_value(fit_result) > pvalue_treshold: # Fit is good
+#                     # pop first N_fixed_params
+#                     params_to_fit = params_to_fit[N_fixed_params:]
+#                     # Set inital guess of currently active params to the fitted values
+#                     result_values = fit_result.values.to_dict()
+#                     self.model.assing_params({p_name: result_values[p_name] for p_name in result_values})
+#                     print(f"Partial fit {iter_counter} converged good , p-value = {self.p_value(fit_result)}")
+#                 else: # Fit is bad
+#                     # put first element at the end
+#                     params_to_fit = params_to_fit[1:] + [params_to_fit[0]]  
+#                     print(f"Partial fit {iter_counter} converged bad , p-value = {self.p_value(fit_result)}")          
+#             else:
+#                 # put first element at the end
+#                 params_to_fit = params_to_fit[1:] + [params_to_fit[0]]
+#                 print(f"Partial fit {iter_counter} did not converge")
+            
+#             # Check if all partial fits failed
+#             if iter_counter == len(self.model.param_names):
+#                 raise RuntimeError("The fit did not converge. All partial fits failed")
+#             iter_counter += 1
+        
+#         # Final fit with all params
+#         self.model.set_active_params(self.model.param_names)
+#         return self.fit()
