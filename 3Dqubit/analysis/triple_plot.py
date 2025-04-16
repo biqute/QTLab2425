@@ -30,5 +30,5 @@ for ax in axes.flat:
     ax.set(xlabel="Frequency [Hz]", ylabel="Amplitude [dB]")
 
 fig.set_size_inches(12, 10)
-#plt.savefig('plots\\triple_plot.pdf')
+plt.savefig('C:\\Users\\kid\\labQT\\Lab2024_3dqubit\\QTLab2425\\3Dqubit\\plots\\triple_plot.pdf')
 plt.show()
