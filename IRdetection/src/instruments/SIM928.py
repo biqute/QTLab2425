@@ -93,7 +93,7 @@ class SIM928(Instrument):
         self._write("")
         
         # Select the module in the SIM900 mainframe
-        self._write(f"CONN {self.address}", expect_response=False)
+        self._write(f'CONN {self.address}, "esc"', expect_response=False)
         
         # Small delay to ensure command is processed
         time.sleep(0.1)
@@ -210,6 +210,7 @@ class SIM928(Instrument):
         if self.ser and self.ser.is_open:
             # Exit connection to the specific module and return to mainframe control
             self._write("END")
+            self._write("esc")
             self.ser.close()
 
     def shutdown(self):

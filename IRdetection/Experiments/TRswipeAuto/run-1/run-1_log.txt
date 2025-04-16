@@ -1,0 +1,6 @@
+(2025-04-11 13:51:49)[SYSTEM]: Experiment `TRswipeAuto` started. Run ID 1.
+(2025-04-11 13:51:49)[ERROR]: Failed to initialize instrument VNA: Invalid session handle. The resource might be closed.
+(2025-04-11 13:51:49)[ERROR]: Experiment failed with error: Failed to initialize instrument 'VNA': Invalid session handle. The resource might be closed.
+(2025-04-11 13:51:49)[SYSTEM]: Performing emergency shutdown
+(2025-04-11 13:51:49)[INFO]: Emergency shutdown of VNA
+(2025-04-11 13:51:49)[INFO]: Emergency shutdown of SIM928
