@@ -9,7 +9,14 @@ def resonance_model(f: np.ndarray, f0: float, phi: float, Qt: float, Qc: float, 
 def parametric_resonator_peak_vs_bias_current(i: np.ndarray, a: float, b: float) -> np.ndarray: # F(I) = I^2/a + I^4/b (+c)
     i = np.array(i.copy())  # Ensure i is a numpy array
     return -0.5 * ((i**2 / a**2) + (i**4 / b**4))  # + c
-    
+
+def linear(x: np.ndarray, a: float, b: float) -> np.ndarray:
+    x = np.array(x.copy())  # Ensure x is a numpy array
+    return a * x + b
+
+def quadratic(x: np.ndarray, a: float, b: float, c: float) -> np.ndarray:
+    x = np.array(x.copy())  # Ensure x is a numpy array
+    return a * x**2 + b * x + c    
 
 def qi_factor_model(T: np.ndarray, a: float, w: float, Q0: float, D0_k: float) -> np.ndarray:
     T=np.array(T.copy())/1000

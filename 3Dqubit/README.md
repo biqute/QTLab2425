@@ -52,6 +52,7 @@ git push
 - [AWG device manual](https://www.silcon.cz/download/SDG6000X_UserManual.pdf)
 - [AWG programming manual](https://tm-co.co.jp/wp/wp-content/uploads/2022/10/SDG_Programming-Guide_PG02-E05C.pdf)
 - [AWG implementation](https://github.com/sgoadhouse/awg_scpi/tree/main)
+- [HEMT LNF-LNC4_16C Datasheet](https://lownoisefactory.com/wp-content/uploads/2023/03/lnf-lnc4_16c.pdf)
 
 # TODO
 - `VNA.py`:

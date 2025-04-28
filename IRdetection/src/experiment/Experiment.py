@@ -97,7 +97,6 @@ class Experiment(ABC):
         for instrument_name, instrument in self.instruments.items():
             try:
                 instrument.initialize()
-                #instrument._activate()
                 self.logger.log_info(f'Instrument `{instrument.name}` initialized and activated.')
             except Exception as e:
                 self.logger.log_error(f'Failed to initialize instrument {instrument_name}: {e}')
@@ -155,6 +154,9 @@ class Experiment(ABC):
             if not override_last_run:
                 self.config['run_id'] += 1
                 self.config.save_config()
+            else:
+                # Run override callback
+                self.trigger("on_run_override", run_id=self.config['run_id'])
             
             # Initialize the logger
             try:

@@ -32,7 +32,7 @@ err_Qi = []
 
 f = []
 y = []
-path = 'Experiments/ResonatorsExperiment/run-4/data/peaks_data.h5'
+path = 'Experiments/ResonatorsExperiment/run-5/data/peaks_data.h5'
 
 with h5py.File(path, 'r') as hf:
     for pk in range(1, 5):
