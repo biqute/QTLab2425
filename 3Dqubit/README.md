@@ -53,6 +53,7 @@ git push
 - [AWG programming manual](https://tm-co.co.jp/wp/wp-content/uploads/2022/10/SDG_Programming-Guide_PG02-E05C.pdf)
 - [AWG implementation](https://github.com/sgoadhouse/awg_scpi/tree/main)
 - [HEMT LNF-LNC4_16C Datasheet](https://lownoisefactory.com/wp-content/uploads/2023/03/lnf-lnc4_16c.pdf)
+- [EM notes](https://web.archive.org/web/20240225035303/https://www.ece.rutgers.edu/~orfanidi/ewa/ch01.pdf)
 
 # TODO
 - `VNA.py`:
@@ -63,7 +64,5 @@ git push
     - check the existence of the COM, if it doesn't return list of available COMs
 - `EthernetDevice.py`:
     - print executed command before getting OPC response
-- `cavity_iq.py`:
-    - change model to have $Q_i$ and $Q_c$ as parameters
 - `Fitter.py`:
     - allow use of already calculated derived params for following params

@@ -1,0 +1,10 @@
+info, empty cavity, three port configuration for S21 = H_i + H_o
+time, 2025-04-30 17:51:22.699098
+temperature, 300K
+min_freq, 6929746300.0Hz
+max_freq, 7929746300.0Hz
+point_count, 10000
+timeout, 360000.0ms
+avg_count, 10
+bandwidth, 1000Hz
+power, -40dBm
