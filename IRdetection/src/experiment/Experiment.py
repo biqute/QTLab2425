@@ -43,7 +43,7 @@ class Experiment(ABC):
         
         # Initialize or load the configuration
         try:
-            self.config = ExperimentConfig(self.experiment_dir)
+            self.config = ExperimentConfig(f"{self.experiment_dir}/{self.experiment_dir}")
             self.config['parameters']['predefined_startup'] = predefined_startup
             self.config['parameters']['predefined_shutdown'] = predefined_shutdown
         except Exception as e:
