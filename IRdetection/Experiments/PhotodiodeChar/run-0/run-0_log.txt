@@ -1,0 +1,13 @@
+(2025-05-07 16:43:48)[SYSTEM]: Experiment `PhotodiodeChar` started. Run ID 0.
+(2025-05-07 16:43:50)[INFO]: Instrument `AWG` initialized and activated.
+(2025-05-07 16:43:51)[INFO]: Instrument `PicoScope` initialized and activated.
+(2025-05-07 16:43:51)[INFO]: High voltage: -3.647 V
+(2025-05-07 16:43:52)[INFO]: Low voltage: -2.525 V
+(2025-05-07 16:43:52)[INFO]: Starting binary search for saturation voltage
+(2025-05-07 16:43:52)[INFO]: Saturation voltage: -3.647 V
+(2025-05-07 16:43:52)[INFO]: Saturation offset: -0.712 V
+(2025-05-07 16:43:52)[INFO]: Data saved to Experiments/PhotodiodeChar\run-0\PhotodiodeChar.h5
+(2025-05-07 16:43:54)[INFO]: Saved saturation curve plot to Experiments/PhotodiodeChar\PhotodiodeChar_saturation_curve.png
+(2025-05-07 16:44:46)[INFO]: Instrument `AWG` shut down.
+(2025-05-07 16:44:46)[INFO]: Instrument `PicoScope` shut down.
+(2025-05-07 16:44:46)[SYSTEM]: Experiment `PhotodiodeChar` completed. Run ID 0.

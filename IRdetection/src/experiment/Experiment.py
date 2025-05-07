@@ -43,7 +43,7 @@ class Experiment(ABC):
         
         # Initialize or load the configuration
         try:
-            self.config = ExperimentConfig(f"{self.experiment_dir}/{self.experiment_dir}")
+            self.config = ExperimentConfig(f"{self.experiment_dir}/{self.name}")
             self.config['parameters']['predefined_startup'] = predefined_startup
             self.config['parameters']['predefined_shutdown'] = predefined_shutdown
         except Exception as e:
@@ -281,4 +281,24 @@ class Experiment(ABC):
             The directory path for the current run
         """
         return os.path.join(self.experiment_dir, f'run-{self.config["run_id"]}')
+    
+    # PUBLIC API UTILITIES -------------------------------------------------
+    
+    def get_run_folder(self) -> str:
+        """
+        Get the folder for the current run.
+        
+        Returns:
+            The folder path for the current run
+        """
+        return os.path.join(self.experiment_dir, f'run-{self.config["run_id"]}')
+    
+    def get_run_id(self) -> int:
+        """
+        Get the run ID for the current experiment.
+        
+        Returns:
+            The run ID
+        """
+        return self.config['run_id']
     

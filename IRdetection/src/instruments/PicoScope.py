@@ -12,19 +12,17 @@ import atexit
 # danilo.labranca@unimib.it
 
 class PicoScope(Instrument):
-    def __init__(self, resolution: str, serial: str = None, name: str = None):
+    def __init__(self, resolution: str, name: str = None):
         # Set temp name if not provided
         name = name if name else "PicoScope_no_ID"
         super().__init__(name)
+        self.pico_strings = None
         
-        self.resolution = ps.PS5000A_DEVICE_RESOLUTION[resolution]
-        self.serial = serial
+        self.resolution = ps.PS5000A_DEVICE_RESOLUTION[self.get_command_value('DEVICE_RESOLUTION', resolution)]
         
         # Create chandle and status ready for use
         self.chandle = ctypes.c_int16()
         self.status = {}
-        
-        self.pico_strings = None
         
         # Set up channel information storage
         # channel_info = {channel: {"enabled": bool, "coupling": str, "range": str, "offset": float}}
@@ -479,7 +477,7 @@ class PicoScope(Instrument):
         # Disable all channels
         self.disable_all_channels()
         
-    def _Instrument_activate(self): # Dummy method
+    def _activate(self): # Dummy method
         pass
     
     def reset(self):
