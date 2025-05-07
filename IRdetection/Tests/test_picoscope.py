@@ -10,7 +10,7 @@ import h5py
 
 if __name__ == '__main__':
     # Create an instance of PicoScope using 12-bit resolution 
-    scope = PicoScope("PS5000A_DR_12BIT") 
+    scope = PicoScope("12") 
     scope.initialize()
     
     print(scope.resolution)

@@ -1,13 +1,13 @@
 # Example usage
 from iminuit.cost import LeastSquares
-from FitAPI import Fitter, Model
+from IRdetection.src.analysis.fitting.FitAPI import Fitter, Model
 import numpy as np
 import numpy as np
 import sys
 sys.path.append('../Graphics')
 from Graphics.Graphs import fitPlotter
 import matplotlib.pyplot as plt
-import models as md
+import IRdetection.src.analysis.fitting.models as md
 import h5py
 
 def S21_model(f: np.ndarray, f0: float, phi: float, Qt: float, Qc: float, A: float, B: float, C: float, D: float, K: float, fmin: float) -> np.ndarray:
