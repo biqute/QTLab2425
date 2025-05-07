@@ -4,8 +4,8 @@ import pandas as pd
 import h5py
 from iminuit.cost import LeastSquares
 
-from FitAPI import Model, Fitter, ResonancePeakSearcher
-import models as md
+from IRdetection.src.analysis.fitting.FitAPI import Model, Fitter, ResonancePeakSearcher
+import IRdetection.src.analysis.fitting.models as md
 
 data_dict = {}       # stores the dataset values as NumPy arrays
 metadata_dict = {}   # stores the metadata (attributes) for each dataset

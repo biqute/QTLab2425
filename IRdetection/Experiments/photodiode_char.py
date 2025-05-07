@@ -32,8 +32,8 @@ class PhotodiodeChar(Experiment):
         self.add_instrument(self.ps)
         
         # Set up the experiment parameters
-        self.start_offset = -0.7  # V
-        self.stop_offset = -0.725  # V
+        self.start_offset = -0.6  # V
+        self.stop_offset = -0.8  # V
         self.sensitivity = 0.0005  # V (1 mV)
         
     def get_mean_voltage(self, channel="A"):
@@ -206,5 +206,5 @@ if __name__ == "__main__":
     experiment.add_callback(RestartRunCallback(experiment))
     
     # Run the experiment
-    experiment.run(override_last_run=True)
+    experiment.run(override_last_run=False)
     

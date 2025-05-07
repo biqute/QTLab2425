@@ -1,3 +1,5 @@
 experiment_name: default_experiment
-parameters: {}
-run_id: 0
+parameters:
+  predefined_shutdown: true
+  predefined_startup: true
+run_id: 1
