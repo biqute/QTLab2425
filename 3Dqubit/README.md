@@ -54,6 +54,7 @@ git push
 - [AWG implementation](https://github.com/sgoadhouse/awg_scpi/tree/main)
 - [HEMT LNF-LNC4_16C Datasheet](https://lownoisefactory.com/wp-content/uploads/2023/03/lnf-lnc4_16c.pdf)
 - [EM notes](https://web.archive.org/web/20240225035303/https://www.ece.rutgers.edu/~orfanidi/ewa/ch01.pdf)
+- <https://biqute.github.io/qtics/instruments/triton.html>
 
 # TODO
 - `VNA.py`:

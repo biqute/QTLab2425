@@ -1,4 +1,4 @@
-info, empty cavity, three port configuration for S11 = S_1 + H_o
+info, "empty cavity, three port configuration for S11 = S_1 + H_o"
 time, 2025-04-30 14:53:16.433590
 temperature, 300K
 min_freq, 7379746300.0Hz
