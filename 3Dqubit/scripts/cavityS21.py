@@ -8,7 +8,7 @@ import sys; sys.path.append("../utils")
 from dictionary_to_csv import dictionary_to_csv
 from read_temperature import read_temperature
 
-T = 65.5e-3 # read_temperature() # K
+T = 64.6e-3 # read_temperature() # K
 
 # N9916A
 myVNA = VNA("192.168.40.10")
@@ -20,7 +20,7 @@ myVNA.point_count = 10000
 myVNA.timeout = 360e3
 myVNA.avg_count = 10
 myVNA.bandwidth = 1000 # Hz
-myVNA.power = -45 # dBm
+myVNA.power = -10 # dBm
 
 data = { 
     # "S11": myVNA.read_data("S11"),
@@ -36,7 +36,7 @@ dataf = myVNA.read_frequency_data()
 
 for Sij in ["S21"]: #["S11", "S12", "S21", "S22"]:
     # basename = f"../data/empty_cavity_3PC/{int(T * 1e3)}mK_{myVNA.bandwidth / 1e3}kHz_{myVNA.power}dBm_S11"
-    basename = f"../data/empty_cavity_3PC/{int(T * 1e3)}mK_{myVNA.bandwidth / 1e3}kHz_{myVNA.power}dBm_S11_wide"
+    basename = f"../data/empty_cavity_3PC/{int(round(T * 1e3))}mK_{myVNA.bandwidth / 1e3}kHz_{myVNA.power}dBm_S21_wide"
     
     np.savetxt(
         f"{basename}.csv", 
@@ -46,8 +46,8 @@ for Sij in ["S21"]: #["S11", "S12", "S21", "S22"]:
 
     # Metadata
     metadata = {
-        "info": "empty cavity, three port configuration for S11 = S_1 + H_o", 
-        #"info": "empty cavity, three port configuration for S21 = H_i + H_o", 
+        #"info": "empty cavity, three port configuration for S11 = S_1 + H_o", 
+        "info": "empty cavity, three port configuration for S21 = H_i + H_o", 
         "time": f"{str(datetime.datetime.now())}", 
         "temperature": f"{T}K", 
         "min_freq": f"{myVNA.min_freq}Hz", 

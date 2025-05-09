@@ -4,6 +4,7 @@ import sys; sys.path.append("../utils")
 from peak_width import peak_width
 from read_metadata import read_metadata
 from linear_sampling import linear_sampling
+from simultaneous_fit import simultaneous_fit
 import sys; sys.path.append("../classes")
 from Fitter import Fitter
 import math
@@ -14,12 +15,12 @@ from scipy import constants
 def model_rettaroli_S11(f, f0, Q0, k1, k2, A11):
     delta = f/f0 - f0/f
     x = 1 + k2 + 1j * Q0 * delta
-    return A11*(k1 - x)/(k1 + x)
+    return A11*abs( (k1 - x)/(k1 + x) )
 
 # eq. (2.57)
 def model_rettaroli_S21(f, f0, Q0, k1, k2, A21):
     delta = f/f0 - f0/f
-    return A21*(2 * math.sqrt(k1*k2))/(1 + k1 + k2 + 1j * Q0 * delta)    
+    return A21*abs(2 * math.sqrt(k1*k2))/(1 + k1 + k2 + 1j * Q0 * delta)    
 
 
 
@@ -86,9 +87,10 @@ limS21 = np.mean(f21.datay[int((np.argmax(f21.datay) + len(f21.datay))/2):-1]) #
 limS11 = np.mean(f11.datay[int((np.argmax(f11.datay) + len(f11.datay))/2):-1]) # better than f11.datay[-1]
 
 A11 = limS11
-#b = f21.datax[-1] * limS21 * Q_i / np.max(f21.datay) / (2 * np.pi * f_r) - 1 # old way
+# b = f21.datax[-1] * limS21 * Q_i / np.max(f21.datay) / (2 * np.pi * f_r) - 1 # old way
 F = (linear_sampling(np.array([f_r  + width]), f11.datax, f11.datay))[0]**2 / A11**2
 b = (1+F - np.sqrt((1+F)**2 - 5*(1-F)**2)) / (1-F)
+b = 20
 k1 = (1+b) / 2 * (np.min(f11.datay) / A11 + 1)  # TODO np.min(f21.datay) = S21(w_0), may fail! 
 k2 = b - k1
 A21 = (1 + k1 + k2) / (2 * math.sqrt(k1 * k2)) * np.max(f21.datay)
@@ -164,5 +166,6 @@ f11.param_displayed_names = {
     "A11": "A_{11}",
 }
 
-res = f11.plot_fit()
-res = f21.plot_fit()
+res = simultaneous_fit([f11, f21])
+f11.plot(res["results"][0])
+f21.plot(res["results"][1])

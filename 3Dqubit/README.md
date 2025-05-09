@@ -55,6 +55,7 @@ git push
 - [HEMT LNF-LNC4_16C Datasheet](https://lownoisefactory.com/wp-content/uploads/2023/03/lnf-lnc4_16c.pdf)
 - [EM notes](https://web.archive.org/web/20240225035303/https://www.ece.rutgers.edu/~orfanidi/ewa/ch01.pdf)
 - <https://biqute.github.io/qtics/instruments/triton.html>
+- [Measurement of Resonant Frequency and Quality Factor of Microwave Resonators: Comparison of Methods](https://www.researchgate.net/publication/1947194_Measurement_of_Resonant_Frequency_and_Quality_Factor_of_Microwave_Resonators_Comparison_of_Methods)
 
 # TODO
 - `VNA.py`:
@@ -67,3 +68,5 @@ git push
     - print executed command before getting OPC response
 - `Fitter.py`:
     - allow use of already calculated derived params for following params
+- `cavity_iq.py`:
+    - estimate $Q_l$ instead of $Q_i$ with $\omega_0 / \Delta \omega$

@@ -14,4 +14,4 @@ def dictionary_to_csv(dictionary):
     csv_string = output.getvalue()
     output.close()
 
-    return csv_string
+    return csv_string.replace("\n\n", "\n")
