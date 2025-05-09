@@ -221,6 +221,8 @@ class PicoScope(Instrument):
         memory_segment_index (int): The index of the memory segment to use. Default is 0.
         time_out (int): The timeout in milliseconds. Default is 3000 ms. Max allowed time to block ready.
         
+        return data (dict): A dictionary containing the acquired data (mV) for each channel and the time data.
+        
         Note that if no trigger is set, the number of samples acquired will be equal to pre_trigger_samples + post_trigger_samples.
         Note: to check block status we use ps5000aIsReady instead of ps5000aBlockReady callback.
         """
@@ -230,6 +232,8 @@ class PicoScope(Instrument):
         
         # Get timebase for the given sample rate
         timebase = self.calculate_timebase(sample_rate)
+        print(f'sample rate impostato: {self.get_sampling_rate(timebase)}')
+        print(f'sample rate richiesto: {sample_rate}')
         
         # Hanldlers for returned values
         timeIndisposedMs = ctypes.c_int32()
