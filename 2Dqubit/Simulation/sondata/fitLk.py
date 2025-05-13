@@ -58,6 +58,9 @@ def lettura_csv(nome_file):
             dati_col1[lk_corrente] = colonna1
             dati_col2[lk_corrente] = colonna2
 
+        dati_col1 = dict(sorted(dati_col1.items(), key=lambda item: float(item[0])))
+        dati_col2 = dict(sorted(dati_col2.items(), key=lambda item: float(item[0])))
+
         # Mostra i risultati
         for lk_val in dati_col1:
             print(f"\n🟢 Dati per Lk={lk_val}")
@@ -78,3 +81,95 @@ def lettura_csv(nome_file):
             plt.grid(True)
             plt.tight_layout()
             plt.show()
+
+    return dati_col1, dati_col2
+
+def trova_minimi(dati_col1, dati_col2, min_lk=0.0, max_lk=14.5):
+    import numpy as np
+
+    f_min = []
+    Lk_list = []
+
+    for lk_str in dati_col1:
+        try:
+            lk_val = float(lk_str)
+        except ValueError:
+            continue
+
+        if min_lk <= lk_val <= max_lk:
+            x = dati_col1[lk_str]
+            y = dati_col2[lk_str]
+
+            if len(y) == 0:
+                continue
+
+            min_idx = np.argmin(y)
+            f_min.append(x[min_idx])
+            Lk_list.append(lk_val)
+            
+
+    return f_min, Lk_list
+
+def lkvfr (Lk, f_min) :
+
+    plt.plot(Lk, f_min, marker='o', linestyle='', color='b', label='Minimi')
+    plt.ylabel("Frequenza (GHz)")
+    plt.xlabel("Lk")
+    plt.title("Minimi della risposta in frequenza per Lk selezionati")
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+
+def model (Lk, a, b, g):
+
+    Lk = np.array(Lk)
+    
+    return ((a/(np.sqrt(Lk+g)))+b)
+
+def fit (x, y):
+
+    x_err = np.ones(len(x)) * 0.1
+    y_err = np.ones(len(y)) * 0.1
+    
+    least_squares = LeastSquares(x, y, y_err, model)
+    minuit = Minuit(least_squares,
+                    a=1,
+                    b=0,
+                    g=0.1)
+    
+    # Esegui il fit
+    minuit.migrad()
+    minuit.hesse()
+
+    # Stampa risultati
+    print("Successo del fit:", minuit.valid)
+    print("Chi-quadro ridotto:", minuit.fval / minuit.ndof)
+    for par, val, err in zip(minuit.parameters, minuit.values, minuit.errors):
+        print(f"{par} = {val:.3f} ± {err:.3f}")
+
+    # Estrai parametri
+    a_fit = minuit.values["a"] 
+    b_fit = minuit.values["b"]
+    g_fit = minuit.values["g"]
+
+    # Grafico
+    fig, ax = plt.subplots()
+    ax.plot(x, y, "bo", label="Dati sperimentali", marker="o", markersize=2, linestyle="none")
+    ax.plot(x, model(x, a_fit, b_fit, g_fit), "r-", label="Fit")
+    ax.set_xlabel("Lk")
+    ax.set_ylabel("Frequenza (GHz)")
+    ax.legend()
+    plt.title("Fit della frequenza minima in funzione di Lk")
+    plt.show()
+
+    return a_fit, b_fit, g_fit
+
+def calcolo_lk (a, b, g, fr) :
+    """
+    Calcola Lk in funzione di fr
+    """
+    Lk = (a/(fr-b))**2 - g
+    return Lk
+    
+    
