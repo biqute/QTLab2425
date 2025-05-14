@@ -232,8 +232,6 @@ class PicoScope(Instrument):
         
         # Get timebase for the given sample rate
         timebase = self.calculate_timebase(sample_rate)
-        print(f'sample rate impostato: {self.get_sampling_rate(timebase)}')
-        print(f'sample rate richiesto: {sample_rate}')
         
         # Hanldlers for returned values
         timeIndisposedMs = ctypes.c_int32()
