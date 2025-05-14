@@ -9,6 +9,10 @@ def simultaneous_fit(fitters):
     parameters
      - fitters: list of Fitter objects to be fitted simultaneously
     """
+    for f in fitters:
+        if not isinstance(f, Fitter):
+            raise ValueError("All elements in fitters must be instances of the Fitter class.")
+
     mfitter = Fitter()
     mfitter.datax = np.concat([f.datax for f in fitters])
     mfitter.datay = np.concat([f.datay for f in fitters])

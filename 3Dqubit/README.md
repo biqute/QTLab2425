@@ -70,3 +70,6 @@ git push
     - allow use of already calculated derived params for following params
 - `cavity_iq.py`:
     - estimate $Q_l$ instead of $Q_i$ with $\omega_0 / \Delta \omega$
+- `rettaroli_fit.py`:
+    - after fitting the resonance, plot magnitude + phase (Bode plot)
+    - fit in terms of $G$ and $I$ instead of $k_{1,2}$
