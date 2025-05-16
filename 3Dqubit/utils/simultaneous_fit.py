@@ -29,6 +29,8 @@ def simultaneous_fit(fitters):
         for key, value in f.params.items(): 
             if key not in mfitter.params:
                 mfitter.params[key] = value
+            elif value != mfitter.params[key]:
+                raise ValueError(f"Parameter {key} has different values in different fitters.")
                 
     mfitter.derived_params = dict()
     for f in fitters:

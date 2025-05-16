@@ -56,6 +56,10 @@ git push
 - [EM notes](https://web.archive.org/web/20240225035303/https://www.ece.rutgers.edu/~orfanidi/ewa/ch01.pdf)
 - <https://biqute.github.io/qtics/instruments/triton.html>
 - [Measurement of Resonant Frequency and Quality Factor of Microwave Resonators: Comparison of Methods](https://www.researchgate.net/publication/1947194_Measurement_of_Resonant_Frequency_and_Quality_Factor_of_Microwave_Resonators_Comparison_of_Methods)
+- <https://rsl.yale.edu/sites/default/files/2024-08/2022-Thesis-Lev-Krayzman.pdf>
+- <https://rsl.yale.edu/sites/default/files/2024-08/2017-RSL-Thesis-Teresa-Brecht-Final_ScreenVersion.pdf>
+- <https://rsl.yale.edu/sites/default/files/2024-08/2016-RSL-Thesis-Matt-Reagor.pdf>
+- <https://rsl.yale.edu/sites/default/files/2024-08/2023-Thesis-Suhas%20Ganjam.pdf>
 
 # TODO
 - `VNA.py`:
@@ -73,3 +77,4 @@ git push
 - `rettaroli_fit.py`:
     - after fitting the resonance, plot magnitude + phase (Bode plot)
     - fit in terms of $G$ and $I$ instead of $k_{1,2}$
+    - fit real and imag part instead of abs and phase

@@ -130,7 +130,7 @@ res_back = fback.fit()
 a = res_back["params"]["a"]["value"]
 (id1, id2) = width_to_indeces(width, f_r, f11.datax)
 S11_omega = f11.datay[np.argmax(f21.datay)]
-S11_delta_omega = (f11.datax[id2] + f11.datax[id1]) / 2.0 - a 
+S11_delta_omega = f11.datax[id2] - a  # (f11.datax[id2] + f11.datax[id1]) / 2.0 - a 
 G = 1 / (2*S11_delta_omega/S11_omega - 1)
 A = S11_omega / G
 alpha = (1 - np.sqrt(G))/(1 + np.sqrt(G))
@@ -139,7 +139,6 @@ k1 = 4 / (4*alpha - I*(alpha + 1)**2)
 k2 = alpha*k1 - 1 + 0.5 # TODO TODO TODO TODO TODO TODO TODO TODO TODO
 # k1 = 1 / (2 - np.sqrt(I))
 # k2 = k1
-print(k1, k2, S11_delta_omega/S11_omega, width)
 
 (crop_min_idx, crop_max_idx) = width_to_indeces(5 * width, f_r, f21.datax)
 f21.datax = f21.datax[crop_min_idx:crop_max_idx]
@@ -152,13 +151,14 @@ f11.sigmay = np.maximum(1e-5 + f11.datax*0, np.abs(f11.datay*0.01)) # TODO
 f21.params = {
     "QL": (0, QL, None), 
     "f0": (0, f_r, None),
-    "k1": (0, k1, None),
-    "k2": (0, k2, None),
+    "k1": (0, k1, 100),
+    "k2": (0, k2, 100),
     "A": (0, A, None),
     "a": (res_back["params"]["a"]["value"] * 0.8, res_back["params"]["a"]["value"], res_back["params"]["a"]["value"] * 1.2),
     "b": (None, res_back["params"]["b"]["value"], None),
     "c": (None, res_back["params"]["c"]["value"], None),
 }
+print(f21.params)
 f21.param_units = {
     "QL": "1",
     "Q0": "1",
@@ -169,26 +169,23 @@ f21.param_units = {
     "a": "1",
     "b": "Hz^{-1}",
     "c": "Hz^{-2}",
-    "theta": (-np.pi, 0, np.pi)
 }
 f21.derived_params = {
     "Q0": lambda par: par["QL"]["value"] * (1 + par["k1"]["value"] + par["k2"]["value"]),
 }
 f21.param_displayed_names = { 
-    "Q0": "Q_i",
+    "Q0": "Q_i = (1 + k_1 + k_2) Q_L",
     "QL": "Q_L",
     "f0": "f_r", 
     "k1": "\\kappa_1",
     "k2": "\\kappa_2",
 }
 
-print(f21.params)
-
 f11.params = {
     "QL": (0, QL, None), 
     "f0": (0, f_r, None),
-    "k1": (0, k1, None),
-    "k2": (0, k2, None),
+    "k1": f21.params["k1"],
+    "k2": f21.params["k2"],
     "A": (0, A, None),
 }
 f11.param_units = {
@@ -207,31 +204,57 @@ f11.param_displayed_names = {
 }
 
 f11_phase = Fitter()
-f11_phase.datax = datax[crop_min_idx:crop_max_idx]#np.copy(f11.datax) # = datax # Hz
+f11_phase.datax = np.copy(f11.datax) # Hz
 f11_phase.datay = np.angle(np.exp(2j)*(data["S11"]["real"][crop_min_idx:crop_max_idx] + 1j*data["S11"]["imag"][crop_min_idx:crop_max_idx])) # rad
-f11_phase.sigmay = np.abs(f11_phase.datay) * 0.1
+f11_phase.sigmay = f11_phase.datay * 0 + 1e-3
 f11_phase.scaley = "linear" # "linear" (default), "log", "dB"
 f11_phase.unity = "rad"
-f11_phase.scalex = f11.scalex # = lambda x: x / 1e9 # "linear" (default), "log", "dB"
+f11_phase.scalex = f11.scalex
 f11_phase.unitx = f11.unitx
 f11_phase.title = f11.title
 f11_phase.labelx = f11.labelx
 f11_phase.labely = "$\\text{arg}(S_{11})$"
 f11_phase.model = lambda x, f0, QL, k1, k2, A, theta11: np.angle(np.exp(1j * theta11) * model_rettaroli_S11(x, f0, QL, k1, k2, A))
 f11_phase.show_initial_model = f11.show_initial_model # = False
-f11_phase.show_plot = f11.show_plot # = True
-f11_phase.show_pvalue = f11.show_pvalue # = False
-f11_phase.show_model = f11.show_model # = True
-f11_phase.file_name = f11.file_name # = f"../plots/{basename}_S11.pdf"
-f11_phase.figure_size = f11.figure_size # = (30, 24)
+f11_phase.show_plot = f11.show_plot
+f11_phase.show_pvalue = f11.show_pvalue
+f11_phase.show_model = f11.show_model
+f11_phase.file_name = f"../plots/{basename}_S11_phase.pdf"
+f11_phase.figure_size = f11.figure_size
 f11_phase.params = f11.params | {"theta11": (-np.pi, 0, +np.pi)}
 f11_phase.param_units = f11.param_units | {"theta11": "rad"}
 f11_phase.param_displayed_names = f11.param_displayed_names | {"theta11": "\\theta_{11}"}
 
-res = simultaneous_fit([f11, f21, f11_phase])
-f11.plot(res["results"][0])
-f21.plot(res["results"][1])
+f21_phase = Fitter()
+f21_phase.datax = np.copy(f21.datax) # # Hz
+f21_phase.datay = np.angle(np.exp(2j)*(data["S21"]["real"][crop_min_idx:crop_max_idx] + 1j*data["S21"]["imag"][crop_min_idx:crop_max_idx])) # rad
+f21_phase.sigmay = f21_phase.datay * 0 + 1e-3
+f21_phase.scaley = "linear" # "linear" (default), "log", "dB"
+f21_phase.unity = "rad"
+f21_phase.scalex = f21.scalex
+f21_phase.unitx = f21.unitx
+f21_phase.title = f21.title
+f21_phase.labelx = f21.labelx
+f21_phase.labely = "$\\text{arg}(S_{11})$"
+f21_phase.model = lambda x, f0, QL, k1, k2, A, theta21: np.angle(np.exp(1j * theta21) * model_rettaroli_S11(x, f0, QL, k1, k2, A))
+f21_phase.show_initial_model = f21.show_initial_model # = False
+f21_phase.show_plot = f21.show_plot
+f21_phase.show_pvalue = f21.show_pvalue
+f21_phase.show_model = f21.show_model
+f21_phase.file_name = f"../plots/{basename}_S21_phase.pdf"
+f21_phase.figure_size = f21.figure_size
+f21_phase.params = f21.params | {"theta21": (-np.pi, 0, +np.pi)}
+f21_phase.params.pop("a")
+f21_phase.params.pop("b")
+f21_phase.params.pop("c")
+f21_phase.param_units = f21.param_units | {"theta21": "rad"}
+f21_phase.param_displayed_names = f21.param_displayed_names | {"theta21": "\\theta_{21}"}
+
+res = simultaneous_fit([f21, f11, f11_phase, f21_phase])
+f21.plot(res["results"][0])
+f11.plot(res["results"][1])
 f11_phase.plot(res["results"][2])
+f21_phase.plot(res["results"][3])
 
 # plot phase and model with matplotlib
 # import matplotlib.pyplot as plt
