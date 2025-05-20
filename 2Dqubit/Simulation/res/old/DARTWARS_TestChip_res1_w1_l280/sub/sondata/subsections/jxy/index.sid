@@ -1,8 +1,0 @@
-PARAMS
-Lk = 8.5
-l = 280.0
-END PARAMS
-!>< FREQS
-!><
-!>< END FREQS
-FILE current_1.sid

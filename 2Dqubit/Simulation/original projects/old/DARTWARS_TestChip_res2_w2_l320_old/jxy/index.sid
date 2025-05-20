@@ -1,0 +1,56 @@
+PARAMS
+Lk = 10.0
+l = 320.0
+END PARAMS
+!>< FREQS
+!>< 4.0e9 2.0e10 6.0e9 1.82e10 4.8e9 5.6e9 1.76e10 1.18e10 8.8e9 1.46e10
+!>< END FREQS
+FILE current_1.sid
+PARAMS
+Lk = 5.0
+l = 320.0
+END PARAMS
+!>< FREQS
+!>< 4.0e9 1.0e10 6.5e9 7.15e9 9.05e9 7.2e9 5.25e9
+!>< END FREQS
+FILE current_2.sid
+PARAMS
+Lk = 7.0
+l = 320.0
+END PARAMS
+!>< FREQS
+!>< 4.0e9 1.0e10 6.5e9 8.7e9 4.8e9 6.4e9 7.6e9
+!>< END FREQS
+FILE current_3.sid
+PARAMS
+Lk = 9.0
+l = 320.0
+END PARAMS
+!>< FREQS
+!>< 4.0e9 1.0e10 6.5e9 8.75e9 4.8e9 5.8e9 7.6e9
+!>< END FREQS
+FILE current_4.sid
+PARAMS
+Lk = 11.0
+l = 320.0
+END PARAMS
+!>< FREQS
+!>< 4.0e9 1.0e10 6.5e9 8.75e9 4.8e9 5.35e9 7.6e9
+!>< END FREQS
+FILE current_5.sid
+PARAMS
+Lk = 13.0
+l = 320.0
+END PARAMS
+!>< FREQS
+!>< 4.0e9 1.0e10 6.5e9 8.75e9 4.7e9 5.0e9 7.6e9
+!>< END FREQS
+FILE current_6.sid
+PARAMS
+Lk = 15.0
+l = 320.0
+END PARAMS
+!>< FREQS
+!>< 4.0e9 1.0e10 6.5e9 8.75e9 5.0e9 4.7e9 7.6e9
+!>< END FREQS
+FILE current_7.sid
