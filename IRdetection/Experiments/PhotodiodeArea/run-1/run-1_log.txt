@@ -1,9 +1,156 @@
-(2025-05-09 12:45:23)[SYSTEM]: Experiment `PhotodiodeArea` started. Run ID 1.
-(2025-05-09 12:45:24)[INFO]: Instrument `AWG` initialized and activated.
-(2025-05-09 12:45:25)[INFO]: Instrument `PicoScope` initialized and activated.
-(2025-05-09 12:45:26)[INFO]: New raw data saved to Experiments/PhotodiodeArea\run-1\raw_data.h5
-(2025-05-09 12:45:26)[INFO]: Integral calculated: -0.005981453291421248 Vs
-(2025-05-09 12:45:26)[INFO]: Integral calculated with scipy: -0.005980981907610299 Vs
-(2025-05-09 12:45:26)[INFO]: Instrument `AWG` shut down.
-(2025-05-09 12:45:26)[INFO]: Instrument `PicoScope` shut down.
-(2025-05-09 12:45:26)[SYSTEM]: Experiment `PhotodiodeArea` completed. Run ID 1.
+(2025-05-14 16:20:37)[SYSTEM]: Experiment `PhotodiodeArea` started. Run ID 1.
+(2025-05-14 16:20:38)[INFO]: Instrument `AWG` initialized and activated.
+(2025-05-14 16:20:39)[INFO]: Instrument `PicoScope` initialized and activated.
+(2025-05-14 16:20:39)[INFO]: Acquiring data for frequency: 10.0 Hz, duty cycle: 0.98
+(2025-05-14 16:20:40)[INFO]: New raw data saved to Experiments/PhotodiodeArea\run-1\raw_data.h5
+(2025-05-14 16:20:40)[INFO]: Integral calculated: -7.713378275713581 Vs
+(2025-05-14 16:20:40)[INFO]: Integral calculated on the derivative: 0.025390132874015665 V
+(2025-05-14 16:20:40)[INFO]: New integral data saved to Experiments/PhotodiodeArea\run-1\integrals.h5
+(2025-05-14 16:20:40)[INFO]: Acquiring data for frequency: 10.0 Hz, duty cycle: 0.9822
+(2025-05-14 16:20:41)[INFO]: New raw data saved to Experiments/PhotodiodeArea\run-1\raw_data.h5
+(2025-05-14 16:20:41)[INFO]: Integral calculated: -6.856066498523623 Vs
+(2025-05-14 16:20:41)[INFO]: Integral calculated on the derivative: 0.027133935162401472 V
+(2025-05-14 16:20:41)[INFO]: New integral data saved to Experiments/PhotodiodeArea\run-1\integrals.h5
+(2025-05-14 16:20:41)[INFO]: Acquiring data for frequency: 10.0 Hz, duty cycle: 0.9844
+(2025-05-14 16:20:42)[INFO]: New raw data saved to Experiments/PhotodiodeArea\run-1\raw_data.h5
+(2025-05-14 16:20:42)[INFO]: Integral calculated: -6.001362773745078 Vs
+(2025-05-14 16:20:42)[INFO]: Integral calculated on the derivative: 0.025524929256889664 V
+(2025-05-14 16:20:42)[INFO]: New integral data saved to Experiments/PhotodiodeArea\run-1\integrals.h5
+(2025-05-14 16:20:42)[INFO]: Acquiring data for frequency: 10.0 Hz, duty cycle: 0.9866
+(2025-05-14 16:20:43)[INFO]: New raw data saved to Experiments/PhotodiodeArea\run-1\raw_data.h5
+(2025-05-14 16:20:43)[INFO]: Integral calculated: -5.15034122785433 Vs
+(2025-05-14 16:20:43)[INFO]: Integral calculated on the derivative: 0.022528374138779443 V
+(2025-05-14 16:20:43)[INFO]: New integral data saved to Experiments/PhotodiodeArea\run-1\integrals.h5
+(2025-05-14 16:20:44)[INFO]: Acquiring data for frequency: 10.0 Hz, duty cycle: 0.9888
+(2025-05-14 16:20:44)[INFO]: New raw data saved to Experiments/PhotodiodeArea\run-1\raw_data.h5
+(2025-05-14 16:20:44)[INFO]: Integral calculated: -4.30239977546752 Vs
+(2025-05-14 16:20:44)[INFO]: Integral calculated on the derivative: 0.01884279650590544 V
+(2025-05-14 16:20:44)[INFO]: New integral data saved to Experiments/PhotodiodeArea\run-1\integrals.h5
+(2025-05-14 16:20:45)[INFO]: Acquiring data for frequency: 10.0 Hz, duty cycle: 0.9911
+(2025-05-14 16:20:45)[INFO]: New raw data saved to Experiments/PhotodiodeArea\run-1\raw_data.h5
+(2025-05-14 16:20:45)[INFO]: Integral calculated: -3.4187535679133862 Vs
+(2025-05-14 16:20:45)[INFO]: Integral calculated on the derivative: 0.014757474163385773 V
+(2025-05-14 16:20:45)[INFO]: New integral data saved to Experiments/PhotodiodeArea\run-1\integrals.h5
+(2025-05-14 16:20:46)[INFO]: Acquiring data for frequency: 10.0 Hz, duty cycle: 0.9933
+(2025-05-14 16:20:46)[INFO]: New raw data saved to Experiments/PhotodiodeArea\run-1\raw_data.h5
+(2025-05-14 16:20:46)[INFO]: Integral calculated: -2.5705321881151586 Vs
+(2025-05-14 16:20:46)[INFO]: Integral calculated on the derivative: 0.01058604515255902 V
+(2025-05-14 16:20:46)[INFO]: New integral data saved to Experiments/PhotodiodeArea\run-1\integrals.h5
+(2025-05-14 16:20:47)[INFO]: Acquiring data for frequency: 10.0 Hz, duty cycle: 0.9955
+(2025-05-14 16:20:48)[INFO]: New raw data saved to Experiments/PhotodiodeArea\run-1\raw_data.h5
+(2025-05-14 16:20:48)[INFO]: Integral calculated: -1.7266274144931109 Vs
+(2025-05-14 16:20:48)[INFO]: Integral calculated on the derivative: 0.007271007627952732 V
+(2025-05-14 16:20:48)[INFO]: New integral data saved to Experiments/PhotodiodeArea\run-1\integrals.h5
+(2025-05-14 16:20:48)[INFO]: Acquiring data for frequency: 10.0 Hz, duty cycle: 0.9977
+(2025-05-14 16:20:49)[INFO]: New raw data saved to Experiments/PhotodiodeArea\run-1\raw_data.h5
+(2025-05-14 16:20:49)[INFO]: Integral calculated: -0.8828145607775594 Vs
+(2025-05-14 16:20:49)[INFO]: Integral calculated on the derivative: 0.0038587137057086497 V
+(2025-05-14 16:20:49)[INFO]: New integral data saved to Experiments/PhotodiodeArea\run-1\integrals.h5
+(2025-05-14 16:20:49)[INFO]: Acquiring data for frequency: 10.0 Hz, duty cycle: 0.9999
+(2025-05-14 16:20:50)[INFO]: New raw data saved to Experiments/PhotodiodeArea\run-1\raw_data.h5
+(2025-05-14 16:20:50)[INFO]: Integral calculated: -0.040743279404527565 Vs
+(2025-05-14 16:20:50)[INFO]: Integral calculated on the derivative: 0.0008212813730314958 V
+(2025-05-14 16:20:50)[INFO]: New integral data saved to Experiments/PhotodiodeArea\run-1\integrals.h5
+(2025-05-14 16:20:50)[INFO]: Acquiring data for frequency: 100.0 Hz, duty cycle: 0.98
+(2025-05-14 16:20:51)[INFO]: New raw data saved to Experiments/PhotodiodeArea\run-1\raw_data.h5
+(2025-05-14 16:20:51)[INFO]: Integral calculated: -0.9195849240280516 Vs
+(2025-05-14 16:20:51)[INFO]: Integral calculated on the derivative: 0.002515764948326762 V
+(2025-05-14 16:20:51)[INFO]: New integral data saved to Experiments/PhotodiodeArea\run-1\integrals.h5
+(2025-05-14 16:20:51)[INFO]: Acquiring data for frequency: 100.0 Hz, duty cycle: 0.9822
+(2025-05-14 16:20:52)[INFO]: New raw data saved to Experiments/PhotodiodeArea\run-1\raw_data.h5
+(2025-05-14 16:20:52)[INFO]: Integral calculated: -0.8179088136687995 Vs
+(2025-05-14 16:20:52)[INFO]: Integral calculated on the derivative: 0.0018333753690944817 V
+(2025-05-14 16:20:52)[INFO]: New integral data saved to Experiments/PhotodiodeArea\run-1\integrals.h5
+(2025-05-14 16:20:52)[INFO]: Acquiring data for frequency: 100.0 Hz, duty cycle: 0.9844
+(2025-05-14 16:20:53)[INFO]: New raw data saved to Experiments/PhotodiodeArea\run-1\raw_data.h5
+(2025-05-14 16:20:53)[INFO]: Integral calculated: -0.71705168706939 Vs
+(2025-05-14 16:20:53)[INFO]: Integral calculated on the derivative: 0.0015768623892716477 V
+(2025-05-14 16:20:53)[INFO]: New integral data saved to Experiments/PhotodiodeArea\run-1\integrals.h5
+(2025-05-14 16:20:54)[INFO]: Acquiring data for frequency: 100.0 Hz, duty cycle: 0.9866
+(2025-05-14 16:20:54)[INFO]: New raw data saved to Experiments/PhotodiodeArea\run-1\raw_data.h5
+(2025-05-14 16:20:54)[INFO]: Integral calculated: -0.6160499046505907 Vs
+(2025-05-14 16:20:54)[INFO]: Integral calculated on the derivative: 0.0013692390501968453 V
+(2025-05-14 16:20:54)[INFO]: New integral data saved to Experiments/PhotodiodeArea\run-1\integrals.h5
+(2025-05-14 16:20:55)[INFO]: Acquiring data for frequency: 100.0 Hz, duty cycle: 0.9888
+(2025-05-14 16:20:55)[INFO]: New raw data saved to Experiments/PhotodiodeArea\run-1\raw_data.h5
+(2025-05-14 16:20:55)[INFO]: Integral calculated: -0.5151820650836615 Vs
+(2025-05-14 16:20:55)[INFO]: Integral calculated on the derivative: 0.0010803995447834609 V
+(2025-05-14 16:20:55)[INFO]: New integral data saved to Experiments/PhotodiodeArea\run-1\integrals.h5
+(2025-05-14 16:20:56)[INFO]: Acquiring data for frequency: 100.0 Hz, duty cycle: 0.9911
+(2025-05-14 16:20:56)[INFO]: New raw data saved to Experiments/PhotodiodeArea\run-1\raw_data.h5
+(2025-05-14 16:20:56)[INFO]: Integral calculated: -0.409877472933071 Vs
+(2025-05-14 16:20:56)[INFO]: Integral calculated on the derivative: 0.0008615311269685009 V
+(2025-05-14 16:20:56)[INFO]: New integral data saved to Experiments/PhotodiodeArea\run-1\integrals.h5
+(2025-05-14 16:20:57)[INFO]: Acquiring data for frequency: 100.0 Hz, duty cycle: 0.9933
+(2025-05-14 16:20:57)[INFO]: New raw data saved to Experiments/PhotodiodeArea\run-1\raw_data.h5
+(2025-05-14 16:20:57)[INFO]: Integral calculated: -0.3089177580585631 Vs
+(2025-05-14 16:20:57)[INFO]: Integral calculated on the derivative: 0.0005914124015748016 V
+(2025-05-14 16:20:57)[INFO]: New integral data saved to Experiments/PhotodiodeArea\run-1\integrals.h5
+(2025-05-14 16:20:58)[INFO]: Acquiring data for frequency: 100.0 Hz, duty cycle: 0.9955
+(2025-05-14 16:20:58)[INFO]: New raw data saved to Experiments/PhotodiodeArea\run-1\raw_data.h5
+(2025-05-14 16:20:58)[INFO]: Integral calculated: -0.20803910556102367 Vs
+(2025-05-14 16:20:58)[INFO]: Integral calculated on the derivative: 0.00044202755905511714 V
+(2025-05-14 16:20:58)[INFO]: New integral data saved to Experiments/PhotodiodeArea\run-1\integrals.h5
+(2025-05-14 16:20:59)[INFO]: Acquiring data for frequency: 100.0 Hz, duty cycle: 0.9977
+(2025-05-14 16:20:59)[INFO]: New raw data saved to Experiments/PhotodiodeArea\run-1\raw_data.h5
+(2025-05-14 16:20:59)[INFO]: Integral calculated: -0.10699282880167324 Vs
+(2025-05-14 16:20:59)[INFO]: Integral calculated on the derivative: 0.00023168368602362178 V
+(2025-05-14 16:20:59)[INFO]: New integral data saved to Experiments/PhotodiodeArea\run-1\integrals.h5
+(2025-05-14 16:21:00)[INFO]: Acquiring data for frequency: 100.0 Hz, duty cycle: 0.9999
+(2025-05-14 16:21:00)[INFO]: New raw data saved to Experiments/PhotodiodeArea\run-1\raw_data.h5
+(2025-05-14 16:21:00)[INFO]: Integral calculated: -0.00495458907480315 Vs
+(2025-05-14 16:21:00)[INFO]: Integral calculated on the derivative: 7.12552288385827e-05 V
+(2025-05-14 16:21:00)[INFO]: New integral data saved to Experiments/PhotodiodeArea\run-1\integrals.h5
+(2025-05-14 16:21:01)[INFO]: Acquiring data for frequency: 1000.0 Hz, duty cycle: 0.98
+(2025-05-14 16:21:01)[INFO]: New raw data saved to Experiments/PhotodiodeArea\run-1\raw_data.h5
+(2025-05-14 16:21:01)[INFO]: Integral calculated: -0.07482030219611223 Vs
+(2025-05-14 16:21:01)[INFO]: Integral calculated on the derivative: 0.00021512795275590525 V
+(2025-05-14 16:21:01)[INFO]: New integral data saved to Experiments/PhotodiodeArea\run-1\integrals.h5
+(2025-05-14 16:21:02)[INFO]: Acquiring data for frequency: 1000.0 Hz, duty cycle: 0.9822
+(2025-05-14 16:21:02)[INFO]: New raw data saved to Experiments/PhotodiodeArea\run-1\raw_data.h5
+(2025-05-14 16:21:02)[INFO]: Integral calculated: -0.06665192544291342 Vs
+(2025-05-14 16:21:02)[INFO]: Integral calculated on the derivative: 0.00015939976008858258 V
+(2025-05-14 16:21:02)[INFO]: New integral data saved to Experiments/PhotodiodeArea\run-1\integrals.h5
+(2025-05-14 16:21:03)[INFO]: Acquiring data for frequency: 1000.0 Hz, duty cycle: 0.9844
+(2025-05-14 16:21:03)[INFO]: New raw data saved to Experiments/PhotodiodeArea\run-1\raw_data.h5
+(2025-05-14 16:21:03)[INFO]: Integral calculated: -0.058627792199803165 Vs
+(2025-05-14 16:21:03)[INFO]: Integral calculated on the derivative: 0.00011635396161417327 V
+(2025-05-14 16:21:03)[INFO]: New integral data saved to Experiments/PhotodiodeArea\run-1\integrals.h5
+(2025-05-14 16:21:04)[INFO]: Acquiring data for frequency: 1000.0 Hz, duty cycle: 0.9866
+(2025-05-14 16:21:04)[INFO]: New raw data saved to Experiments/PhotodiodeArea\run-1\raw_data.h5
+(2025-05-14 16:21:04)[INFO]: Integral calculated: -0.05046483190821852 Vs
+(2025-05-14 16:21:04)[INFO]: Integral calculated on the derivative: 0.00014867725762795282 V
+(2025-05-14 16:21:04)[INFO]: New integral data saved to Experiments/PhotodiodeArea\run-1\integrals.h5
+(2025-05-14 16:21:05)[INFO]: Acquiring data for frequency: 1000.0 Hz, duty cycle: 0.9888
+(2025-05-14 16:21:05)[INFO]: New raw data saved to Experiments/PhotodiodeArea\run-1\raw_data.h5
+(2025-05-14 16:21:05)[INFO]: Integral calculated: -0.04237690914124017 Vs
+(2025-05-14 16:21:05)[INFO]: Integral calculated on the derivative: 0.00012596472071850406 V
+(2025-05-14 16:21:05)[INFO]: New integral data saved to Experiments/PhotodiodeArea\run-1\integrals.h5
+(2025-05-14 16:21:06)[INFO]: Acquiring data for frequency: 1000.0 Hz, duty cycle: 0.9911
+(2025-05-14 16:21:07)[INFO]: New raw data saved to Experiments/PhotodiodeArea\run-1\raw_data.h5
+(2025-05-14 16:21:07)[INFO]: Integral calculated: -0.033929192759596466 Vs
+(2025-05-14 16:21:07)[INFO]: Integral calculated on the derivative: 9.209737942913397e-05 V
+(2025-05-14 16:21:07)[INFO]: New integral data saved to Experiments/PhotodiodeArea\run-1\integrals.h5
+(2025-05-14 16:21:07)[INFO]: Acquiring data for frequency: 1000.0 Hz, duty cycle: 0.9933
+(2025-05-14 16:21:08)[INFO]: New raw data saved to Experiments/PhotodiodeArea\run-1\raw_data.h5
+(2025-05-14 16:21:08)[INFO]: Integral calculated: -0.025772691160187017 Vs
+(2025-05-14 16:21:08)[INFO]: Integral calculated on the derivative: 9.565837229330722e-05 V
+(2025-05-14 16:21:08)[INFO]: New integral data saved to Experiments/PhotodiodeArea\run-1\integrals.h5
+(2025-05-14 16:21:08)[INFO]: Acquiring data for frequency: 1000.0 Hz, duty cycle: 0.9955
+(2025-05-14 16:21:09)[INFO]: New raw data saved to Experiments/PhotodiodeArea\run-1\raw_data.h5
+(2025-05-14 16:21:09)[INFO]: Integral calculated: -0.017638108083169297 Vs
+(2025-05-14 16:21:09)[INFO]: Integral calculated on the derivative: 7.189537709153554e-05 V
+(2025-05-14 16:21:09)[INFO]: New integral data saved to Experiments/PhotodiodeArea\run-1\integrals.h5
+(2025-05-14 16:21:09)[INFO]: Acquiring data for frequency: 1000.0 Hz, duty cycle: 0.9977
+(2025-05-14 16:21:10)[INFO]: New raw data saved to Experiments/PhotodiodeArea\run-1\raw_data.h5
+(2025-05-14 16:21:10)[INFO]: Integral calculated: -0.009498894715797245 Vs
+(2025-05-14 16:21:10)[INFO]: Integral calculated on the derivative: 3.795260211614178e-05 V
+(2025-05-14 16:21:10)[INFO]: New integral data saved to Experiments/PhotodiodeArea\run-1\integrals.h5
+(2025-05-14 16:21:10)[INFO]: Acquiring data for frequency: 1000.0 Hz, duty cycle: 0.9999
+(2025-05-14 16:21:11)[INFO]: New raw data saved to Experiments/PhotodiodeArea\run-1\raw_data.h5
+(2025-05-14 16:21:11)[INFO]: Integral calculated: -0.00012090305118110236 Vs
+(2025-05-14 16:21:11)[INFO]: Integral calculated on the derivative: 3.679026205708661e-06 V
+(2025-05-14 16:21:11)[INFO]: New integral data saved to Experiments/PhotodiodeArea\run-1\integrals.h5
+(2025-05-14 16:21:11)[INFO]: Instrument `AWG` shut down.
+(2025-05-14 16:21:11)[INFO]: Instrument `PicoScope` shut down.
+(2025-05-14 16:21:11)[SYSTEM]: Experiment `PhotodiodeArea` completed. Run ID 1.

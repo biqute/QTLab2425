@@ -232,8 +232,6 @@ class PicoScope(Instrument):
         
         # Get timebase for the given sample rate
         timebase = self.calculate_timebase(sample_rate)
-        print(f'sample rate impostato: {self.get_sampling_rate(timebase)}')
-        print(f'sample rate richiesto: {sample_rate}')
         
         # Hanldlers for returned values
         timeIndisposedMs = ctypes.c_int32()
@@ -439,6 +437,37 @@ class PicoScope(Instrument):
         # Store the channel information
         self.channel_info[channel] = {'enabled': enabled, 'coupling': coupling, 'range': range_value, 'offset': offset}
 
+    def send_TTL_trigger(self, voltage=2):
+        """
+        Send a TTL trigger signal.
+        
+        Parameters:
+        voltage (float): The voltage (V) level for the trigger signal. Default is 2V.
+        """
+        # Set the trigger output to the specified voltage
+        set_sig_gen_voltage = lambda v: ps.ps5000aSetSigGenBuiltInV2(self.chandle, 
+                                                                     ctypes.c_int32(v), # offsetVoltage
+                                                                     ctypes.c_uint32(0),      # pkToPk
+                                                                     ctypes.c_int32(1),       # waveType (SQUARE)
+                                                                     ctypes.c_double(100),       # startFrequency
+                                                                     ctypes.c_double(100),       # stopFrequency
+                                                                     ctypes.c_double(0),       # increment
+                                                                     ctypes.c_double(100),     # dwellTime
+                                                                     ctypes.c_int32(0),       # sweepType (UP)
+                                                                     ctypes.c_int32(0),       # operation (ADD)
+                                                                     ctypes.c_uint32(1),      # shots
+                                                                     ctypes.c_uint32(0),      # sweeps
+                                                                     ctypes.c_int32(0),       # triggerType (RISING)
+                                                                     ctypes.c_int32(4),       # triggerSource (SOFTWARE TRIGGER)
+                                                                     ctypes.c_int16(0))       # extInThreshold
+        
+        self.status["setSigGenVoltage"] = set_sig_gen_voltage(int(voltage*1e6))  # Convert to uV
+        assert_pico_ok(self.status["setSigGenVoltage"])
+        self.status["launchTrigger"] = ps.ps5000aSigGenSoftwareControl(self.chandle, ctypes.c_int16(0))
+
+        
+        
+        
     # UTILITY METHODS ---------------------------------------------------------
     def get_command_value(self, dict_name, key):
         if self.pico_strings is None:  
@@ -495,7 +524,7 @@ class PicoScope(Instrument):
     def close_connection(self):
         # Disconnect the scope
         self.status["close"] = ps.ps5000aCloseUnit(self.chandle)
-        assert_pico_ok(self.status["close"])
+        # assert_pico_ok(self.status["close"])
     
     def shutdown(self):
         self.kill()
@@ -513,3 +542,6 @@ class PicoScope(Instrument):
         # Display status returns
         print(self.status)
     
+    def __del__(self):
+        # Ensure the connection is closed when the object is deleted
+        self.close_connection()

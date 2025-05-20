@@ -253,6 +253,36 @@ class Fitter():
       
     def plot_fit(self):
         return self.plot(self.fit())
+    
+    def deep_copy(self):
+        """
+        Returns a deep copy of the Fitter object.
+        """
+        f = Fitter()
+        f.datax = np.copy(self.datax)
+        f.datay = np.copy(self.datay)
+        f.sigmay = np.copy(self.sigmay)
+        f.model = self.model
+        f.params = self.params.copy()
+        f.param_units = self.param_units.copy()
+        f.param_displayed_names = self.param_displayed_names.copy()
+        f.derived_params = self.derived_params.copy()
+        f.title = self.title
+        f.labelx = self.labelx
+        f.labely = self.labely
+        f.unitx = self.unitx
+        f.unity = self.unity
+        f.scaley = self.scaley
+        f.scalex = self.scalex
+        f.number_of_errorbars = self.number_of_errorbars
+        f.show_plot = self.show_plot
+        f.show_initial_model = self.show_initial_model
+        f.show_model = self.show_model
+        f.show_errorbars = self.show_errorbars
+        f.show_pvalue = self.show_pvalue
+        f.figure_size = self.figure_size
+        f.file_name = self.file_name        
+        return f
 
 def separate_values_from_limits(params):
     params_values = {}

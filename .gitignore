@@ -163,6 +163,7 @@ cython_debug/
 
 # SinglePhoton stuff
 IRdetection/Docs
+IRdetection/Experiments/PhotodiodeArea
 *.jpg
 *.png
 .github

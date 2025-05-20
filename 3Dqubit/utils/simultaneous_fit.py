@@ -9,6 +9,10 @@ def simultaneous_fit(fitters):
     parameters
      - fitters: list of Fitter objects to be fitted simultaneously
     """
+    for f in fitters:
+        if not isinstance(f, Fitter):
+            raise ValueError("All elements in fitters must be instances of the Fitter class.")
+
     mfitter = Fitter()
     mfitter.datax = np.concat([f.datax for f in fitters])
     mfitter.datay = np.concat([f.datay for f in fitters])
@@ -25,6 +29,8 @@ def simultaneous_fit(fitters):
         for key, value in f.params.items(): 
             if key not in mfitter.params:
                 mfitter.params[key] = value
+            elif value != mfitter.params[key]:
+                raise ValueError(f"Parameter {key} has different values in different fitters.")
                 
     mfitter.derived_params = dict()
     for f in fitters:
