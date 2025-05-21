@@ -167,12 +167,12 @@ delta1 = f1/f_r - f_r/f1
 # G = (delta1 * QL * (1 - delta1) / (1 + delta1 * QL))**2 # WRONG CALCULATION!!
 G = (delta1 * QL * (1 - delta1*QL) / (1 + delta1*QL))**2
 
-for n in [1, 2, 3, 4, 5]:
+for n in np.arange(1, 20)/2:
     phi = np.pi / n
-    f_phi = linear_sampling(np.array([np.pi/4]), aaaa[idx1:(idx2+1)], f11_real.datax[idx1:(idx2+1)])[0]
+    f_phi = linear_sampling(np.array([phi]), aaaa[idx1:(idx2+1)], f11_real.datax[idx1:(idx2+1)])[0]
     delta_phi = f_phi/f_r - f_r/f_phi
     G_phi = (delta_phi * QL * (np.tan(phi) - delta_phi*QL) / (np.tan(phi) + delta_phi*QL))**2
-    print(f"phi = pi/{n} => G_phi = {G_phi}")
+    print(f"φ = π/{n} => G_φ = {G_phi}")
 
 A = S11_omega / G
 alpha = (1 - np.sqrt(G))/(1 + np.sqrt(G))
@@ -259,11 +259,11 @@ f11_imag.labely = "$\\text{Im}(S_{11})$"
 f11_imag.model = lambda x, f0, QL, k1, k2, A, theta11: np.imag(np.exp(1j*theta11)*model_rettaroli_S11(x, f0, QL, k1, k2, A))
 f11_imag.file_name = f"../plots/{basename}_S11_imag.pdf"
 
-res = simultaneous_fit([f21_real, f21_imag, f11_real, f11_imag])
-f21_real.plot(res["results"][0])
-f21_imag.plot(res["results"][1])
-f11_real.plot(res["results"][2])
-f11_imag.plot(res["results"][3])
+# res = simultaneous_fit([f21_real, f21_imag, f11_real, f11_imag])
+# f21_real.plot(res["results"][0])
+# f21_imag.plot(res["results"][1])
+# f11_real.plot(res["results"][2])
+# f11_imag.plot(res["results"][3])
 
 f11_real.plot_fit()
 

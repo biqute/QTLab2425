@@ -1,0 +1,8 @@
+PARAMS
+Lk = 5.0
+l = 90.0
+END PARAMS
+!>< FREQS
+!>< 4.0e9 2.0e10 1.43125e10 9.395e9 5.8475e9 1.78725e10 4.7675e9
+!>< END FREQS
+FILE current_1.sid
