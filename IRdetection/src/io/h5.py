@@ -23,16 +23,16 @@ class H5Manager:
 
     File\\
     ├─ global metadata\\
-    ├─ Group <group name>\\
+    ├─ Group \\<group name\\>\\
         ├─ group metadata\\
-        ├─ Dataset <dataset name>\\
+        ├─ Dataset \\<dataset name\\>\\
             ├─ dataset metadata\\
             └─ data (ND array)
 
 
     The class manages this files by keeping for each element (being it a group a dataset or the file itself) a
     dictionary of the form:
-    \<file name\>:{
+    \\<file name\\>:{
         type: file - gorup - dataset
         metadata: dictionary of metadata, elements are {meta_key : value}
         content: list of content, i.e. other elements
@@ -60,6 +60,7 @@ class H5Manager:
         with h5py.File(self.file, 'r') as f:
             file_meta = dict(f.attrs)
         self.structure = {file_name: {'type': 'file', 'metadata': file_meta, 'content': []}}
+        self._crawl_file() # Initialize the structure with the file metadata
 
     def _crawl_file(self):
         """
@@ -108,10 +109,136 @@ class H5Manager:
             for name, obj in f.items():
                 build_structure(name, obj, self.structure[file_name])
 
+    def get_datasets(self):
+        """
+        Returns a list of all datasets in the file.
+
+        Recursively traverses the structure to find all datasets.
+        
+        Returns
+        -------
+        list
+            A list of tuples, each containing the path to the dataset and its metadata.
+        """
+        datasets = []
+        
+        def traverse(items, current_path):
+            for item in items:
+                # Each item is a dictionary with a single key (name)
+                for name, details in item.items():
+                    path = f"{current_path}/{name}" if current_path else name
+                    
+                    if details['type'] == 'dataset':
+                        datasets.append(path)
+                    elif details['type'] in ['group', 'file'] and 'content' in details:
+                        traverse(details['content'], path)
+        
+        # Start traversal from file's content
+        file_name = os.path.basename(self.file)
+        traverse(self.structure[file_name]['content'], '')
+        
+        return datasets
+    
+    def get_dataset(self, dataset_name):
+        """
+        Returns the data of a specific dataset.
+
+        Parameters
+        ----------
+        dataset_name : str
+            The name of the dataset to retrieve.
+
+        Returns
+        -------
+        np.ndarray
+            The data contained in the specified dataset.
+        """
+        with h5py.File(self.file, 'r') as f:
+            dataset = f[dataset_name]
+            data = dataset[()]
+            return data
+        
+    def get_metadata(self, element_name):
+        """
+        Returns the metadata of a specific element (file, group, or dataset).
+
+        Parameters
+        ----------
+        element_name : str
+            The name of the element whose metadata is to be retrieved.
+
+        Returns
+        -------
+        dict
+            The metadata dictionary of the specified element.
+        """
+        with h5py.File(self.file, 'r') as f:
+            return dict(f[element_name].attrs)
+        
+    def add_metadata(self, element_name, metadata):
+        """
+        Adds metadata to a specific element (file, group, or dataset).
+
+        Parameters
+        ----------
+        element_name : str
+            The name of the element to which metadata is to be added.
+        metadata : dict
+            The metadata dictionary to be added.
+
+        Returns
+        -------
+        None
+        """
+        with h5py.File(self.file, 'a') as f:
+            for key, value in metadata.items():
+                f[element_name].attrs[key] = value
+
+        # Update the structure dictionary
+        self._crawl_file()
+
+    def add_dataset(self, dataset_name, data, group_name='/', metadata=None):
+        """
+        Adds a new dataset to the HDF5 file.
+
+        Parameters
+        ----------
+        dataset_name : str
+            The name of the dataset to be added.
+        data : np.ndarray
+            The data to be stored in the dataset.
+        group_name : str, optional
+            The name of the group under which the dataset will be created.
+        metadata : dict, optional
+            Metadata to be associated with the dataset.
+
+        Returns
+        -------
+        None
+        """
+        with h5py.File(self.file, 'a') as f:
+            group = f.require_group(group_name)
+            dataset = group.create_dataset(dataset_name, data=data)
+            if metadata:
+                for key, value in metadata.items():
+                    dataset.attrs[key] = value
+
+        # Update the structure dictionary
+        self._crawl_file()
 
 # TESTING
 if __name__ == '__main__':
     h5_manager = H5Manager("IRdetection/Experiments/PhotodiodeArea/run-1/raw_data.h5")
-    h5_manager._crawl_file()
-    print(h5_manager.structure)
-               
+    datasets = h5_manager.get_datasets()
+    print("Datasets in the file:")
+    for dataset in datasets:
+        print(dataset)
+
+    # # Example of adding a dataset
+    # data = np.random.rand(10, 10)
+    # h5_manager.add_dataset("new_dataset", data, group_name="Group1", metadata={"description": "Random data"})
+    # print("Added new dataset 'new_dataset' to 'Group1'.")
+    # # Example of getting a dataset
+    # dataset_data = h5_manager.get_dataset("Group1/new_dataset")
+    # print("Data from 'Group1/new_dataset':")
+    # print(dataset_data)
