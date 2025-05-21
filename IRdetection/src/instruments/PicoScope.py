@@ -354,6 +354,9 @@ class PicoScope(Instrument):
             If the acquisition times out
         """
         no_of_samples = pre_trigger_samples + post_trigger_samples
+        if no_of_samples == 0:
+            raise Warning("No samples to acquire. Set pre_trigger_samples or post_trigger_samples. 100 samples will be acquired.")
+            no_of_samples = 100
         downsampling_mode = downsampling_mode.upper()
         downsampling_mode = ps.PS5000A_RATIO_MODE[self.get_command_value('RATIO_MODE', downsampling_mode)]
         
