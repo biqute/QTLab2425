@@ -144,7 +144,7 @@ class Fitter():
         
         first.scatter(scalex_pass(self.datax), scaley_pass(self.datay), label="data", marker="o", facecolors="none", edgecolors="#1f73f0")
         if self.show_model:
-            first.plot(scalex_pass(modelx), scaley_pass(modely), color="#f01f1f", label="model")
+            first.plot(scalex_pass(modelx), scaley_pass(modely), color="#f01f1f", label="fit")
         if self.show_initial_model:
             separated_initial = separate_values_from_limits(self.params)
             initialy = [self.model(f, **separated_initial["values"]) for f in modelx]
