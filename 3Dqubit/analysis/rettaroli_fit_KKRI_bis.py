@@ -45,27 +45,10 @@ def estimate_parameters(freqs, S21, S11):
     f0 = freqs[np.argmax(np.abs(S21))]
     width = peak_width(freqs, np.abs(S21)) # no - in front of datay
 
-    # First Cropping
-    # crop = width_to_indeces(5 * width, f0, freqs)
-    # freqs = freqs[crop[0]:crop[1]]
-    # S11 = S11[crop[0]:crop[1]]
-    # S21 = S21[crop[0]:crop[1]]
-
     QL = f0 / width # loaded quality factor
 
     theta21 = np.angle(S21)[np.argmax(np.abs(S21))] # Arg[S21(w_0)]
     theta11_up_to_pi = np.angle(S11)[np.argmax(np.abs(S21))] # Arg[S11(w_0)] up to pi due to sign of B
-
-    # Second cropping
-    # S11_dephase = np.angle(S11 / np.exp(1j * theta11))
-    #idx1 = np.min(np.arange(0, len(S11_dephase))[S11_dephase > 0])
-    #idx2 = np.max(np.arange(0, len(S11_dephase))[S11_dephase < 0]) + 1
-    #freqs = freqs[idx1:idx2]
-    #S11 = S11[idx1:idx2]
-    #S21 = S21[idx1:idx2]
-    #S11_dephase = S11_dephase[idx1:idx2]
-    #phi = np.pi / 6.0
-    #f_phi = linear_sampling(np.array([phi]), S11_dephase, freqs)[0]
 
     (id_phi, _) = width_to_indeces(width / 3, f0, freqs)
     id_phi = np.argmax(np.abs(S21)) - max(1, np.argmax(np.abs(S21)) - id_phi) # we move at least one datapoint to the left
@@ -75,7 +58,7 @@ def estimate_parameters(freqs, S21, S11):
     B = (1 - np.tan(phi)*d_phi*QL) / (1 + np.tan(phi)/d_phi/QL)
 
     theta11 = theta11_up_to_pi
-    if B < 0: theta11 = np.angle(np.exp(1j * (theta11 - np.pi))) # remove pi and make sure you are in [-pi, pi]
+    if B < 0: theta11 = np.angle(np.exp(1j * (theta11_up_to_pi - np.pi))) # remove pi and make sure you are in [-pi, pi]
 
     S21_resonance = np.max(np.abs(S21))
     S11_resonance = np.abs(S11)[np.argmax(np.abs(S21))]
