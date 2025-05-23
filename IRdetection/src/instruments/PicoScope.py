@@ -586,7 +586,7 @@ class PicoScope(Instrument):
         # Store the channel information
         self.channel_info[channel] = {'enabled': enabled, 'coupling': coupling, 'range': range_value, 'offset': offset}
 
-    def send_TTL_trigger(self, voltage=2):
+    def send_TTL_trigger(self):
         """
         Send a TTL trigger signal.
         
@@ -596,14 +596,14 @@ class PicoScope(Instrument):
             The voltage level for the trigger signal in volts (default: 2V)
         """
         # Set the trigger output to the specified voltage
-        set_sig_gen_voltage = lambda v: ps.ps5000aSetSigGenBuiltInV2(self.chandle, 
-                                                                     ctypes.c_int32(v), # offsetVoltage
-                                                                     ctypes.c_uint32(0),      # pkToPk
+        set_sig_gen_voltage = lambda : ps.ps5000aSetSigGenBuiltInV2(self.chandle, 
+                                                                     ctypes.c_int32(int(0e6)), # offsetVoltage
+                                                                     ctypes.c_uint32(int(1e6)),      # pkToPk
                                                                      ctypes.c_int32(1),       # waveType (SQUARE)
-                                                                     ctypes.c_double(100),       # startFrequency
-                                                                     ctypes.c_double(100),       # stopFrequency
+                                                                     ctypes.c_double(8),       # startFrequency
+                                                                     ctypes.c_double(8),       # stopFrequency
                                                                      ctypes.c_double(0),       # increment
-                                                                     ctypes.c_double(100),     # dwellTime
+                                                                     ctypes.c_double(1),     # dwellTime
                                                                      ctypes.c_int32(0),       # sweepType (UP)
                                                                      ctypes.c_int32(0),       # operation (ADD)
                                                                      ctypes.c_uint32(1),      # shots
@@ -612,9 +612,11 @@ class PicoScope(Instrument):
                                                                      ctypes.c_int32(4),       # triggerSource (SOFTWARE TRIGGER)
                                                                      ctypes.c_int16(0))       # extInThreshold
         
-        self.status["setSigGenVoltage"] = set_sig_gen_voltage(int(voltage*1e6))  # Convert to uV
+        self.status["setSigGenVoltage"] = set_sig_gen_voltage()  # Convert to uV
         assert_pico_ok(self.status["setSigGenVoltage"])
-        self.status["launchTrigger"] = ps.ps5000aSigGenSoftwareControl(self.chandle, ctypes.c_int16(0))
+        # Use state '2' (PS5000A_SIGGEN_TRIG_RISING) to apply the software trigger
+        self.status["launchTrigger"] = ps.ps5000aSigGenSoftwareControl(self.chandle, ctypes.c_int16(2))
+        assert_pico_ok(self.status["launchTrigger"])
 
         
         
@@ -716,7 +718,7 @@ class PicoScope(Instrument):
         """
         # Disconnect the scope
         self.status["close"] = ps.ps5000aCloseUnit(self.chandle)
-        # assert_pico_ok(self.status["close"])
+        assert_pico_ok(self.status["close"])
     
     def shutdown(self):
         """
@@ -733,7 +735,7 @@ class PicoScope(Instrument):
         """
         # Stop the scope
         self.status["stop"] = ps.ps5000aStop(self.chandle)
-        assert_pico_ok(self.status["stop"])
+        #assert_pico_ok(self.status["stop"])
     
         self.close_connection()
     
@@ -754,4 +756,5 @@ class PicoScope(Instrument):
         Destructor to ensure the connection is closed when the object is deleted.
         """
         # Ensure the connection is closed when the object is deleted
-        self.close_connection()
+        if self.status['close'] == None and self.status['stop'] == None :
+            self.close_connection()

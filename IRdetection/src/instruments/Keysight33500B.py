@@ -284,6 +284,81 @@ class Keysight33500B(Instrument):
         :param edge_time: Trailing edge time in seconds
         """
         self.send_command(f"SOURce{self.channel}:FUNCtion:PULSe:TRANsition:TRAiling {edge_time}")
+
+    def set_external_triggered_burst_square(self, frequency: float, amplitude: float, duty_cycle: float, offset: float = 0.0):
+        """
+        Configure the instrument for a single square wave burst, triggered externally.
+
+        This function sets up the specified channel to output one cycle of a square
+        wave each time an external trigger signal (positive edge) is received.
+
+        Args:
+            frequency (float): Frequency of the square wave in Hz.
+            amplitude (float): Amplitude of the square wave in Vpp.
+            duty_cycle (float): Duty cycle of the square wave in percentage (0-100).
+            offset (float, optional): DC offset of the square wave in Volts. Defaults to 0.0.
+        """
+        self.set_output(False)  # Ensure output is off before configuration
+        # 1. Configure the square waveform parameters
+        self.set_square_waveform(frequency=frequency, amplitude=amplitude, offset=offset, duty_cycle=duty_cycle)
+
+        # 2. Configure burst mode for a single burst
+        self.send_command(f"BURSt{self.channel}:MODE TRIGgered")  # Ensure triggered mode
+        self.send_command(f"BURSt{self.channel}:NCYCles 1")      # Single burst
+        
+
+        # 3. Configure external trigger source and slope
+        # Assuming positive edge trigger is suitable for PicoScope's output
+        self.send_command(f"TRIGger{self.channel}:SOURce EXTernal")
+        self.send_command(f"TRIGger{self.channel}:SLOPe POSitive")
+        # Optional: Set a specific trigger level if needed, e.g., for TTL:
+        # self.send_command(f"TRIGger{self.channel}:LEVel 1.5") # 1.5V threshold
+        # print(self.query(f"TRIGger{self.channel}:LEVel?"))
+        self.send_command(f"BURSt{self.channel}:STATe ON")  # Enable burst mode
+        # 4. Ensure output is enabled
+        self.set_output(True)
+        
+        print(f"Channel {self.channel} configured for single external triggered square burst: Freq={frequency}Hz, Amp={amplitude}Vpp, Duty={duty_cycle}%, Offset={offset}V. Waiting for external trigger.")
+
+    def set_software_triggered_burst_square(self, frequency: float, amplitude: float, duty_cycle: float, offset: float = 0.0):
+        """
+        Configure the instrument for a single square wave burst, triggered by software (*TRG).
+
+        This function sets up the specified channel to output one cycle of a square
+        wave each time a software trigger (*TRG command) is received.
+
+        Args:
+            frequency (float): Frequency of the square wave in Hz.
+            amplitude (float): Amplitude of the square wave in Vpp.
+            duty_cycle (float): Duty cycle of the square wave in percentage (0-100).
+            offset (float, optional): DC offset of the square wave in Volts. Defaults to 0.0.
+        """
+        self.set_output(False)  # Ensure output is off before configuration
+        # 1. Configure the square waveform parameters
+        self.set_square_waveform(frequency=frequency, amplitude=amplitude, offset=offset, duty_cycle=duty_cycle)
+
+        # 2. Configure burst mode for a single burst
+        self.send_command(f"BURSt{self.channel}:MODE TRIGgered")  # Ensure triggered mode
+        self.send_command(f"BURSt{self.channel}:NCYCles 1")      # Single burst
+        
+        # 3. Configure software trigger source
+        self.send_command(f"TRIGger{self.channel}:SOURce BUS")
+        
+        self.send_command(f"BURSt{self.channel}:STATe ON")  # Enable burst mode
+        
+        # 4. Ensure output is enabled
+        self.set_output(True)
+        
+        print(f"Channel {self.channel} configured for single software triggered square burst: Freq={frequency}Hz, Amp={amplitude}Vpp, Duty={duty_cycle}%, Offset={offset}V. Send *TRG to initiate.")
+
+    def send_software_trigger(self):
+        """
+        Sends a software trigger (*TRG) to the instrument for the active channel
+        and waits for the operation (e.g., burst) to complete.
+        """
+        self.send_command("*TRG")
+        self.wait_opc() # Wait for the burst or triggered operation to complete
+        print(f"Software trigger (*TRG) sent, affecting channel {self.channel} (if configured for BUS trigger), and operation completed.")
     
     # ---------------------- Communication Methods ----------------------
     
@@ -354,6 +429,47 @@ class Keysight33500B(Instrument):
             if time.time() - start_time > timeout:
                 raise TimeoutError('Timeout waiting for operation to complete')
             time.sleep(time_sleep)
+
+    def get_error_queue(self) -> list[str]:
+        """
+        Reads all errors from the instrument's error queue.
+
+        Returns:
+            list[str]: A list of error messages. Empty if no errors.
+        """
+        errors = []
+        while True:
+            error_str = self.query("SYSTem:ERRor?")
+            if error_str.startswith("+0,") or error_str.startswith("0,"): # "+0, No error" or "0, No error"
+                break
+            errors.append(error_str)
+            if len(errors) > 50: # Safety break to prevent infinite loop on unexpected response
+                errors.append("Error queue reading stopped: Too many errors.")
+                break
+        return errors
+
+    def is_waiting_for_trigger(self) -> bool:
+        """
+        Checks if the instrument is currently waiting for a trigger.
+
+        This is determined by checking bit 5 (Waiting-For-Trigger, WTG)
+        of the Operation Status Condition Register.
+
+        Returns:
+            bool: True if the instrument is waiting for a trigger, False otherwise.
+        """
+        try:
+            op_cond_str = self.query("STATus:OPERation:CONDition?")
+            op_cond_val = int(op_cond_str)
+            # Bit 5 (mask 32) indicates "Waiting For Trigger"
+            return (op_cond_val & 32) != 0
+        except ValueError:
+            # Handle cases where the query might not return a simple integer
+            print(f"Warning: Could not parse STATus:OPERation:CONDition? response: {op_cond_str}")
+            return False
+        except Exception as e:
+            print(f"Error querying trigger status: {e}")
+            return False
     
     # ---------------------- Standard Instrument Methods ----------------------
     
