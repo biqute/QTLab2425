@@ -3,36 +3,81 @@ import ctypes
 import numpy as np
 import matplotlib.pyplot as plt
 import time
-from picosdk.functions import adc2mV, assert_pico_ok
-from picosdk.ps5000a import ps5000a as ps
+from src.instruments.Keysight33500B import Keysight33500B
 import h5py
+import keyboard # Import the keyboard library
+
 
 
 if __name__ == '__main__':
     
     # Create an instance of PicoScope using 12-bit resolution 
-    scope = PicoScope("12") 
-    scope.initialize()
+    #scope = PicoScope("12") 
+    #scope.initialize()
+
+    awg = Keysight33500B("192.168.3.7")
+    awg.initialize()
+    # Set AWG to brust mode (a single square wave)
+    awg.set_channel(1) # Or channel 2
+    awg.set_output(True)
+
+
+    print(awg.get_error_queue())
     
-    print(scope.resolution)
+    #print(scope.resolution)
     
     # Set up channel A as in the example:
     enabled = True
     analogue_offset = 0.0
 
-    scope.set_channel('A', enabled, 'DC', '500MV', analogue_offset)
+    #scope.set_channel('A', enabled, 'DC', '500MV', analogue_offset)
     
     #test send_TTL_trigger method
-    scope.send_TTL_trigger(voltage = 3)
+    print("Press 's' to send a TTL trigger, 't' for a software trigger, 'e' to exit.")
     
-    time.sleep(0.5)
+
+    # Define a flag to control the loop
+    global running
+    running = True
+
+    def on_key_press(event):
+        if event.name == 's':
+            awg.set_external_triggered_burst_square(
+                frequency=100,    # 1 kHz
+                amplitude=3.0,     # 3 Vpp
+                duty_cycle=50,     # 50%
+                offset=1.5         # 1.5V DC offset (so the square wavve goes from 0V to 3V)
+           )
+            time.sleep(0.1) # Small delay to allow the trigger to be sent
+            #scope.send_TTL_trigger()
+            print("TTL trigger sent.")
+        elif event.name == 't':
+            awg.set_software_triggered_burst_square(
+                frequency=8333.33,    # 1 kHz
+                amplitude=0.712,     # 3 Vpp
+                duty_cycle=99.86,     # 50%
+                offset=-0.356         # 1.5V DC offset (so the square wave goes from 0V to 3V)
+           )
+            time.sleep(0.1) # Small delay to allow the trigger to be sent
+            awg.send_software_trigger()
+            print("Software trigger sent.")
+        elif event.name == 'e':
+            print("Exiting...")
+            running = False # Set the flag to False to exit the loop
+
+    # Register the key press handler
+    keyboard.on_press(on_key_press)
+
+    # Keep the script running until 'e' is pressed
+    while running:
+        time.sleep(0.1) # Small delay to prevent high CPU usage
+
+    # Unhook all keyboard events
+    keyboard.unhook_all()
+
+    print("PicoScope closed.")
     
-    scope.send_TTL_trigger(voltage = 2)
-    
-    time.sleep(0.5)
-    
-    scope.close_connection()
-    
+        
     
     
 #-------------- old code ----------------    
