@@ -182,7 +182,7 @@ class PhotodiodeArea(Experiment):
         freq = 0.0001/resolution
         print(f"frequenza {freq}")
         n_space = np.linspace(0, 50, 50)
-        dc_start = 1 - 130e-9 * freq
+        dc_start = 1 - 100e-9 * freq
         print(f"dc_start {dc_start}")
         with tqdm(total=len(n_space), desc="Running experiment") as pbar:
             for i in n_space:
@@ -206,5 +206,5 @@ if __name__ == "__main__":
     experiment.add_callback(RestartRunCallback(experiment))
     
     # Run the experiment
-    experiment.run(override_last_run=True)
+    experiment.run(override_last_run=False)
     

@@ -1,0 +1,6 @@
+(2025-05-23 15:23:41)[SYSTEM]: Experiment `PulseAcquisition` started. Run ID 0.
+(2025-05-23 15:23:42)[INFO]: Instrument `AWG` initialized and activated.
+(2025-05-23 15:23:43)[INFO]: Instrument `PicoScope` initialized and activated.
+(2025-05-23 15:23:44)[INFO]: Instrument `AWG` shut down.
+(2025-05-23 15:23:44)[INFO]: Instrument `PicoScope` shut down.
+(2025-05-23 15:23:44)[SYSTEM]: Experiment `PulseAcquisition` completed. Run ID 0.

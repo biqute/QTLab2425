@@ -194,6 +194,12 @@ class Keysight33500B(Instrument):
         :param offset: DC offset in volts
         :param duty_cycle: Duty cycle as percentage (0-100)
         """
+        if amplitude < 0:
+            # invert polarity
+            self.send_command(f"OUTPut{self.channel}:POLarity INVerted")
+            amplitude = -amplitude
+            duty_cycle = 100 - duty_cycle
+            
         self.set_waveform("SQUare")
         self.set_frequency(frequency)
         self.set_amplitude(amplitude)
@@ -298,6 +304,12 @@ class Keysight33500B(Instrument):
             duty_cycle (float): Duty cycle of the square wave in percentage (0-100).
             offset (float, optional): DC offset of the square wave in Volts. Defaults to 0.0.
         """
+        if amplitude < 0:
+            # invert polarity
+            self.send_command(f"OUTPut{self.channel}:POLarity INVerted")
+            amplitude = -amplitude
+            duty_cycle = 100 - duty_cycle
+            
         self.set_output(False)  # Ensure output is off before configuration
         # 1. Configure the square waveform parameters
         self.set_square_waveform(frequency=frequency, amplitude=amplitude, offset=offset, duty_cycle=duty_cycle)
@@ -333,6 +345,12 @@ class Keysight33500B(Instrument):
             duty_cycle (float): Duty cycle of the square wave in percentage (0-100).
             offset (float, optional): DC offset of the square wave in Volts. Defaults to 0.0.
         """
+        if amplitude < 0:
+            # invert polarity
+            self.send_command(f"OUTPut{self.channel}:POLarity INVerted")
+            amplitude = -amplitude
+            duty_cycle = 100 - duty_cycle
+            
         self.set_output(False)  # Ensure output is off before configuration
         # 1. Configure the square waveform parameters
         self.set_square_waveform(frequency=frequency, amplitude=amplitude, offset=offset, duty_cycle=duty_cycle)
@@ -345,7 +363,7 @@ class Keysight33500B(Instrument):
         self.send_command(f"TRIGger{self.channel}:SOURce BUS")
         
         self.send_command(f"BURSt{self.channel}:STATe ON")  # Enable burst mode
-        
+        self.wait_opc()  # Wait for the burst to be ready
         # 4. Ensure output is enabled
         self.set_output(True)
         

@@ -168,3 +168,59 @@ class MakePeakGraphCallback(Callback):
         fig_path = f"{fig_dir}/{peak_name}.png"
         plt.savefig(fig_path)
         plt.close()
+        
+        
+class GraphCallback(Callback):
+    """
+    Collection of graphing callbacks for different types of data.
+    
+    Methods
+    -------
+    XYGraph(experiment, x_data, y_data, title, xlabel, ylabel, **kwargs)
+        Generate and save a simple XY graph
+    """
+    def XYGraph(self, experiment, x_data, y_data, title, xlabel, ylabel, **kwargs):
+        """
+        Generate and save a simple XY graph.
+        
+        Parameters
+        ----------
+        experiment : Experiment
+            The experiment instance
+        x_data : array-like
+            X-axis data
+        y_data : array-like
+            Y-axis data
+        title : str
+            Title of the graph
+        xlabel : str
+            Label for the X-axis
+        ylabel : str
+            Label for the Y-axis
+        **kwargs : dict
+            Additional keyword arguments for customization
+        
+        Returns
+        -------
+        None
+        """
+        import matplotlib.pyplot as plt
+        
+        plt.figure(figsize=(10, 6))
+        plt.plot(x_data, y_data, label=kwargs.get('label', 'Data'))
+        plt.title(title)
+        plt.xlabel(xlabel)
+        plt.ylabel(ylabel)
+        
+        if 'legend' in kwargs:
+            plt.legend()
+        
+        if 'grid' in kwargs and kwargs['grid']:
+            plt.grid()
+        
+        # Save the figure
+        fig_dir = f"{experiment.get_run_folder()}/figures"
+        os.makedirs(fig_dir, exist_ok=True)
+        fig_path = f"{fig_dir}/{title}.png"
+        plt.savefig(fig_path)
+        plt.close()
