@@ -2,30 +2,94 @@ import os
 import shutil
 
 class Callback:
+    """
+    Base class for experiment callbacks.
+    
+    This class defines the interface for callbacks that can be registered
+    with an experiment to hook into various lifecycle events.
+    
+    Methods
+    -------
+    on_experiment_start(experiment)
+        Called when an experiment starts
+    on_experiment_end(experiment)
+        Called when an experiment ends successfully
+    on_exception(experiment, exception)
+        Called when an experiment encounters an exception
+    """
     def on_experiment_start(self, experiment):
+        """
+        Called when an experiment starts.
+        
+        Parameters
+        ----------
+        experiment : Experiment
+            The experiment that is starting
+        """
         pass
 
     def on_experiment_end(self, experiment):
+        """
+        Called when an experiment ends successfully.
+        
+        Parameters
+        ----------
+        experiment : Experiment
+            The experiment that is ending
+        """
         pass
 
     def on_exception(self, experiment, exception):
+        """
+        Called when an experiment encounters an exception.
+        
+        Parameters
+        ----------
+        experiment : Experiment
+            The experiment that encountered an exception
+        exception : Exception
+            The exception that was raised
+        """
+        pass
+
+    def on_run_override(self, experiment, run_id):
+        """
+        Called when a run is being restarted with override.
+        
+        Parameters
+        ----------
+        experiment : Experiment
+            The experiment instance
+        run_id : int
+            The ID of the run to be restarted
+        """
         pass
 
 
 class RestartRunCallback(Callback):
-    """Callback to restart a run if run override is set to True."""
+    """
+    Callback to restart a run when run override is set to True.
+    
+    Optionally cleans the run folder before restarting.
+    
+    Parameters
+    ----------
+    clean_run_folder : bool, default=True
+        If True, cleans the run folder before restarting the run
+    use_custom_override : bool, default=False
+        If True, calls custom_run_override which must be defined in a subclass
+    
+    Raises
+    ------
+    ValueError
+        If use_custom_override is True but custom_run_override method is not defined
+        
+    Methods
+    -------
+    on_run_override(experiment, run_id)
+        Called when a run is being restarted with override
+    """
     def __init__(self, clean_run_folder=True, use_custom_override=False):
-        """
-        Initialize the RestartRunCallback.
-
-
-        Parameters:
-        -----------
-        clean_run_folder : bool
-            If True, cleans the run folder before restarting the run.
-        use_custom_override : bool
-            If True, uses a custom override for restarting the run. that must be defined in the child class in the custom_run_override method.
-        """
         self.clean_run_folder = clean_run_folder
         self.use_custom_override = use_custom_override
 
@@ -37,8 +101,8 @@ class RestartRunCallback(Callback):
         """
         Restart the run if the run override is set to True.
         
-        Parameters:
-        -----------
+        Parameters
+        ----------
         experiment : Experiment
             The experiment instance
         run_id : int
@@ -62,14 +126,21 @@ class RestartRunCallback(Callback):
                 print(f"Error in custom run override: {e}")
 
 class MakePeakGraphCallback(Callback):
-    """Callback to plot and display peak data."""
+    """
+    Callback to plot and display peak data from resonance measurements.
+    
+    Methods
+    -------
+    make_peak_graph(experiment, peak_name, bias_value, peak_data)
+        Generate and save a plot of peak data
+    """
     
     def make_peak_graph(self, experiment, peak_name, bias_value, peak_data):
         """
         Generate and save a plot of the peak data.
         
-        Parameters:
-        -----------
+        Parameters
+        ----------
         experiment : Experiment
             The experiment instance
         peak_name : str
@@ -95,5 +166,61 @@ class MakePeakGraphCallback(Callback):
         fig_dir = f"{experiment.experiment_dir}/run-{experiment.config['run_id']}/figures"
         os.makedirs(fig_dir, exist_ok=True)
         fig_path = f"{fig_dir}/{peak_name}.png"
+        plt.savefig(fig_path)
+        plt.close()
+        
+        
+class GraphCallback(Callback):
+    """
+    Collection of graphing callbacks for different types of data.
+    
+    Methods
+    -------
+    XYGraph(experiment, x_data, y_data, title, xlabel, ylabel, **kwargs)
+        Generate and save a simple XY graph
+    """
+    def XYGraph(self, experiment, x_data, y_data, title, xlabel, ylabel, **kwargs):
+        """
+        Generate and save a simple XY graph.
+        
+        Parameters
+        ----------
+        experiment : Experiment
+            The experiment instance
+        x_data : array-like
+            X-axis data
+        y_data : array-like
+            Y-axis data
+        title : str
+            Title of the graph
+        xlabel : str
+            Label for the X-axis
+        ylabel : str
+            Label for the Y-axis
+        **kwargs : dict
+            Additional keyword arguments for customization
+        
+        Returns
+        -------
+        None
+        """
+        import matplotlib.pyplot as plt
+        
+        plt.figure(figsize=(10, 6))
+        plt.plot(x_data, y_data, label=kwargs.get('label', 'Data'))
+        plt.title(title)
+        plt.xlabel(xlabel)
+        plt.ylabel(ylabel)
+        
+        if 'legend' in kwargs:
+            plt.legend()
+        
+        if 'grid' in kwargs and kwargs['grid']:
+            plt.grid()
+        
+        # Save the figure
+        fig_dir = f"{experiment.get_run_folder()}/figures"
+        os.makedirs(fig_dir, exist_ok=True)
+        fig_path = f"{fig_dir}/{title}.png"
         plt.savefig(fig_path)
         plt.close()

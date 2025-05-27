@@ -99,7 +99,7 @@ class PhotodiodeArea(Experiment):
         self.ps.set_trigger("A", threshold=threshold_1, direction="FALLING", delay=0)
 
         # 2 - Acquire Diode response with PicoScope ------------------
-        sample_rate = 1e6 * frequency  # Hz
+        sample_rate = 1e5 * frequency  # Hz
         post_trigger_samples = self.compute_post_trigger_samples(frequency, sample_rate, duty_cycle, offset=2.5)
         pre_trigger_samples = int(0.05*post_trigger_samples)
         
@@ -116,11 +116,13 @@ class PhotodiodeArea(Experiment):
         self.logger.log_info(f"Integral calculated on the derivative: {derivative_integral} V")
         
         time.sleep(0.5)  # Allow time for the voltage to stabilize
-        tail_correction = self.acquire_tail_integral(frequency)
+        tail_correction, der_tail_correction = self.acquire_tail_integral(frequency)
         corrected_integral = integral - tail_correction
+        corrected_derivative_integral = derivative_integral - der_tail_correction
         self.logger.log_info(f"Corrected integral: {corrected_integral} Vs")
+        self.logger.log_info(f"Corrected integral on the derivative: {corrected_derivative_integral} V")
         
-        self.save_integral_data(corrected_integral, derivative_integral, frequency, duty_cycle)
+        self.save_integral_data(corrected_integral, corrected_derivative_integral, frequency, duty_cycle)
         
     def acquire_tail_integral(self, frequency):
         
@@ -133,7 +135,7 @@ class PhotodiodeArea(Experiment):
         self.ps.set_trigger("A", threshold=threshold_2, direction="RISING", delay=0)
         
         # 2 - Acquire Diode response with PicoScope ------------------
-        sample_rate = 1e6 * frequency  # Hz
+        sample_rate = 1e5 * frequency  # Hz
         post_trigger_samples = self.compute_post_trigger_samples(frequency, sample_rate, 0.99, offset=0.5)
         
         data = self.ps.acq_block(sample_rate, post_trigger_samples=post_trigger_samples, downsampling_mode='none')
@@ -142,13 +144,18 @@ class PhotodiodeArea(Experiment):
         
         self.awg.set_output(False)
         
-        return self.Integrate_Diode(data['A'], (post_trigger_samples)/sample_rate)
+        integral = self.Integrate_Diode(data['A'], post_trigger_samples/sample_rate)
+        der_abs = np.abs(np.gradient(data['A']))
+        derivative_integral = self.Integrate_Diode(der_abs, post_trigger_samples/sample_rate)
+        
+        return integral, derivative_integral
+    
         
     def max_dutycycle(self, frequency):
         dc = 1 - (frequency*16e-9)
         return dc if dc < 0.9999 else 0.9999
         
-    def routine(self, **kwargs):
+    def routine_old(self, **kwargs):
         # constructr the sweep grid
         frequencies = np.logspace(1, 3, 20)
         max_dcs = [self.max_dutycycle(f) for f in frequencies]
@@ -169,11 +176,25 @@ class PhotodiodeArea(Experiment):
                         self.acquire_data(f, dc)
                         time.sleep(0.5)
                         pbar.update(1)
-        
-
-        
-        
-        
+                        
+    def routine(self, **kwargs):
+        resolution = 12e-9 # s
+        freq = 0.0001/resolution
+        print(f"frequenza {freq}")
+        n_space = np.linspace(0, 50, 50)
+        dc_start = 1 - 100e-9 * freq
+        print(f"dc_start {dc_start}")
+        with tqdm(total=len(n_space), desc="Running experiment") as pbar:
+            for i in n_space:
+                pbar.update(1)
+                dc = np.floor((dc_start - 0.0001 * i) * 10000) / 10000
+                # Acquire data for each frequency and duty cycle
+                self.acquire_data(freq, dc)
+                time.sleep(0.5)
+                self.logger.log_info(f"Acquired data for frequency: {freq} Hz, duty cycle: {dc}")
+                                
+            
+            
                         
 
 

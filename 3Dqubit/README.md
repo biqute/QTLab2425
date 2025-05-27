@@ -71,7 +71,8 @@ git push
 - `EthernetDevice.py`:
     - print executed command before getting OPC response
 - `Fitter.py`:
-    - allow use of already calculated derived params for following params
+    - allow use of already calculated derived params for following params (maybe)
+    - check that initial values of params are inside the given range
 - `cavity_iq.py`:
     - estimate $Q_l$ instead of $Q_i$ with $\omega_0 / \Delta \omega$
 - `rettaroli_fit.py`:
