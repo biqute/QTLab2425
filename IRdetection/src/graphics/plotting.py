@@ -173,3 +173,6 @@ def _apply_style_modifications(style_type: str, palette: Palette, typography: Ty
             'lines.linewidth': 1.5,
             'font.size': typography.body.size,
         })
+
+
+#prova
