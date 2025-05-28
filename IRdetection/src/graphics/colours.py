@@ -164,8 +164,8 @@ class Palette:
     ----------
     name : str
         Name of the palette.
-    colours : list
-        List of colours in the palette or dictionary with elements as keys and colours as values.
+    colours : dict, list, str
+        Dictionary of colours in the palette or dictionary with elements as keys and colours as values.
         elements are:
         - primary
         - secondary
@@ -189,6 +189,9 @@ class Palette:
         - accent
         - background
         - background2
+
+        If you pass a string, it is expectet to be in the form "264653-2a9d8f-e9c46a-f4a261-e76f51"
+        the colours will be extracted from the string and used in the same ordar as the list.
         
         To set other elements you can use Palette.<element> = <color>.
         If you want to add more elements you can use the add_element method.
@@ -218,7 +221,14 @@ class Palette:
             "status_info": COLOURS["webblue"]
         }
         if isinstance(colours, dict):
-            self.colours.update(colours)
+            # check that values are Colour objects or hex strings, in the latter case convert them to Colour objects
+            for key, value in colours.items():
+                if isinstance(value, Colour):
+                    self.colours[key] = value
+                elif isinstance(value, str):
+                    self.colours[key] = Colour(value)
+                else:
+                    raise ValueError(f"Value for '{key}' must be a Colour object or a hex string.")
         elif isinstance(colours, list) and len(colours) == 5:
             self.colours.update({
                 "primary": colours[0],
@@ -227,11 +237,69 @@ class Palette:
                 "background": colours[3],
                 "background2": colours[4],
             })
+        elif isinstance(colours, str):
+            # Extract colours from the string
+            hex_colors = colours.split('-')
+            if len(hex_colors) == 5:
+                self.colours.update({
+                    "primary": Colour('#' + hex_colors[0]),
+                    "secondary": Colour('#' + hex_colors[1]),
+                    "accent": Colour('#' + hex_colors[2]),
+                    "background": Colour('#' + hex_colors[3]),
+                    "background2": Colour('#' + hex_colors[4]),
+                })
+            else:
+                raise ValueError("Invalid colours string format. Correct format example: '264653-2a9d8f-e9c46a-f4a261-e76f51'.")
         else:
             raise ValueError("Invalid colours input.")
         # set accent2 if not set
         if "accent2" not in self.colours:
             self.colours["accent2"] = self.colours["accent"].darken(20)
+
+    def __getattr__(self, item):
+        """
+        Allows access to palette elements as attributes.
+        For example, palette.primary will return the primary colour.
+        """
+        # Check if colours attribute exists using object.__getattribute__ to avoid recursion
+        try:
+            colours = object.__getattribute__(self, 'colours')
+            if item in colours:
+                return colours[item]
+        except AttributeError:
+            pass
+        raise AttributeError(f"'Palette' object has no attribute '{item}'")
+    
+    def __setattr__(self, key, value):
+        """
+        Allows setting palette elements as attributes.
+        For example, palette.primary = Colour('#FF0000') will set the primary colour to red.
+        """
+        # Check if we're in initialization phase using object.__getattribute__ to avoid recursion
+        try:
+            colours = object.__getattribute__(self, 'colours')
+            # colours exists, so we can check if key is a color attribute
+            if key in colours:
+                if isinstance(value, Colour):
+                    colours[key] = value # which is a Colour object
+                elif isinstance(value, str):
+                    colours[key] = Colour(value)
+                else:
+                    raise ValueError(f"Value for '{key}' must be a Colour object or a hex string.")
+            else:
+                super().__setattr__(key, value)
+        except AttributeError:
+            # colours doesn't exist yet, we're in initialization
+            super().__setattr__(key, value)
+
+    def __getitem__(self, item):
+        """
+        Allows access to palette elements as dictionary items.
+        For example, palette['primary'] will return the primary colour.
+        """
+        if item in self.colours:
+            return self.colours[item] # which is a Colour object
+        raise KeyError(f"'Palette' object has no key '{item}'")
 
     def save_palette(self, filename):
         """
@@ -259,12 +327,12 @@ class Palette:
         with open(filename, 'r') as f:
             self.colours = json.load(f)
 
-    def visualize_palette(self):
+    def visualize_palette(self, save_path=None, **kwargs):
         """
         Shows the palette in a matplotlib figure.
         """
         plt.style.use('default')
-        fig, ax = plt.subplots(figsize=(12, 8))
+        fig, ax = plt.subplots(figsize=(12, 8), **kwargs)
         
         # Define the order of importance for displaying colors
         color_order = [
@@ -319,7 +387,11 @@ class Palette:
         ax.set_title(f"Color Palette: {self.name}", fontsize=16, fontweight='bold', pad=20)
         
         plt.tight_layout()
-        plt.show()
+        if save_path:
+            plt.savefig(save_path, dpi=300, bbox_inches='tight')
+            print(f"Palette saved to {save_path}")
+        else:
+            plt.show()
 
 
 def coolors_palette(link):
@@ -348,7 +420,7 @@ def coolors_palette(link):
     
 
 if __name__ == "__main__":
-    colours = coolors_palette("https://coolors.co/palette/264653-2a9d8f-e9c46a-f4a261-e76f51")
+    colours = coolors_palette("https://coolors.co/palette/ef476f-ffd166-06d6a0-118ab2-073b4c")
     print(colours)
     my_palette = Palette("My Coolors Palette", colours)
     my_palette.visualize_palette()

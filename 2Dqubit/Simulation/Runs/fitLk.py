@@ -84,7 +84,7 @@ def lettura_csv(nome_file):
 
     return dati_col1, dati_col2
 
-def trova_minimi(dati_col1, dati_col2, discarded_Lk = None):
+def trova_minimi(dati_col1, dati_col2, min_lk=0.0, max_lk=14.5):
     import numpy as np
 
     f_min = []
@@ -96,7 +96,7 @@ def trova_minimi(dati_col1, dati_col2, discarded_Lk = None):
         except ValueError:
             continue
 
-        if  lk_val not in discarded_Lk:
+        if min_lk <= lk_val <= max_lk:
             x = dati_col1[lk_str]
             y = dati_col2[lk_str]
 
@@ -172,59 +172,4 @@ def calcolo_lk (a, b, g, fr) :
     Lk = (a/(fr-b))**2 - g
     return Lk
     
-def cut (dati_col1, dati_col2, min_x, max_x):
-
-    nuovi_col1 = {}
-    nuovi_col2 = {}
-
-    for lk in dati_col1:
-        x_vals = dati_col1[lk]
-        y_vals = dati_col2[lk]
-
-        if len(x_vals) != len(y_vals):
-            raise ValueError(f"x_vals e y_vals hanno lunghezze diverse per Lk={lk}")
-
-        x_filtrati = []
-        y_filtrati = []
-
-        for x, y in zip(x_vals, y_vals):
-            if min_x <= x <= max_x:
-                x_filtrati.append(x)
-                y_filtrati.append(y)
-
-        nuovi_col1[lk] = x_filtrati
-        nuovi_col2[lk] = y_filtrati
-
-    return nuovi_col1, nuovi_col2
-
-def selected_cut(dati_col1, dati_col2, lk_target, min_x, max_x):
-    # Permetti anche un singolo valore Lk
-    if not isinstance(lk_target, (list, set, tuple)):
-        lk_target = [lk_target]
-
-    # Converto tutto in stringa per compatibilità con le chiavi
-    lk_target = {str(lk) for lk in lk_target}
-
-    nuovi_col1 = {}
-    nuovi_col2 = {}
-
-    for lk in dati_col1:
-        x_vals = dati_col1[lk]
-        y_vals = dati_col2[lk]
-
-        if lk in lk_target:
-            # Applica il taglio
-            x_filtrati = []
-            y_filtrati = []
-            for x, y in zip(x_vals, y_vals):
-                if min_x <= x <= max_x:
-                    x_filtrati.append(x)
-                    y_filtrati.append(y)
-            nuovi_col1[lk] = x_filtrati
-            nuovi_col2[lk] = y_filtrati
-        else:
-            # Mantieni i dati invariati
-            nuovi_col1[lk] = x_vals
-            nuovi_col2[lk] = y_vals
-
-    return nuovi_col1, nuovi_col2
+    
