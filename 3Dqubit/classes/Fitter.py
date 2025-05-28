@@ -65,6 +65,7 @@ class Fitter():
     param_units = {}
     param_displayed_names = {}
     derived_params = {}
+    params_displayer = "box" # None, "box", "table" 
     
     title = "Title"
     labelx = "x"
@@ -116,16 +117,15 @@ class Fitter():
         }
     
     def plot(self, res):
-        # FITTING
         final_values = {}
         for key, value in res["params"].items():
             final_values[key] = value["value"]
+
+        # SUBPLOTS
         fig, axes = plt.subplots(2, 1, gridspec_kw={"height_ratios": [2, 1]})
         fig.set_size_inches(self.figure_size[0] / 2.54, self.figure_size[1] / 2.54)
         first = axes[0]
         second = axes[1]
-
-        plt.subplots_adjust(hspace = 0.05)
 
         # MAIN PLOT
         modelx = np.linspace(np.min(self.datax), np.max(self.datax), 2000)
@@ -150,8 +150,6 @@ class Fitter():
             initialy = [self.model(f, **separated_initial["values"]) for f in modelx]
             first.plot(scalex_pass(modelx), scaley_pass(initialy), color="green", label="initial")
 
-        first.set_title(self.title)
-
         # Axis
         if self.scalex == "log": first.set_xscale("log")
         if self.scaley == "log": first.set_yscale("log")
@@ -166,33 +164,34 @@ class Fitter():
         first.grid(linestyle='--', linewidth=0.5)
 
         # Box
-        text = ""
+        texts = []
 
         for key, par in res["params"].items():
             name = self.param_displayed_names[key] if key in self.param_displayed_names else key
             if name != "":
-                text += rf"${name}$ = ${number_to_text(par["value"], par["sigma"], self.param_units[key])}$" + "\n"
+                texts.append(rf"${name}$ = ${number_to_text(par["value"], par["sigma"], self.param_units[key])}$")
         for key, par in res["derived_params"].items():
             name = self.param_displayed_names[key] if key in self.param_displayed_names else key
             if name != "":
-                text += rf"${name}$ = ${number_to_text(par["value"], par["sigma"], self.param_units[key])}$" + "\n"
+                texts.append(rf"${name}$ = ${number_to_text(par["value"], par["sigma"], self.param_units[key])}$")
         
-        if self.show_pvalue: text += f"p-value = {res["pvalue"]:.2f}"
-        text = text.strip()
+        if self.show_pvalue: texts.append(f"p-value = {res["pvalue"]:.2f}")
+        text = "\n".join(texts)
 
         xaxis_min, xaxis_max = first.get_xlim()
         yaxis_min, yaxis_max = first.get_ylim()
 
-        loc = 2
-        if (yaxis_max + yaxis_min) / 2.0 < scaley_pass(self.datay[np.argmin(scalex_pass(self.datax))]): loc = 3
-        anchored_text = AnchoredText(
-            text, 
-            loc = loc,
-            pad = 0.5,
-            borderpad = 0.5,
-            prop = dict(fontsize = 12), 
-        )
-        first.add_artist(anchored_text)
+        if self.params_displayer == "box":
+            loc = 2
+            if (yaxis_max + yaxis_min) / 2.0 < scaley_pass(self.datay[np.argmin(scalex_pass(self.datax))]): loc = 3
+            anchored_text = AnchoredText(
+                text, 
+                loc = loc,
+                pad = 0.5,
+                borderpad = 0.5,
+                prop = dict(fontsize = 12), 
+            )
+            first.add_artist(anchored_text)
 
         # Legend
         loc = 1
@@ -243,6 +242,29 @@ class Fitter():
         second.set_xticks(np.linspace(first.get_xlim()[0], first.get_xlim()[1], 25))
         plt.xticks(rotation=90)
         second.grid(linestyle='--', linewidth=0.5)
+
+        # PARAMS TABLE
+
+        tb = None
+        cell_height = 0.08
+        if self.params_displayer == "table":
+            tb = first.table(cellText=[[self.title], [""], *map(lambda x: [x], texts), [""]], cellLoc="center", loc="top")
+            tb[(3 + len(texts) - 1, 0)].visible_edges = ''
+            plt.subplots_adjust(hspace = 0.05, top=(1 - cell_height * (len(texts) + 3) / 2.0))
+            
+            # font size
+            tb.auto_set_font_size(False)
+            tb.set_fontsize(12)
+            # edges
+            tb[(0, 0)].visible_edges = ''
+            tb[(1, 0)].visible_edges = ''
+            tb[(0, 0)].set_text_props(fontsize=14)
+
+            for key, cell in tb.get_celld().items(): cell.set_height(cell_height)
+        else:
+            first.set_title(self.title, fontsize=14)
+            
+        # EXPORT
 
         if self.file_name != "": plt.savefig(self.file_name, bbox_inches='tight', dpi=200)
         if self.show_plot: plt.show() 

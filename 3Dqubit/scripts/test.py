@@ -1,10 +1,9 @@
+import numpy as np
+import matplotlib.pyplot as plt
 
-import sys; sys.path.append("../utils")
-from dictionary_to_csv import dictionary_to_csv
+table = [["A"], ["B"], ["C"]]
+plt.table(cellText=table, cellLoc="center")
 
-metadata = {
-    "info": "empty cavity, three port configuration for S21 = H_i + H_o", 
-    "info2": "empty cavity, three port configuration for S21 = H_i + H_o", 
-    "info3": "empty cavity, three port configuration for S21 = H_i + H_o", 
-}
-print(dictionary_to_csv(metadata))
+# plt.table(cellText=table, rowLabels=("A", "B"), colLabels=("1", "2", "3"))
+
+plt.show()
