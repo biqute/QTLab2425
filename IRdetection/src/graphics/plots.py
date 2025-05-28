@@ -85,11 +85,18 @@ def plot_fit(data, model, title: str = 'Model Fit', palette: Palette = None, typ
     xlabel_kwargs = {}
     legend_kwargs = {}
     
+    # Get text color from palette
+    text_color = str(palette.colours['text_primary']) if palette and 'text_primary' in palette.colours else 'black'
+    
     if typography:
-        title_kwargs = {'fontname': typography.title.font, 'fontsize': typography.title.size}
-        ylabel_kwargs = {'fontname': typography.subtitle.font, 'fontsize': typography.subtitle.size}
-        xlabel_kwargs = {'fontname': typography.subtitle.font, 'fontsize': typography.subtitle.size}
+        title_kwargs = {'fontname': typography.title.font, 'fontsize': typography.title.size, 'color': text_color}
+        ylabel_kwargs = {'fontname': typography.subtitle.font, 'fontsize': typography.subtitle.size, 'color': text_color}
+        xlabel_kwargs = {'fontname': typography.subtitle.font, 'fontsize': typography.subtitle.size, 'color': text_color}
         legend_kwargs = {'fontsize': typography.body.size}
+    else:
+        title_kwargs = {'color': text_color}
+        ylabel_kwargs = {'color': text_color}
+        xlabel_kwargs = {'color': text_color}
     
     ax_main.set_title(title, fontweight='bold', pad=20, **title_kwargs)
     ax_main.set_ylabel(Y_label, **ylabel_kwargs)
@@ -101,8 +108,8 @@ def plot_fit(data, model, title: str = 'Model Fit', palette: Palette = None, typ
     ax_main.grid(True, alpha=0.3, linestyle='--')
     neutral_color = str(palette.colours['neutral_light']) if palette else 'red'
     
-    # Set legend edge color to match axes spines
-    axes_border_color = str(palette.colours['text_primary']) if palette and 'text_primary' in palette.colours else 'black'
+    # Set border color to neutral_dark
+    axes_border_color = str(palette.colours['neutral_dark']) if palette and 'neutral_dark' in palette.colours else 'black'
     ax_main.legend(frameon=True, fancybox=True, shadow=True, facecolor=neutral_color, 
                    edgecolor=axes_border_color, **legend_kwargs)
     # Set plot background color
@@ -120,6 +127,9 @@ def plot_fit(data, model, title: str = 'Model Fit', palette: Palette = None, typ
     for spine in ax_main.spines.values():
         spine.set_edgecolor(axes_border_color)
     
+    # Set tick colors to match border and tick labels to match text
+    ax_main.tick_params(axis='both', colors=axes_border_color, labelcolor=text_color)
+    
     # Residuals plot
     if show_residuals and ax_residuals is not None:
         line_color = str(palette.colours['accent']) if palette else None
@@ -129,8 +139,8 @@ def plot_fit(data, model, title: str = 'Model Fit', palette: Palette = None, typ
         ax_residuals.axhline(y=0, color=line_color, linestyle='-', linewidth=1.5, alpha=0.8)
         
         # Style residuals plot
-        residuals_xlabel_kwargs = xlabel_kwargs if typography else {}
-        residuals_ylabel_kwargs = ylabel_kwargs if typography else {}
+        residuals_xlabel_kwargs = xlabel_kwargs if typography else {'color': text_color}
+        residuals_ylabel_kwargs = ylabel_kwargs if typography else {'color': text_color}
         residuals_tick_kwargs = {'labelsize': typography.body.size-1} if typography else {}
         
         ax_residuals.set_xlabel(X_label, **residuals_xlabel_kwargs)
@@ -147,9 +157,12 @@ def plot_fit(data, model, title: str = 'Model Fit', palette: Palette = None, typ
         for spine in ax_residuals.spines.values():
             spine.set_edgecolor(axes_border_color)
         
+        # Set tick colors for residuals plot
+        ax_residuals.tick_params(axis='both', colors=axes_border_color, labelcolor=text_color)
+        
         # Make residuals plot smaller and align with main plot
         if typography:
-            ax_residuals.tick_params(axis='both', **residuals_tick_kwargs)
+            ax_residuals.tick_params(axis='both', **residuals_tick_kwargs, colors=axes_border_color, labelcolor=text_color)
         
         # Share x-axis with main plot
         ax_main.sharex(ax_residuals)

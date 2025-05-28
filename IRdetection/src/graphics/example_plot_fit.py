@@ -27,24 +27,25 @@ y_data = y_true + noise
 # Create data dictionary
 data = {'x': x_data, 'y': y_data}
 
-palette = Palette("Science Professional", {
-    'primary': "#239E25",      # Deep blue - main data
-    'secondary': '#2A9D8F',    # Teal - secondary data
-    'accent': "#A74444",       # Amber - highlights
-    'accent2': '#F4A261',      # Coral - secondary highlights
-    'background': '#E6EBE0',   # Clean white background
-    'background2': '#F8F9FA',  # Light gray secondary background
-    'text_primary': '#264653', # Dark blue-gray for text
-    'text_secondary': '#2A9D8F', # Medium teal for secondary text
-    'status_error': '#E76F51',  # Coral red for errors/warnings
-    'neutral_light': "#E7E7E7",  # Light neutral for grid
+palette = Palette("Quantum Science", {
+    'primary': "#0B4D6A",      # Deep ocean blue - sophisticated and trustworthy
+    'secondary': '#1B263B',    # Midnight navy - elegant depth
+    'accent': "#FF6B35",       # Vibrant coral - high-impact highlights
+    'accent2': '#FFD23F',      # Golden yellow - energy and precision
+    'background': '#F8F9FB',   # Ultra-clean off-white - pristine lab feel
+    'background2': '#E8EDF3',  # Subtle blue-gray - sophisticated secondary
+    'text_primary': '#1A1B23', # Rich charcoal - maximum readability
+    'text_secondary': '#4A5568', # Cool gray - perfect for secondary text
+    'status_error': '#E53E3E',  # Crisp red - clear error indication
+    'neutral_light': "#E2E8F0",  # Cool light gray - subtle grid
+    'neutral_dark': "#2D3748",   # Professional dark gray - strong borders
 })
 
 typography = Typography(
-    title=Font('Palatino Linotype', 18, family='serif'),        # Elegant serif for titles
-    subtitle=Font('Verdana', 15, family='serif'),     # Consistent serif for subtitles
-    body=Font('Verdana', 12, family='sans-serif'),          # Clean sans-serif for readability
-    caption=Font('Verdana', 10, family='sans-serif')        # Smaller Verdana for captions
+    title=Font('Computer Modern', 20, family='serif'),        # LaTeX-style elegance
+    subtitle=Font('Helvetica Neue', 16, family='sans-serif'), # Modern Swiss precision
+    body=Font('Source Sans Pro', 13, family='sans-serif'),    # Optimized for scientific reading
+    caption=Font('Source Sans Pro', 11, family='sans-serif')  # Clean and consistent
 )
 
 # Create the plot with default matplotlib/seaborn styling
