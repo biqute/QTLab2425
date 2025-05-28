@@ -10,6 +10,8 @@ class Model:
         self.param_names = param_names
         for name in param_names:
             setattr(self, name, None)
+        #set another attribute to store the bounds for the parameters
+        self.param_bounds = {p_name: (-np.inf, np.inf) for p_name in param_names}
         
         # By default all parameters are active and their value set to zero
         self.active_params = {}
@@ -20,6 +22,15 @@ class Model:
     def assing_params(self, params: dict[str, float]) -> None:
         for p_name in self.param_names:
             setattr(self, p_name, params[p_name])
+            
+    # define a method to assign the bounds for the parameters
+    def set_param_bounds(self, bounds: dict[str, tuple[float, float]]) -> None:
+        for p_name in bounds.keys():
+            if p_name not in self.param_names:
+                raise ValueError(f"{p_name} is not a valid parameter name")
+            if not isinstance(bounds[p_name], tuple) or len(bounds[p_name]) != 2:
+                raise ValueError(f"Bounds for {p_name} must be a tuple of two values (min, max)")
+            self.param_bounds[p_name] = bounds[p_name]
     
     def set_active_params(self, active_params: list[str]) -> None:
         self.active_params = {}
@@ -69,9 +80,9 @@ class Model:
 def resonance_model(f: np.ndarray, f0: float, phi: float, Qt: float, Qc: float, A: float, B: float, C: float, D: float, K: float, fmin: float) -> np.ndarray:
     return (A+B*(f-fmin) + C*(f-fmin)**2 + D*(f-fmin)**3) + K * np.abs((1 - (Qt/np.abs(Qc))*np.exp(1j*phi)/(1 + 2j*Qt*((f-fmin) - f0)/fmin)))
 
-def parametric_resonator_peak_vs_bias_current(i: np.ndarray, a: float, b: float) -> np.ndarray: # F(I) = I^2/a^2 + I^4/b^4 (+c)
+def parametric_resonator_peak_vs_bias_current(i: np.ndarray, a: float, b: float) -> np.ndarray: # F(I) = I^2/a^2 + I^4/b^4\ (+c)
     i = np.array(i.copy())  # Ensure i is a numpy array
-    return -0.5 * ((i**2 / a**2) + (i**4 / b**4))  # + c
+    return 0.5 * ((i**2 / a**2) + (i**4 / b**4))  # + c
 
 def linear(x: np.ndarray, a: float, b: float) -> np.ndarray:
     x = np.array(x.copy())  # Ensure x is a numpy array
