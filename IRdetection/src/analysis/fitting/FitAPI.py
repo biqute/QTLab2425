@@ -59,12 +59,14 @@ class Fitter:
             searcher.search(self.data, self.model)
             # Fit the model with the found parameters
             self.model.assing_params(searcher.params)
+            #set params boundaries
+            
 
         active_params_names = [p_name for p_name, is_active in self.model.active_params.items() if is_active]
         active_params = {p_name: getattr(self.model, p_name) for p_name in active_params_names}
 
-        if self.yerr is None: # Estimate the error as 1% of the data if greater than 1e-5 else 1e-5
-            self.yerr = np.maximum(1e-5, 0.01 * self.y)
+        if self.yerr is None: # Estimate the error as 5% of the data if greater than 1e-5 else 1e-5: bigger error is needed to make every fit converge!
+            self.yerr = np.maximum(1e-5, 0.5 * self.y)
         if self.xerr is None:
             loss = self.loss_function(self.x, self.y, self.yerr, self.model, name=active_params_names)
         else:
@@ -73,9 +75,10 @@ class Fitter:
         self.m = Minuit(loss, **active_params)
 
         #set params limits
-        if self.params_range is not None:
-            for p_name, p_range in self.params_range.items():
+        for p_name, p_range in self.model.param_bounds.items():
+            if p_name in self.m.parameters:
                 self.m.limits[p_name] = p_range
+            
 
                 
         self.m.migrad()

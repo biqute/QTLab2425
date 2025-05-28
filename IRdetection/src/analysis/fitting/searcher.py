@@ -92,7 +92,14 @@ class ResonancePeakSearcher(Searcher):
         
         # Qc is estimated as Qc = 1.1 * Qt
         Qc = 1.1 * Qt 
+    
         self.params["Qc"] = Qc
+        
+        #set boundaries for Qc and Qt
+        model.set_param_bounds({
+            "Qt": (0, 1e6),
+            "Qc": (0, 1e6)
+        })
 
         # Estimate the phase shift (phi) as a small negative value
         self.params["phi"] = 0
