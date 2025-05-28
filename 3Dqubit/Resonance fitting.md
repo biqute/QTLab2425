@@ -31,7 +31,7 @@ $$
 |S_{11}|(f) = A\, \sqrt{\frac{B^2 + Q_L^2\delta^2}{1 + Q_L^2\delta^2}} \tag{5.A}
 $$
 $$
-\operatorname{Arg} S_{11}(f) = \operatorname{Arg}\left\{ Ae^{j\theta_{11}} \frac{B + jQ_L\delta}{1 + jQ_L\delta} \right\} \tag{5.B}
+\operatorname{Arg} S_{11}(f) = \operatorname{Arg}\left\{ e^{j\theta_{11}} \frac{B + jQ_L\delta}{1 + jQ_L\delta} \right\} \tag{5.B}
 $$
 $$
 |S_{21}|(f) = \frac{AC}{\sqrt{ 1 + Q_L^2\delta^2 }} \tag{6.A}
@@ -63,7 +63,7 @@ The maximum of $|S_{21}|$ is found at the frequency $f_\text{max}$ such that $\d
 $$
 \hat f_0 = f^{k_\text{max}},\, k_\text{max}\text{ such that }|S^{k_\text{max}}_{21}| = \max_i \{|S^i_{21}|\}.
 $$
-We assume that $k$ exists and is unique.
+We assume that $k_\text{max}$ exists and is unique.
 
 ### Estimation of $Q_L$
 We start by defining $\Delta f = f_0/Q_L$. Then we calculate

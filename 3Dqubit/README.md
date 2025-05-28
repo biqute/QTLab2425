@@ -77,5 +77,5 @@ git push
     - estimate $Q_l$ instead of $Q_i$ with $\omega_0 / \Delta \omega$
 - `rettaroli_fit.py`:
     - after fitting the resonance, plot magnitude + phase (Bode plot)
-    - fit in terms of $G$ and $I$ instead of $k_{1,2}$
-    - fit real and imag part instead of abs and phase
+- `estimate_rettaroli_params.py`:
+    - allow for different sets of frequency points for $S_{11}$ and $S_{21}$ data 
