@@ -80,9 +80,12 @@ class Model:
 def resonance_model(f: np.ndarray, f0: float, phi: float, Qt: float, Qc: float, A: float, B: float, C: float, D: float, K: float, fmin: float) -> np.ndarray:
     return (A+B*(f-fmin) + C*(f-fmin)**2 + D*(f-fmin)**3) + K * np.abs((1 - (Qt/np.abs(Qc))*np.exp(1j*phi)/(1 + 2j*Qt*((f-fmin) - f0)/fmin)))
 
+def resonance_model_smart(f: np.ndarray, f0: float, phi: float, Qs: float, Qi: float, A: float, B: float, C: float, D: float, K: float, fmin: float) -> np.ndarray:
+    return (A+B*(f-fmin) + C*(f-fmin)**2 + D*(f-fmin)**3) + K * np.abs((1 - (Qs)*np.exp(1j*phi)/(1 + Qs + 2j*Qi*((f-fmin) - f0)/fmin)))
+
 def parametric_resonator_peak_vs_bias_current(i: np.ndarray, a: float, b: float) -> np.ndarray: # F(I) = I^2/a^2 + I^4/b^4\ (+c)
     i = np.array(i.copy())  # Ensure i is a numpy array
-    return 0.5 * ((i**2 / a**2) + (i**4 / b**4))  # + c
+    return 0.5*((i**2 / a**2) + (i**4 / b**4))  # + c
 
 def linear(x: np.ndarray, a: float, b: float) -> np.ndarray:
     x = np.array(x.copy())  # Ensure x is a numpy array

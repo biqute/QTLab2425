@@ -1,6 +1,6 @@
 import numpy as np
 from abc import ABC, abstractmethod
-from models import Model
+from analysis.fitting.models import Model
 
 
 class Searcher(ABC):
@@ -27,13 +27,12 @@ class Searcher(ABC):
 
 
 class ResonancePeakSearcher(Searcher):
-    def __init__(self):
+    def __init__(self, version: str = "T"):
         super().__init__()
+        self.version = version
         self.params = {
             "f0": None,
             "phi": None,
-            "Qt": None,
-            "Qc": None,
             "A": None,
             "B": None,
             "C": None,
@@ -41,6 +40,13 @@ class ResonancePeakSearcher(Searcher):
             "K": None,
             "fmin": None
         }
+        if version == "T":
+            self.params["Qt"] = None
+            self.params["Qc"] = None
+            
+        elif version == "I":
+            self.params["Qs"] =None
+            self.params["Qi"] = None
 
     def search(self, data: np.ndarray, model: Model) -> None:
         """
@@ -88,18 +94,30 @@ class ResonancePeakSearcher(Searcher):
 
         # Estimate total Q: Q_t ~ f0 / fwhm
         Qt = fmin / fwhm if fwhm != 0 else (29208/1.5)
-        self.params["Qt"] = Qt
         
-        # Qc is estimated as Qc = 1.1 * Qt
+        # Qc is estimated as Qc = 1.3 * Qt
         Qc = 1.1 * Qt 
-    
-        self.params["Qc"] = Qc
+        if self.version == "I":
+            Qi = Qt*Qc/(Qc - Qt)  # Estimate Qi using the relation Qs = Qt*Qc/(Qc - Qt)
+            Qs = Qi/Qc
+            self.params["Qs"] = Qs
+            self.params["Qi"] = Qi
+            #set boundaries for Qc and Qt
+            model.set_param_bounds({
+                "Qi": (0, 1e6),
+                "Qs": (0, 1e6)
+            })
+            
+        elif self.version == "T":
+            # For the T version, we use Qt and Qc
+            self.params["Qt"] = Qt
+            self.params["Qc"] = Qc
+            #set boundaries for Qc and Qt
+            model.set_param_bounds({
+                "Qt": (0, 1e6),
+                "Qc": (0, 1e6)
+            })
         
-        #set boundaries for Qc and Qt
-        model.set_param_bounds({
-            "Qt": (0, 1e6),
-            "Qc": (0, 1e6)
-        })
 
         # Estimate the phase shift (phi) as a small negative value
         self.params["phi"] = 0
@@ -120,6 +138,8 @@ class ResonancePeakSearcher(Searcher):
 
         # Fix fmin, it will be used as a parameter in the model
         model.set_fixed_params(["fmin"])
+        
+
 
     def _peak_width(self, datax, datay):
         half_height_value = np.min(datay) + (np.max(datay) - np.min(datay)) / np.sqrt(2)

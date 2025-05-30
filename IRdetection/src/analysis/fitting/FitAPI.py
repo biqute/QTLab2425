@@ -3,8 +3,8 @@ from iminuit.cost import LeastSquares
 import numpy as np
 from scipy import stats
 from typing import Callable, Optional
-from searcher import Searcher
-from models import Model
+from analysis.fitting.searcher import Searcher
+from analysis.fitting.models import Model
 
     
 class Fitter:
@@ -66,9 +66,10 @@ class Fitter:
         active_params = {p_name: getattr(self.model, p_name) for p_name in active_params_names}
 
         if self.yerr is None: # Estimate the error as 5% of the data if greater than 1e-5 else 1e-5: bigger error is needed to make every fit converge!
-            self.yerr = np.maximum(1e-5, 0.5 * self.y)
+            self.yerr = np.maximum(1e-5, 0.6 * self.y)
         if self.xerr is None:
             loss = self.loss_function(self.x, self.y, self.yerr, self.model, name=active_params_names)
+            
         else:
             loss = self.loss_function(self.x, self.y, self.xerr, self.yerr, self.model, name=active_params_names)
         
