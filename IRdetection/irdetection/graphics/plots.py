@@ -1,12 +1,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from colours import Palette
-from typography import Typography
+from irdetection.graphics.colours import Palette
+from irdetection.graphics.typography import Typography
 
 
 def plot_fit(data, model, model_params, title: str = 'Model Fit', palette: Palette = None, typography: Typography = None, 
-             xlabel: str = 'X-axis', ylabel: str = 'Y-axis', show_residuals: bool = True, 
+             xlabel: str = 'X-axis', ylabel: str = 'Y-axis', data_label: str = 'Data', model_label: str = 'Model', show_residuals: bool = True,
              figsize: tuple = (10, 8), ax = None, rasterize_points: bool = False, **kwargs):
     """
     Plot the data and model fit with customized aesthetics, including residuals plot.
@@ -29,6 +29,10 @@ def plot_fit(data, model, model_params, title: str = 'Model Fit', palette: Palet
         Label for the x-axis. Default is 'X-axis'.
     ylabel : str, optional
         Label for the y-axis. Default is 'Y-axis'.
+    data_label : str, optional
+        Label for the data points in the legend. Default is 'Data'.
+    model_label : str, optional
+        Label for the model line in the legend. Default is 'Model'.
     show_residuals : bool, optional
         Whether to show residuals plot below main plot. Default is True.    figsize : tuple, optional
         Figure size (width, height). Default is (10, 8).
@@ -42,7 +46,10 @@ def plot_fit(data, model, model_params, title: str = 'Model Fit', palette: Palet
     Returns
     -------
     tuple
-        (fig, axes) where axes is [ax_main] or [ax_main, ax_residuals] depending on show_residuals.    """    # Create or subdivide axes
+        (fig, axes) where axes is [ax_main] or [ax_main, ax_residuals] depending on show_residuals.    
+        
+    """
+    # Create or subdivide axes
     if ax is None:
         if show_residuals:
             fig, (ax_main, ax_residuals) = plt.subplots(2, 1, figsize=figsize, 
@@ -75,7 +82,7 @@ def plot_fit(data, model, model_params, title: str = 'Model Fit', palette: Palet
       # Main plot: data and model
     scatter_color = str(palette.colours['primary']) if palette else None
     ax_main.scatter(x_data, y_data, color=scatter_color, alpha=0.3, s=30, 
-                   label='Data', zorder=2, edgecolors=str(palette.primary.darken(10)), linewidth=0.8, rasterized=rasterize_points, **kwargs)
+                   label=data_label, zorder=2, edgecolors=str(palette.primary.darken(10)), linewidth=0.8, rasterized=rasterize_points, **kwargs)
     
     # Generate smooth model curve
     x_fit = np.linspace(x_data.min(), x_data.max(), 300)
@@ -83,7 +90,7 @@ def plot_fit(data, model, model_params, title: str = 'Model Fit', palette: Palet
 
     line_color = str(palette.colours['accent']) if palette else None
     ax_main.plot(x_fit, y_fit, color=line_color, linewidth=2, 
-                label='Model', zorder=3, alpha=0.9)
+                label=model_label, zorder=3, alpha=0.9)
     
     # Calculate residuals
     y_model_data = model(x_data, **model_params)

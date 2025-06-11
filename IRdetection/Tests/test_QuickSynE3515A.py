@@ -1,6 +1,6 @@
 import time
 
-from src.instruments.QuickSynE3615A import QuickSyn
+from irdetection.instruments.QuickSynE3615A import QuickSyn
 
 print('Test QuickSynE3615A')
 

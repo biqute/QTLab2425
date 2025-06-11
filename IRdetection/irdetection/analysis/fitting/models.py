@@ -80,6 +80,12 @@ class Model:
 def resonance_model(f: np.ndarray, f0: float, phi: float, Qt: float, Qc: float, A: float, B: float, C: float, D: float, K: float, fmin: float) -> np.ndarray:
     return (A+B*(f-fmin) + C*(f-fmin)**2 + D*(f-fmin)**3) + K * np.abs((1 - (Qt/np.abs(Qc))*np.exp(1j*phi)/(1 + 2j*Qt*((f-fmin) - f0)/fmin)))
 
+def resonance_model_test(f: np.ndarray, f0: float, phi: float, Qt: float, Qc: float, A: float, B: float, C: float, D: float, K: float, fmin: float) -> np.ndarray:
+    if Qt > Qc:
+        return np.zeros_like(f)
+    
+    return (A+B*(f-fmin) + C*(f-fmin)**2 + D*(f-fmin)**3) + K * np.abs((1 - (Qt/np.abs(Qc))*np.exp(1j*phi)/(1 + 2j*Qt*((f-fmin) - f0)/fmin)))
+
 def resonance_model_smart(f: np.ndarray, f0: float, phi: float, Qs: float, Qi: float, A: float, B: float, C: float, D: float, K: float, fmin: float) -> np.ndarray:
     return (A+B*(f-fmin) + C*(f-fmin)**2 + D*(f-fmin)**3) + K * np.abs((1 - (Qs)*np.exp(1j*phi)/(1 + Qs + 2j*Qi*((f-fmin) - f0)/fmin)))
 

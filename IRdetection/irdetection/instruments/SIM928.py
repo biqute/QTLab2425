@@ -1,6 +1,6 @@
 import time
 import serial
-from src.abstract.Instrument import Instrument
+from irdetection.abstract.Instrument import Instrument
 
 
 class SIM928(Instrument):

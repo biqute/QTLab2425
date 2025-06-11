@@ -6,11 +6,11 @@ import threading
 import time
 
 
-from src.experiment.Experiment import Experiment
-from src.experiment.Callback import RestartRunCallback, GraphCallback
-from src.instruments.Keysight33500B import Keysight33500B
-from src.instruments.PicoScope import PicoScope
-from src.io.h5 import H5Manager as H5
+from irdetection.experiment.Experiment import Experiment
+from irdetection.experiment.Callback import RestartRunCallback, GraphCallback
+from irdetection.instruments.Keysight33500B import Keysight33500B
+from irdetection.instruments.PicoScope import PicoScope
+from irdetection.io.h5 import H5Manager as H5
 
 
 class PulseAcquisition(Experiment):

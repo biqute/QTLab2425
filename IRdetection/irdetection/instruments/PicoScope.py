@@ -4,7 +4,7 @@ from picosdk.ps5000a import ps5000a as ps
 import matplotlib.pyplot as plt
 from picosdk.functions import adc2mV, mV2adc, assert_pico_ok
 import time
-from src.abstract.Instrument import Instrument
+from irdetection.abstract.Instrument import Instrument
 import threading
 import os
 import json
@@ -613,7 +613,7 @@ class PicoScope(Instrument):
                                                                      ctypes.c_int16(0))       # extInThreshold
         
         self.status["setSigGenVoltage"] = set_sig_gen_voltage()  # Convert to uV
-        assert_pico_ok(self.status["setSigGenVoltage"])
+        assert_pico_ok(self.status["set_sig_gen_voltage"])
         # Use state '2' (PS5000A_SIGGEN_TRIG_RISING) to apply the software trigger
         self.status["launchTrigger"] = ps.ps5000aSigGenSoftwareControl(self.chandle, ctypes.c_int16(2))
         assert_pico_ok(self.status["launchTrigger"])

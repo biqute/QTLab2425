@@ -4,10 +4,10 @@ import os
 import time
 from matplotlib import pyplot as plt
 
-from src.instruments.Keysight_VNA import VNA
-from src.instruments.SIM928 import SIM928
-from src.experiment.Experiment import Experiment
-from src.experiment.Callback import Callback, MakePeakGraphCallback
+from irdetection.instruments.Keysight_VNA import VNA
+from irdetection.instruments.SIM928 import SIM928
+from irdetection.experiment.Experiment import Experiment
+from irdetection.experiment.Callback import Callback, MakePeakGraphCallback
 from tqdm import tqdm
 
 class TRswipeAutoExperiment(Experiment):

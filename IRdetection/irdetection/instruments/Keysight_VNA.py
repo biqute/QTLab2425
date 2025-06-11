@@ -1,7 +1,7 @@
 import numpy as np
 import pyvisa
 import sys
-from src.abstract.Instrument import Instrument
+from irdetection.abstract.Instrument import Instrument
 
 class EthernetDevice:
     """
@@ -129,7 +129,7 @@ class VNA(Instrument, EthernetDevice):
     def initialize(self):
         """Initialize the instrument."""
         self.write_expect("*CLS") # clear settings
-        self.write_expect("INST:SEL 'NA'", "Failed to select NA mode.") # Newtwork Analyzer
+        self.write_expect("INST:SEL 'NA'", "Failed to select NA mode.") # Newtork Analyzer
         self.write_expect("SENS:AVER:MODE SWEEP") # Average mode set to sweep
         self.write_expect("DISP:WIND:TRAC1:Y:AUTO") # Turn on autoscaling on the y axis
         

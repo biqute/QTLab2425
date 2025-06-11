@@ -1,6 +1,6 @@
 import numpy as np
 from abc import ABC, abstractmethod
-from analysis.fitting.models import Model
+from irdetection.analysis.fitting.models import Model
 
 
 class Searcher(ABC):
