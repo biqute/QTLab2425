@@ -1,0 +1,10 @@
+info,"cavity with qubit, three port configuration for S21 = H_i + H_o"
+time,2025-06-13 12:25:41.281543
+temperature,300K
+min_freq,6790000000.0Hz
+max_freq,7790000000.0Hz
+point_count,10000
+timeout,360000.0ms
+avg_count,10
+bandwidth,1000Hz
+power,-45dBm
