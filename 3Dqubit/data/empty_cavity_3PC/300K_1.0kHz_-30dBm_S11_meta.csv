@@ -1,0 +1,10 @@
+info, "empty cavity, three port configuration for S11 = S_1 + H_o"
+time, 2025-04-30 15:25:24.009132
+temperature, 300K
+min_freq, 7379746300.0Hz
+max_freq, 7479746300.0Hz
+point_count, 10000
+timeout, 360000.0ms
+avg_count, 10
+bandwidth, 1000Hz
+power, -30dBm

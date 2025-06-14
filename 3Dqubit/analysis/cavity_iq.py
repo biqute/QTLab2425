@@ -50,7 +50,7 @@ fitter.figure_size = (30, 24)
 Q_c = 10e3 # coupling quality factor
 f_r = fitter.datax[np.argmax(fitter.datay)]
 width = peak_width(fitter.datax, fitter.datay) # no - in front of datay
-Q_i = f_r / width # internal quality factor
+Q_i = f_r / width # internal quality factor TODO: NO THIS IS Q_l INSTEAD
 Q_l = 1/(1/Q_c + 1/Q_i) # loaded quality factor
 A = ( np.max(fitter.datay) - np.min(fitter.datay) ) * Q_c / Q_l
 a = fitter.datay[0] - fitter.model(fitter.datax[0], 0.0, b = 0, c = 0, d = 0, A = A, phi = 0, Q_i = Q_i, Q_c = Q_c, f_r = f_r)

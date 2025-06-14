@@ -13,8 +13,8 @@ qubit3d\Scripts\deactivate.bat
 
 ## Logout git
 ```shell
-git config --global user.email ""  
-git config --global user.name ""  
+git config user.email "" --replace-all
+git config user.name "" --replace-all
 echo NAME:
 git config user.name
 echo EMAIL:
@@ -23,8 +23,8 @@ git config user.email
 
 ## Login git
 ```shell
-git config --global user.email "maregariccardo.rm0@gmail.com"  
-git config --global user.name "RiCkymare00"
+git config user.email "zanindavide02@gmail.com" --replace-all
+git config user.name "ZaninDavide" --replace-all
 echo NAME:
 git config user.name
 echo EMAIL:
@@ -53,6 +53,13 @@ git push
 - [AWG programming manual](https://tm-co.co.jp/wp/wp-content/uploads/2022/10/SDG_Programming-Guide_PG02-E05C.pdf)
 - [AWG implementation](https://github.com/sgoadhouse/awg_scpi/tree/main)
 - [HEMT LNF-LNC4_16C Datasheet](https://lownoisefactory.com/wp-content/uploads/2023/03/lnf-lnc4_16c.pdf)
+- [EM notes](https://web.archive.org/web/20240225035303/https://www.ece.rutgers.edu/~orfanidi/ewa/ch01.pdf)
+- <https://biqute.github.io/qtics/instruments/triton.html>
+- [Measurement of Resonant Frequency and Quality Factor of Microwave Resonators: Comparison of Methods](https://www.researchgate.net/publication/1947194_Measurement_of_Resonant_Frequency_and_Quality_Factor_of_Microwave_Resonators_Comparison_of_Methods)
+- <https://rsl.yale.edu/sites/default/files/2024-08/2022-Thesis-Lev-Krayzman.pdf>
+- <https://rsl.yale.edu/sites/default/files/2024-08/2017-RSL-Thesis-Teresa-Brecht-Final_ScreenVersion.pdf>
+- <https://rsl.yale.edu/sites/default/files/2024-08/2016-RSL-Thesis-Matt-Reagor.pdf>
+- <https://rsl.yale.edu/sites/default/files/2024-08/2023-Thesis-Suhas%20Ganjam.pdf>
 
 # TODO
 - `VNA.py`:
@@ -63,7 +70,12 @@ git push
     - check the existence of the COM, if it doesn't return list of available COMs
 - `EthernetDevice.py`:
     - print executed command before getting OPC response
-- `cavity_iq.py`:
-    - change model to have $Q_i$ and $Q_c$ as parameters
 - `Fitter.py`:
-    - allow use of already calculated derived params for following params
+    - allow use of already calculated derived params for following params (maybe)
+    - check that initial values of params are inside the given range
+- `cavity_iq.py`:
+    - estimate $Q_l$ instead of $Q_i$ with $\omega_0 / \Delta \omega$
+- `rettaroli_fit.py`:
+    - after fitting the resonance, plot magnitude + phase (Bode plot)
+- `estimate_rettaroli_params.py`:
+    - allow for different sets of frequency points for $S_{11}$ and $S_{21}$ data 
