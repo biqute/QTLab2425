@@ -81,124 +81,6 @@ def model (f, a, b, c, d, k, phi, Qt, Qc, fr):
 
 
 
-
-def fit_cut2(file_path, unit=None, Del=None, cut_min=None, cut_max=None, initial_params=None):
-    import numpy as np
-    import matplotlib.pyplot as plt
-    from matplotlib.gridspec import GridSpec
-    from iminuit import Minuit
-    from iminuit.cost import LeastSquares
-
-    f, amp = read_data(file_path, Del)
-    # amp = converter(amp, unit)
-
-    # Tutti i dati
-    f_all = f
-    amp_all = amp
-
-    # Intervallo di fit
-    if cut_min is not None and cut_max is not None:
-        if cut_min >= cut_max:
-            raise ValueError("cut_min deve essere minore di cut_max")
-        mask = (f >= cut_min) & (f <= cut_max)
-        f_cut = f[mask]
-        amp_cut = amp[mask]
-    else:
-        f_cut = f
-        amp_cut = amp
-
-    # Stime iniziali da intervallo di fit
-    i = np.argmin(amp_cut)
-    fmin = f_cut[i]
-    amp_min = np.min(amp_cut)
-    amp_max = np.max(amp_cut)
-    amp_FWHM = amp_min + (amp_max - amp_min) / 2
-
-    tolleranza = 0.2 * 1e-1
-    indici = np.where(np.abs(amp_cut - amp_FWHM) < tolleranza)[0]
-    if len(indici) < 2:
-        print("Non è stato possibile trovare due indici, aumentare la tolleranza")
-
-    frequenze_half = f_cut[indici]
-    Qc_guess = 1400
-    Qt_guess = fmin / np.abs(frequenze_half[0] - frequenze_half[-1])
-    k_guess = (amp_max - amp_min) * (Qc_guess / Qt_guess)
-
-    amp_err = np.ones(len(amp_cut)) * 10e-4
-
-    if initial_params is None:
-        initial_params = {
-            'a': 1,
-            'b': 10e-9,
-            'c': 10e-18,
-            'd': 10e-27,
-            'k': k_guess,
-            'phi': 0.01,
-            'Qt': Qt_guess,
-            'Qc': Qc_guess,
-            'fr': fmin
-        }
-
-    # Fit solo sull'intervallo selezionato
-    least_squares = LeastSquares(f_cut, amp_cut, amp_err, model)
-
-    minuit = Minuit(least_squares, **initial_params)
-
-    minuit.limits["a"] = (None, None)
-    minuit.limits["b"] = (None, None)
-    minuit.limits["c"] = (None, None)
-    minuit.limits["d"] = (None, None)
-    minuit.limits["k"] = (0, None)
-    minuit.limits["phi"] = (-np.pi, np.pi)
-    minuit.limits["Qt"] = (0, 1e6)
-    minuit.limits["Qc"] = (0, 1e6)
-    minuit.limits["fr"] = (fmin - 5e4, fmin + 5e4)
-
-    minuit.migrad()
-    minuit.hesse()
-
-    print("Successo del fit:", minuit.valid)
-    print("Chi quadro ridotto:", minuit.fval / minuit.ndof)
-
-    for par, val, err in zip(minuit.parameters, minuit.values, minuit.errors):
-        print(f"{par} = {val:.3e} ± {err:.3e}")
-
-    # Modellato solo su intervallo di fit
-    amp_fit_cut = model(f_cut, *minuit.values)
-    residui = (amp_cut - amp_fit_cut) / amp_cut
-
-    # Plot
-    fig = plt.figure(figsize=(10, 6))
-    gs = GridSpec(2, 1, height_ratios=[3, 2], hspace=0.4)
-
-    # Fit plot
-    ax_fit = fig.add_subplot(gs[0])
-    ax_fit.plot(f_all, amp_all, label="Dati", marker="o", markersize=2, linestyle="none", alpha=0.6)
-    ax_fit.plot(f_cut, amp_fit_cut, label="Modello (fit)", color="red")
-    ax_fit.axhline(y=amp_FWHM, color='green', linestyle='--', label="FWHM")
-    ax_fit.set_title("Fit di risonanza")
-    ax_fit.set_yscale("log")
-    ax_fit.set_xlabel("Frequenza (Hz)")
-    ax_fit.set_ylabel("Ampiezza")
-    ax_fit.legend()
-    ax_fit.grid()
-
-    # Residui plot (solo intervallo di fit)
-    ax_res = fig.add_subplot(gs[1])
-    ax_res.plot(f_cut, residui, label="Residui", marker="o", markersize=2, linestyle="none", color="blue")
-    ax_res.axhline(0, color='black', linestyle="--", linewidth=1)
-    ax_res.set_xlabel("Frequenza (Hz)")
-    ax_res.set_ylabel("Residui")
-    ax_res.legend()
-    ax_res.grid()
-
-    plt.show()
-
-    return tuple(minuit.values)
-
-
-
-
 def fit_cut(file_path, unit=None, Del=None, cut_min=None, cut_max=None, initial_params=None):
     import numpy as np
     import matplotlib.pyplot as plt
@@ -222,8 +104,8 @@ def fit_cut(file_path, unit=None, Del=None, cut_min=None, cut_max=None, initial_
 
     i = np.argmin(amp_cut)
     fmin = f_cut[i]
-    amp_min = min(amp_cut)
-    amp_max = max(amp_cut)
+    amp_min = np.min(amp_cut)
+    amp_max = np.max(amp_cut)
     amp_FWHM = amp_min + (amp_max - amp_min) / 2
 
     tolleranza = 0.2 * 1e-1
@@ -304,7 +186,7 @@ def fit_cut(file_path, unit=None, Del=None, cut_min=None, cut_max=None, initial_
     gs = GridSpec(2, 1, height_ratios=[3, 2], hspace=0.4)
 
     ax_fit = fig.add_subplot(gs[0])
-    ax_fit.plot(f_cut, amp_cut, label="Dati", marker="o", markersize=2, linestyle="none")
+    ax_fit.plot(f, amp, label="Dati", marker="o", markersize=2, linestyle="none")
     ax_fit.plot(f_cut, amp_fit, label="Modello", color="red")
     ax_fit.axhline(y=amp_FWHM, color='green', linestyle='--', label="FWHM")
     ax_fit.set_title("Fit di risonanze")
