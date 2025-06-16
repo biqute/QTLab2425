@@ -33,7 +33,7 @@ def converter (amp, unit = None):
     '''
     if unit== "log" :
         amp2 = 20 * np.log10(amp)
-        return ( amp2 / np.max(amp2)) #Se serve è da controllare la normalizzazione
+        return ( amp2 / np.max(amp2))
     elif unit == "linear":
         amp2 = 10**(amp/20)
         return  ( amp2 / np.max(amp2))
@@ -79,6 +79,11 @@ def model (f, a, b, c, d, k, phi, Qt, Qc, fr):
     x = f - fr 
     return a + b*x + c*x**2 + d*x**3 + k*np.abs(1 - Qt*np.exp(1j*phi) / np.abs(Qc) / (1 + 2j*Qt*x/fr))
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> f2359171752a802d2bd24b1f37ee9fa65fbe5bb7
 def fit_cut(file_path, unit=None, Del=None, cut_min=None, cut_max=None, initial_params=None):
     import numpy as np
     import matplotlib.pyplot as plt
@@ -103,8 +108,8 @@ def fit_cut(file_path, unit=None, Del=None, cut_min=None, cut_max=None, initial_
     #troviamo larghezza picco
     i = np.argmin(amp_cut)
     fmin = f_cut[i]
-    amp_min = min(amp_cut)
-    amp_max = max(amp_cut)
+    amp_min = np.min(amp_cut)
+    amp_max = np.max(amp_cut)
     amp_FWHM = amp_min + (amp_max - amp_min) / 2
 
     tolleranza = 0.2 * 1e-1
@@ -187,7 +192,7 @@ def fit_cut(file_path, unit=None, Del=None, cut_min=None, cut_max=None, initial_
     gs = GridSpec(2, 1, height_ratios=[3, 2], hspace=0.4)
 
     ax_fit = fig.add_subplot(gs[0])
-    ax_fit.plot(f_cut, amp_cut, label="Dati", marker="o", markersize=2, linestyle="none")
+    ax_fit.plot(f, amp, label="Dati", marker="o", markersize=2, linestyle="none")
     ax_fit.plot(f_cut, amp_fit, label="Modello", color="red")
     ax_fit.axhline(y=amp_FWHM, color='green', linestyle='--', label="FWHM")
     ax_fit.set_title("Fit di risonanze")
