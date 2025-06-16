@@ -79,136 +79,6 @@ def model (f, a, b, c, d, k, phi, Qt, Qc, fr):
     x = f - fr 
     return a + b*x + c*x**2 + d*x**3 + k*np.abs(1 - Qt*np.exp(1j*phi) / np.abs(Qc) / (1 + 2j*Qt*x/fr))
 
-'''
-def fit(file_path, unit = None, Del = None, cut = None):
-    f, amp = read_data(file_path, Del)
-    amp = converter(amp, unit)
-
-    i = np.argmin(amp)
-    fmin = f[i]
-    amp_min = min (amp)
-    amp_max = max (amp)
-    amp_FWHM = amp_min + (amp_max - amp_min)/2
-
-    # Trova gli indici dove y è vicino a y_half
-    tolleranza = 0.2*1e-1  # Puoi regolare la tolleranza a seconda dei tuoi dati
-    indici = np.where(np.abs(amp - amp_FWHM) < tolleranza)[0]
-    if (len(indici) < 2):
-        print ("non è stato possibile trovare due indici, aumentare la tolleranza")
-
-    # Trova le frequenze corrispondenti
-    frequenze_half = f[indici]
-
-    Qc_guess = 1400
-    print(frequenze_half)
-    Qt_guess = fmin / np.abs(frequenze_half[0] - frequenze_half[-1])
-    #Qt_guess = 1800
-
-    print ("frequenza di FWHM sx: ", frequenze_half[0],"frequenza di FWHM dx: ", frequenze_half[-1], "Qt guessed: ", Qt_guess)
-
-    k_guess = ( np.max(amp) - np.min(amp) ) * (Qc_guess/Qt_guess)
-
-    if cut != None:
-        mask = f > cut
-        f_cut = f[mask]
-        amp_cut = amp[mask]
-
-    else:
-        f_cut = f 
-        amp_cut = amp
-    
-    amp_err = np.ones(len(amp_cut))*10e-4
-           
-    least_squares = LeastSquares(f_cut, amp_cut, amp_err, model)
-
-    minuit = Minuit (least_squares,
-                        a = 1,
-                        b = 10e-9,
-                        c = 10e-18,
-                        d = 10e-27,
-                        k = k_guess,
-                        phi = 0.01,
-                        Qt = Qt_guess,
-                        Qc = Qc_guess,
-                        fr = fmin)
-    
-    minuit.limits["a"] = (None, None)
-    minuit.limits["b"] = (None, None)
-    minuit.limits["c"] = (None, None)
-    minuit.limits["d"] = (None, None)
-    minuit.limits["k"] = (0, None)
-    minuit.limits["phi"] = (-np.pi, np.pi)
-    minuit.limits["Qt"] = (0, 1000000)
-    minuit.limits["Qc"] = (0, 1000000)
-    minuit.limits["fr"] = (fmin - 5e4, fmin + 5e4)
-
-    minuit.migrad ()  # finds minimum of least_squares function
-    minuit.hesse ()   # accurately computes uncertainties
-
-    # global characteristics of the fit
-    is_valid = minuit.valid
-    print ('success of the fit: ', is_valid)
-
-    Chi_quadro = minuit.fval/minuit.ndof
-    print ('Chi quadro ridotto: ', Chi_quadro)
-
-    for par, val, err in zip (minuit.parameters, minuit.values, minuit.errors) :
-        print(f'{par} = {val:.3f} +/- {err:.3f}') # formatted output
-    
-    a_fit = minuit.values[0]
-    b_fit = minuit.values[1]
-    c_fit = minuit.values[2]
-    d_fit = minuit.values[3]
-    k_fit = minuit.values[4]
-    phi_fit = minuit.values[5]
-    Qt_fit = minuit.values[6]
-    Qc_fit = minuit.values[7]
-    fr_fit = minuit.values[8]
-
-    # Calcolo dei residui
-    amp_fit = model(f_cut, a_fit, b_fit, c_fit, d_fit, k_fit, phi_fit, Qt_fit, Qc_fit, fr_fit)
-    residui = amp_cut - amp_fit
-
-    # Plot del fit e dei residui
-    fig = plt.figure(figsize=(10, 6))
-    gs = GridSpec(2, 1, height_ratios=[3, 2], hspace=0.4)
-
-    # Grafico del fit
-    ax_fit = fig.add_subplot(gs[0])
-    ax_fit.plot(f_cut, amp_cut, label="Dati", marker="o", markersize = 2, linestyle="none")
-    ax_fit.plot(f_cut, amp_fit, label="Modello", color="red")
-    ax_fit.axhline(y=amp_FWHM, color='green', linestyle='--', label="FWHM")
-    ax_fit.set_title("Fit di risonanze")
-    ax_fit.set_xlabel("Frequenza (Hz)")
-    ax_fit.set_ylabel("Ampiezza")
-    ax_fit.legend()
-    ax_fit.grid()
-
-    # Grafico dei residui
-    ax_res = fig.add_subplot(gs[1])
-    ax_res.plot(f_cut, residui, label="Residui", marker="o", markersize = 2, linestyle="none", color="blue")
-    ax_res.axhline(0, color='black', linestyle="--", linewidth=1)
-    ax_res.set_xlabel("Frequenza (Hz)")
-    ax_res.set_ylabel("Residui")
-    ax_res.legend()
-    ax_res.grid()
-
-    plt.show()
-
-    return fr_fit, Qc_fit
-
-
-
-def main () :
-
-    file_path = "20mK_-20dBm.txt"
-    fit(file_path)
-
-if __name__ == "__main__":
-    main()
-
-'''
-
 def fit_cut(file_path, unit=None, Del=None, cut_min=None, cut_max=None, initial_params=None):
     import numpy as np
     import matplotlib.pyplot as plt
@@ -230,6 +100,7 @@ def fit_cut(file_path, unit=None, Del=None, cut_min=None, cut_max=None, initial_
         f_cut = f
         amp_cut = amp
 
+    #troviamo larghezza picco
     i = np.argmin(amp_cut)
     fmin = f_cut[i]
     amp_min = min(amp_cut)
@@ -241,10 +112,12 @@ def fit_cut(file_path, unit=None, Del=None, cut_min=None, cut_max=None, initial_
     if len(indici) < 2:
         print("Non è stato possibile trovare due indici, aumentare la tolleranza")
 
+    #troviamo le frequenze a metà altezza del picco
     frequenze_half = f_cut[indici]
 
-    Qc_guess = 1400
-    Qt_guess = fmin / np.abs(frequenze_half[0] - frequenze_half[-1])
+    #impostiamo dei fattori di qualità per facilitare il fit
+    Qc_guess = 1400 # fattore di qualità dei cavi (costante)
+    Qt_guess = fmin / np.abs(frequenze_half[0] - frequenze_half[-1]) #fattore di qualità totale tovato come rateo tra il minimo della frequenza e la larghezza del picco
     k_guess = (np.max(amp_cut) - np.min(amp_cut)) * (Qc_guess / Qt_guess)
 
     amp_err = np.ones(len(amp_cut)) * 10e-4
@@ -279,10 +152,10 @@ def fit_cut(file_path, unit=None, Del=None, cut_min=None, cut_max=None, initial_
     minuit.limits["b"] = (None, None)
     minuit.limits["c"] = (None, None)
     minuit.limits["d"] = (None, None)
-    minuit.limits["k"] = (0, None)
+    minuit.limits["k"] = (0.5, 5)
     minuit.limits["phi"] = (-np.pi, np.pi)
-    minuit.limits["Qt"] = (0, 1000000)
-    minuit.limits["Qc"] = (0, 1000000)
+    minuit.limits["Qt"] = (0,   None)
+    minuit.limits["Qc"] = (5000, 35000)
     minuit.limits["fr"] = (fmin - 5e4, fmin + 5e4)
 
     minuit.migrad()
@@ -463,3 +336,4 @@ def fit(file_path, unit=None, Del=None, cut=None, initial_params=None):
 
 
     return fr_fit, Qc_fit, Qt_fit, a_fit, b_fit, c_fit, d_fit, k_fit, phi_fit
+
