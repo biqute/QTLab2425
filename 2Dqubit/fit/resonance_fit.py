@@ -79,11 +79,6 @@ def model (f, a, b, c, d, k, phi, Qt, Qc, fr):
     x = f - fr 
     return a + b*x + c*x**2 + d*x**3 + k*np.abs(1 - Qt*np.exp(1j*phi) / np.abs(Qc) / (1 + 2j*Qt*x/fr))
 
-<<<<<<< HEAD
-=======
-
-
->>>>>>> f2359171752a802d2bd24b1f37ee9fa65fbe5bb7
 def fit_cut(file_path, unit=None, Del=None, cut_min=None, cut_max=None, initial_params=None):
     import numpy as np
     import matplotlib.pyplot as plt
