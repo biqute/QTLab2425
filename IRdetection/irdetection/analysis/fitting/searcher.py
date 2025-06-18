@@ -86,6 +86,16 @@ class ResonancePeakSearcher(Searcher):
         baseline_left = np.median(data[:edge_count, 1])
         baseline_right = np.median(data[-edge_count:, 1])
         baseline = (baseline_left + baseline_right) / 2
+        
+        # Estimate the phase shift (phi) as a small negative value
+        self.params["phi"] = 0
+
+        # Set baseline polynomial parameters: A is baseline, B, C, D are 0
+        self.params["A"] = baseline
+        self.params["B"] = 2.8643e-8
+        self.params["C"] = 8.0398e-15
+        self.params["D"] = -3.5988e-20
+
 
         fwhm = self._peak_width(data[:, 0], data[:, 1])
         if fwhm <= 0:
@@ -93,10 +103,23 @@ class ResonancePeakSearcher(Searcher):
             fwhm = 0.05 * (np.max(data[:, 0]) - np.min(data[:, 0]))
 
         # Estimate total Q: Q_t ~ f0 / fwhm
-        Qt = fmin / fwhm if fwhm != 0 else (29208/1.5)
+        Qi = fmin / fwhm if fwhm != 0 else (29208/1.5)
+
+        #first estimation of Qc
+        Qc = 2e3 # 1.1* Qt
         
-        # Qc is estimated as Qc = 1.3 * Qt
-        Qc = 1.1 * Qt 
+        Qt = 1/(1/Qi + 1/Qc)
+                
+        # Compute the amplitude factor K.
+        K = (np.max(data[:, 1]) - np.min(data[:, 1])) * Qc / Qt if Qt != 0 else 0.0
+        self.params["K"] = K
+        
+        # Qc is estimated at f = fmin, needs more work
+        #y = data[index_dip, 1]  # Amplitude at the dip
+        #f0 = 0.1
+        #A = self.params["A"]
+        #Qc = K/(K - y + A) * Qt * np.sqrt(2)/2 #np.sqrt(1 + (2* Qt * f0 / fmin)**2))
+        
         if self.version == "I":
             Qi = Qt*Qc/(Qc - Qt)  # Estimate Qi using the relation Qs = Qt*Qc/(Qc - Qt)
             Qs = Qi/Qc
@@ -119,19 +142,6 @@ class ResonancePeakSearcher(Searcher):
             })
         
 
-        # Estimate the phase shift (phi) as a small negative value
-        self.params["phi"] = 0
-
-        # Set baseline polynomial parameters: A is baseline, B, C, D are 0
-        self.params["A"] = baseline
-        self.params["B"] = 2.8643e-8
-        self.params["C"] = 8.0398e-15
-        self.params["D"] = -3.5988e-20
-
-        # Compute the amplitude factor K.
-        K = (np.max(data[:, 1]) - np.min(data[:, 1])) * Qc / Qt if Qt != 0 else 0.0
-        self.params["K"] = K
-
         # Assign the found parameters to the model
         self._validate_search()
         model.assing_params(self.params)
@@ -151,4 +161,3 @@ class ResonancePeakSearcher(Searcher):
                 hits.append((datax[i] + datax[i-1]) / 2)
                 above = new_above
         return abs(hits[-1] - hits[0])
-    
