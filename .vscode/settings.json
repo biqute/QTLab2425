@@ -10,5 +10,8 @@
     "python.testing.unittestEnabled": true,
     "python.analysis.extraPaths": [
         "./IRdetection/src/analysis/fitting"
+    ],
+    "cSpell.words": [
+        "freqs"
     ]
 }
