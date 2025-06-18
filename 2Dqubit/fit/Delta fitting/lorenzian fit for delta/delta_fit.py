@@ -70,14 +70,14 @@ def model(T, fr, Q0, Delta0_meV, alpha=0.8):
     Delta0 = Delta0_meV * meV_to_J
     T = np.asarray(T, dtype=float) * 1e-3  # conversione mK -> K
     
-    xi = (h * fr) / (2 * k * T)  
+    xi = (hbar * fr) / (2 * k * T)  
     bessel_term = np.sinh(xi) * kv(0, xi)  
     iv_term = np.exp(-xi) * iv(0, -xi)
 
     num = np.exp(-Delta0 / (k * T)) * bessel_term
     den = 1 - 2 * np.exp(-Delta0 / (k * T)) * iv_term
     
-    return 1/Q0 + (2 * alpha / np.pi) * (num / den)
+    return (1/Q0 + (2 * alpha / np.pi) * (num / den))
 
 
 # Funzione di fit
@@ -91,7 +91,7 @@ def fit(Qi, T, freq, alpha_fixed=0.8):
     minuit = Minuit(least_squares,
                     fr=freq,
                     Q0=max(Qi),
-                    Delta0_meV=0.1,
+                    Delta0_meV=0.3,
                     alpha=alpha_fixed)
 
     # Imposta limiti e fissa parametri
