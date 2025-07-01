@@ -123,19 +123,14 @@ def plot_resonances(file_list, temperatures, fr_list, f_min_cut=3.1765e9):
     from scipy.constants import hbar, k
 
     # Modello teorico basato sulla teoria di Mattis-Bardeen per la variazione della frequenza
-    def make_df_model_mb(f0):
-        def model(T_mK, alpha, Delta0_meV):
+   
+    def model(T_mK, alpha, Delta0_meV):
             T = np.asarray(T_mK) * 1e-3  # Conversione da mK a K
             Delta0 = Delta0_meV * 1.60218e-22  # Conversione da meV a joule
-            xi = (hbar * f0) / (2 * k * T)  # Argomento per funzioni speciali
-            bessel_term = np.sinh(xi) * kv(0, xi)  # Parte del numeratore
-            iv_term = np.exp(-xi) * iv(0, -xi)  # Parte del denominatore
-
-            num = np.exp(-Delta0 / (k * T)) * bessel_term
-            den = 1 - 2 * np.exp(-Delta0 / (k * T)) * iv_term
-
-            return -(alpha / 2) * (num / den)  # Δf/f0
-        return model
+            prefactor = (alpha / 2) * np.sqrt((2 * np.pi * Delta0) / (k * T))
+        
+            return - prefactor * np.exp(- Delta0 / (k * T))
+   
 
     T = np.asarray(temperatures)
     fr = np.asarray(fr_list)
@@ -143,8 +138,8 @@ def plot_resonances(file_list, temperatures, fr_list, f_min_cut=3.1765e9):
     df_over_f0 = (fr - f0) / f0  # Δf / f0
 
     # Maschera per il range di temperatura del fit
-    T_min = 100
-    T_max = 410
+    T_min = 30
+    T_max = 350
     mask_fit = (T >= T_min) & (T <= T_max)
     Temp_cut = T[mask_fit]
     df_cut = df_over_f0[mask_fit]
@@ -172,7 +167,6 @@ def plot_resonances(file_list, temperatures, fr_list, f_min_cut=3.1765e9):
         axs[1].plot(t, df, 'o', color=color)
 
     # Fit del modello MB ai dati
-    model = make_df_model_mb(f0)
     df_err = np.full_like(df_cut, 0.05 * np.abs(df_cut).max())  # Errore fittizio uniforme
     least_squares = LeastSquares(Temp_cut, df_cut, df_err, model)
     m = Minuit(least_squares, alpha=0.8, Delta0_meV=0.3)  # Fit iniziale
