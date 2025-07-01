@@ -6,17 +6,22 @@ from matplotlib.gridspec import GridSpec
 import scipy.optimize as spopt
 import csv
 import re
-def lettura_csv(nome_file):
 
+# -----------------------------------------------
+# Lettura dei dati CSV organizzati per blocchi Lk
+# -----------------------------------------------
+def lettura_csv(nome_file):
+    """
+    Legge un file CSV contenente blocchi di dati con intestazione 'Lk = ...'.
+    Restituisce due dizionari ordinati contenenti i dati per ciascun Lk.
+    """
     dati_col1 = {}
     dati_col2 = {}
 
-    # Variabili temporanee
     lk_corrente = None
     colonna1 = []
     colonna2 = []
 
-    # Funzione per verificare se una riga è numerica
     def è_riga_numerica(riga):
         if len(riga) != 2:
             return False
@@ -29,31 +34,20 @@ def lettura_csv(nome_file):
 
     with open(nome_file, newline='') as csvfile:
         lettore = csv.reader(csvfile)
-
         for riga in lettore:
             riga = [elem.strip() for elem in riga]
-
-            # Cerca Lk in righe descrittive
             if len(riga) == 1 and "Lk=" in riga[0]:
-                # Se stavamo accumulando dati, salviamo il blocco precedente
                 if lk_corrente is not None and colonna1 and colonna2:
                     dati_col1[lk_corrente] = colonna1
                     dati_col2[lk_corrente] = colonna2
                     colonna1 = []
                     colonna2 = []
-
-                # Estrai il valore di Lk
                 match = re.search(r"Lk\s*=\s*([0-9.]+)", riga[0])
-                if match:
-                    lk_corrente = match.group(1)
-                else:
-                    lk_corrente = "Unknown"
-
+                lk_corrente = match.group(1) if match else "Unknown"
             elif è_riga_numerica(riga) and lk_corrente is not None:
                 colonna1.append(float(riga[0]))
                 colonna2.append(float(riga[1]))
 
-        # Salva anche l'ultimo blocco se presente
         if lk_corrente is not None and colonna1 and colonna2:
             dati_col1[lk_corrente] = colonna1
             dati_col2[lk_corrente] = colonna2
@@ -61,32 +55,40 @@ def lettura_csv(nome_file):
         dati_col1 = dict(sorted(dati_col1.items(), key=lambda item: float(item[0])))
         dati_col2 = dict(sorted(dati_col2.items(), key=lambda item: float(item[0])))
 
-        # Mostra i risultati
-        for lk_val in dati_col1:
-            print(f"\n🟢 Dati per Lk={lk_val}")
-            print(f"colonna1_{lk_val}Lk =", dati_col1[lk_val])
-            print(f"colonna2_{lk_val}Lk =", dati_col2[lk_val])
-
-        plt.figure(figsize=(10, 6))
-
-        for lk_val in dati_col1:
-            x = dati_col1[lk_val]
-            y = dati_col2[lk_val]
-            plt.plot(x, y, label=f"Lk={lk_val}")
-
-            plt.xlabel("Frequenza (GHz)")
-            plt.ylabel("dB[S21]")
-            plt.title("Risposte in frequenza per diversi Lk")
-            plt.legend()
-            plt.grid(True)
-            plt.tight_layout()
-            plt.show()
-
     return dati_col1, dati_col2
 
-def trova_minimi(dati_col1, dati_col2, discarded_Lk = None):
-    import numpy as np
+# -----------------------------------------------
+# Visualizzazione e stampa dei dati per ciascun Lk
+# -----------------------------------------------
+def stampa(dati_col1, dati_col2):
+    """
+    Stampa i dati per ciascun Lk e disegna i grafici delle risposte in frequenza.
+    """
+    for lk_val in dati_col1:
+        print(f"\nDati per Lk={lk_val}")
+        print(f"colonna1_{lk_val}Lk =", dati_col1[lk_val])
+        print(f"colonna2_{lk_val}Lk =", dati_col2[lk_val])
 
+    plt.figure(figsize=(10, 6))
+    for lk_val in dati_col1:
+        x = dati_col1[lk_val]
+        y = dati_col2[lk_val]
+        plt.plot(x, y, label=f"Lk={lk_val}")
+    plt.xlabel("Frequenza (GHz)")
+    plt.ylabel("dB[S21]")
+    plt.title("Risposte in frequenza per diversi Lk")
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+
+# -----------------------------------------------
+# Estrazione dei minimi di trasmissione per ogni Lk
+# -----------------------------------------------
+def trova_minimi(dati_col1, dati_col2, discarded_Lk = None):
+    """
+    Estrae i minimi delle curve S21 per ogni Lk (escludendo eventuali scartati).
+    """
     f_min = []
     Lk_list = []
 
@@ -95,23 +97,24 @@ def trova_minimi(dati_col1, dati_col2, discarded_Lk = None):
             lk_val = float(lk_str)
         except ValueError:
             continue
-
         if  lk_val not in discarded_Lk:
             x = dati_col1[lk_str]
             y = dati_col2[lk_str]
-
             if len(y) == 0:
                 continue
-
             min_idx = np.argmin(y)
             f_min.append(x[min_idx])
             Lk_list.append(lk_val)
-            
 
     return f_min, Lk_list
 
-def lkvfr (Lk, f_min) :
-
+# -----------------------------------------------
+# Visualizzazione semplice dei minimi fr vs Lk
+# -----------------------------------------------
+def lkvfr (Lk, f_min):
+    """
+    Plotta la frequenza di risonanza minima in funzione di Lk.
+    """
     plt.plot(Lk, f_min, marker='o', linestyle='', color='b', label='Minimi')
     plt.ylabel("Frequenza (GHz)")
     plt.xlabel("Lk")
@@ -121,39 +124,39 @@ def lkvfr (Lk, f_min) :
     plt.tight_layout()
     plt.show()
 
+# -----------------------------------------------
+# Modello teorico: fr(Lk) = a / sqrt(Lk + g) + b
+# -----------------------------------------------
 def model (Lk, a, b, g):
-
+    """
+    Modello del comportamento di fr in funzione di Lk.
+    """
     Lk = np.array(Lk)
-    
-    return ((a/(np.sqrt(Lk+g)))+b)
+    return ((a / np.sqrt(Lk + g)) + b)
 
+# -----------------------------------------------
+# Fit del modello ai dati
+# -----------------------------------------------
 def fit (x, y):
-
+    """
+    Fit del modello teorico fr(Lk) ai dati sperimentali.
+    """
     x_err = np.ones(len(x)) * 0.1
     y_err = np.ones(len(y)) * 0.1
-    
     least_squares = LeastSquares(x, y, y_err, model)
-    minuit = Minuit(least_squares,
-                    a=1,
-                    b=0,
-                    g=0.1)
-    
-    # Esegui il fit
+    minuit = Minuit(least_squares, a=1, b=0, g=0.1)
     minuit.migrad()
     minuit.hesse()
 
-    # Stampa risultati
     print("Successo del fit:", minuit.valid)
     print("Chi-quadro ridotto:", minuit.fval / minuit.ndof)
     for par, val, err in zip(minuit.parameters, minuit.values, minuit.errors):
         print(f"{par} = {val:.3f} ± {err:.3f}")
 
-    # Estrai parametri
-    a_fit = minuit.values["a"] 
+    a_fit = minuit.values["a"]
     b_fit = minuit.values["b"]
     g_fit = minuit.values["g"]
 
-    # Grafico
     fig, ax = plt.subplots()
     ax.plot(x, y, "bo", label="Dati sperimentali", marker="o", markersize=2, linestyle="none")
     ax.plot(x, model(x, a_fit, b_fit, g_fit), "r-", label="Fit")
@@ -165,15 +168,79 @@ def fit (x, y):
 
     return a_fit, b_fit, g_fit
 
-def calcolo_lk (a, b, g, fr) :
+# -----------------------------------------------
+# Inversione della formula: da fr a Lk
+# -----------------------------------------------
+def calcolo_lk (a, b, g, fr):
     """
-    Calcola Lk in funzione di fr
+    Calcola Lk dato fr invertendo il modello.
     """
-    Lk = (a/(fr-b))**2 - g
+    Lk = (a / (fr - b))**2 - g
     return Lk
-    
-def cut (dati_col1, dati_col2, min_x, max_x):
 
+# -----------------------------------------------
+# Fit multiplo e confronto con Lk medio
+# -----------------------------------------------
+def lkvfr_tot(Lk1, f_min1, Lk2, f_min2, Lk3, f_min3, Lk4, f_min4, lk_mean, lk_locali):
+    """
+    Esegue il fit su 4 set di dati fr vs Lk, confrontando ciascuno con il valore medio lk_mean.
+    """
+    lk_array = [np.array(Lk1), np.array(Lk2), np.array(Lk3), np.array(Lk4)]
+    f_min_array = [np.array(f_min1), np.array(f_min2), np.array(f_min3), np.array(f_min4)]
+
+    cmap = plt.get_cmap("plasma")
+    colori = [cmap(i) for i in np.linspace(0.2, 0.8, 4)]
+
+    plt.figure(figsize=(10, 6))
+
+    for i in range(4):
+        x = lk_array[i]
+        y = f_min_array[i]
+        col = colori[i]
+        lk_local = lk_locali[i]
+
+        y_err = np.ones(len(y)) * 0.05
+        least_squares = LeastSquares(x, y, y_err, model)
+        minuit = Minuit(least_squares, a=1, b=0, g=0.1)
+        minuit.migrad()
+        minuit.hesse()
+
+        a_fit = minuit.values["a"]
+        b_fit = minuit.values["b"]
+        g_fit = minuit.values["g"]
+
+        fr_local = model(lk_local, a_fit, b_fit, g_fit)
+        fr_at_lk_mean = model(lk_mean, a_fit, b_fit, g_fit)
+
+        print(f"Curva {i+1}:")
+        print(f"   - Lk locale fornito = {lk_local:.3f}")
+        print(f"   - f_res(Lk locale) = {fr_local:.4f} GHz")
+        print(f"   - f_res(Lk_mean)   = {fr_at_lk_mean:.4f} GHz")
+
+        x_fit = np.linspace(min(x), max(x), 300)
+        y_fit = model(x_fit, a_fit, b_fit, g_fit)
+
+        label_fit = f"Fit {i+1} (f_res={fr_local:.2f} GHz)"
+        plt.plot(x, y, 'o', color=col, label=f'Dati {i+1}')
+        plt.plot(x_fit, y_fit, '-', color=col, label=label_fit)
+        plt.plot(lk_mean, fr_at_lk_mean, 'ro', markersize=6, label='Intersezione' if i == 0 else "")
+
+    plt.axvline(x=lk_mean, color='black', linestyle='--', linewidth=1.2, label=f'Lk mean = {lk_mean}')
+    plt.xlabel("Lk")
+    plt.ylabel("Frequenza (GHz)")
+    plt.title("Frequenze di risonanza e compatibilità con Lk medio")
+    plt.legend()
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
+    plt.show()
+
+# -----------------------------------------------
+# Taglio dei dati in un intervallo definito
+# -----------------------------------------------
+def cut(dati_col1, dati_col2, min_x, max_x):
+    """
+    Restituisce solo i dati compresi tra min_x e max_x.
+    """
     nuovi_col1 = {}
     nuovi_col2 = {}
 
@@ -197,12 +264,16 @@ def cut (dati_col1, dati_col2, min_x, max_x):
 
     return nuovi_col1, nuovi_col2
 
+# -----------------------------------------------
+# Taglio selettivo solo su Lk specifici
+# -----------------------------------------------
 def selected_cut(dati_col1, dati_col2, lk_target, min_x, max_x):
-    # Permetti anche un singolo valore Lk
+    """
+    Applica un filtro di intervallo [min_x, max_x] solo ai Lk specificati.
+    """
     if not isinstance(lk_target, (list, set, tuple)):
         lk_target = [lk_target]
 
-    # Converto tutto in stringa per compatibilità con le chiavi
     lk_target = {str(lk) for lk in lk_target}
 
     nuovi_col1 = {}
@@ -213,7 +284,6 @@ def selected_cut(dati_col1, dati_col2, lk_target, min_x, max_x):
         y_vals = dati_col2[lk]
 
         if lk in lk_target:
-            # Applica il taglio
             x_filtrati = []
             y_filtrati = []
             for x, y in zip(x_vals, y_vals):
@@ -223,7 +293,6 @@ def selected_cut(dati_col1, dati_col2, lk_target, min_x, max_x):
             nuovi_col1[lk] = x_filtrati
             nuovi_col2[lk] = y_filtrati
         else:
-            # Mantieni i dati invariati
             nuovi_col1[lk] = x_vals
             nuovi_col2[lk] = y_vals
 

@@ -1,2 +1,0 @@
-Fit della frequenza normalizzata:
-Ibias = 5.377160 ± 0.000000
