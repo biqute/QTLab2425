@@ -23,41 +23,85 @@ def read_data(filename):
 # Rimozione della fase dovuta al ritardo dei cavi
 # Rif. Appendice E.2.1
 # -----------------------------------------------
-def remove_cable_delay(f, z):
-    phase = np.unwrap(np.angle(z))                  # Svolgimento della fase
-    p = np.polyfit(f, phase, 1)                     # Fit lineare per stimare la fase del ritardo
-    delay_phase = np.exp(-1j * np.polyval(p, f))    # Compensazione della fase
-    return z * delay_phase                          # Ritorna il segnale corretto
+def remove_cable_delay(f, z, window=0.2):
+    n = len(f)
+    n_win = int(n * window)
+
+    # Estrai le frequenze e la fase solo agli estremi della banda
+    f_fit = np.concatenate([f[:n_win], f[-n_win:]])
+    phase_raw = np.angle(z)
+    phase_fit = np.unwrap(np.concatenate([phase_raw[:n_win], phase_raw[-n_win:]]))
+
+    # Fit lineare della fase
+    p = np.polyfit(f_fit, phase_fit, 1)
+
+    # Correggi la fase su tutto il range
+    delay_phase = np.exp(-1j * np.polyval(p, f))
+    z_corrected = z * delay_phase
+
+    return z_corrected
 
 
-# -----------------------------------------------
-# Fit circolare nel piano complesso
-# Rif. Appendice E.2.2
-# -----------------------------------------------
+from scipy.linalg import eig
+
 def fit_circle(x, y):
-    # Calcolo della media
-    x_m = np.mean(x)
-    y_m = np.mean(y)
-    u = x - x_m
-    v = y - y_m
+    """
+    Circle fit using the Chernov-Lesort method.
+    Input:
+        x, y : arrays of Re(S21), Im(S21)
+    Returns:
+        xc, yc : center of the circle
+        r      : radius of the circle
+    """
+    w = x**2 + y**2
 
-    # Calcolo dei momenti
-    Suu = np.sum(u**2)
-    Suv = np.sum(u*v)
-    Svv = np.sum(v**2)
-    Suuu = np.sum(u**3)
-    Suvv = np.sum(u*v**2)
-    Svvv = np.sum(v**3)
-    Svuu = np.sum(v*u**2)
+    # Compute the moments
+    Mww = np.sum(w * w)
+    Mxw = np.sum(x * w)
+    Myw = np.sum(y * w)
+    Mx  = np.sum(x)
+    My  = np.sum(y)
+    Mw  = np.sum(w)
+    Mxx = np.sum(x * x)
+    Myy = np.sum(y * y)
+    Mxy = np.sum(x * y)
+    n   = len(x)
 
-    # Risoluzione sistema lineare per centro e raggio
-    A = np.array([[Suu, Suv], [Suv, Svv]])
-    B = np.array([(Suuu + Suvv)/2.0, (Svvv + Svuu)/2.0])
-    uc, vc = np.linalg.solve(A, B)
-    xc = x_m + uc
-    yc = y_m + vc
-    r = np.mean(np.sqrt((x - xc)**2 + (y - yc)**2))
+    # Matrix M
+    M = np.array([
+        [Mww, Mxw, Myw, Mw],
+        [Mxw, Mxx, Mxy, Mx],
+        [Myw, Mxy, Myy, My],
+        [Mw,  Mx,  My,  n ]
+    ])
+
+    # Constraint matrix B
+    B = np.zeros((4, 4))
+    B[1, 1] = 1
+    B[2, 2] = 1
+
+    # Solve generalized eigenvalue problem: M a = η B a
+    eigvals, eigvecs = eig(M, B)
+
+    # Filter real positive eigenvalues
+    real_pos = [(val, vec) for val, vec in zip(eigvals, eigvecs.T) if np.isreal(val) and val > 0]
+    if not real_pos:
+        raise RuntimeError("No positive real eigenvalues found in circle fit.")
+
+    eta, A = sorted(real_pos, key=lambda t: t[0])[0]
+    A = np.real(A)  # Ensure it's real
+
+    A_coeff, B_coeff, C_coeff, D_coeff = A
+
+    # Extract center and radius
+    xc = -B_coeff / (2 * A_coeff)
+    yc = -C_coeff / (2 * A_coeff)
+    r = np.sqrt((B_coeff**2 + C_coeff**2 - 4 * A_coeff * D_coeff) / (4 * A_coeff**2))
+
     return xc, yc, r
+
+
+
 
 
 # -----------------------------------------------
@@ -132,7 +176,7 @@ def fit_full_resonator(filename):
     axs[0].add_artist(circle)
     axs[0].set_xlabel("Re[Z]")
     axs[0].set_ylabel("Im[Z]")
-    axs[0].set_title("Fit circolare")
+    axs[0].set_title("Circular fit")
     axs[0].axis('equal')
     axs[0].grid(True, linestyle="--", alpha=0.6)
     axs[0].legend(fontsize=8, loc="best")
@@ -141,14 +185,14 @@ def fit_full_resonator(filename):
     phase_data = np.unwrap(np.angle(z_rot))
     axs[1].plot(f, phase_data, '.', color="#2ca02c", markersize=2.5, label="Fase misurata")
     axs[1].plot(f, phase_model(f, fr, Qt, theta0), '-', color="#d62728", linewidth=2,
-                label=f'Fit fase\n$Q_i = {Qi:.0f}$')
-    axs[1].set_xlabel("Frequenza (Hz)")
-    axs[1].set_ylabel("Fase (rad)")
-    axs[1].set_title("Fit della fase del risonatore")
+                label=f'Phase fit\n$Q_i = {Qi:.0f}$')
+    axs[1].set_xlabel("Frequency (Hz)")
+    axs[1].set_ylabel("Phase (rad)")
+    axs[1].set_title("Resonator phase fit")
     axs[1].grid(True, linestyle="--", alpha=0.6)
     axs[1].legend(fontsize=9, loc="best")
 
-    plt.suptitle("Analisi del risonatore con fit estetici", fontsize=14)
+    plt.suptitle("Resonator analysis", fontsize=14)
     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
     plt.show()
 
@@ -213,13 +257,13 @@ def fit_delta(Qi, T, freq, alpha_fixed=0.8):
     # Plot del fit
     fig, ax = plt.subplots(figsize=(7, 4))
     ax.errorbar(T, 1/Qi, yerr=inv_Qi_err, fmt="o", color="#1f77b4", ecolor="#aec7e8",
-                label="Dati sperimentali", markersize=4, capsize=2, linestyle="None")
+                label="Experimental data", markersize=4, capsize=2, linestyle="None")
     ax.plot(T, model(T, freq, Q0_fit, Delta0_fit), "-", color="#d62728", linewidth=2,
-            label=f"Fit teorico\n$\\Delta_0$ = {Delta0_fit:.3f} meV")
+            label=f"Fit: \n$\\Delta_0$ = {Delta0_fit:.3f} meV")
 
-    ax.set_xlabel("Temperatura (mK)", fontsize=11)
+    ax.set_xlabel("Temperature (mK)", fontsize=11)
     ax.set_ylabel(r"$1/Q_i$", fontsize=11)
-    ax.set_title("Fit della qualità interna (Mattis-Bardeen)", fontsize=12)
+    ax.set_title("Quality factor fit (Mattis-Bardeen)", fontsize=12)
     ax.grid(True, linestyle="--", alpha=0.6)
     ax.legend(fontsize=9, loc="best")
     plt.tight_layout()

@@ -202,21 +202,21 @@ def fit_cut(file_path, unit=None, Del=None, cut_min=None, cut_max=None,
 
         # Parte superiore: fit dati
         ax_fit = fig.add_subplot(gs[0])
-        ax_fit.plot(f_cut_data, amp_cut_data, label="Dati", marker="o", markersize=3, linestyle="none", alpha=0.7)
+        ax_fit.plot(f_cut_data, amp_cut_data, label="Data", marker="o", markersize=3, linestyle="none", alpha=0.7)
         ax_fit.plot(f_cut, amp_fit, label=f"Fit (fr = {fr_fit/1e6:.6f} MHz)", color="darkred", linewidth=2)
-        ax_fit.set_title("Fit della risonanza", fontsize=14)
-        ax_fit.set_xlabel("Frequenza (Hz)", fontsize=12)
-        ax_fit.set_ylabel("Ampiezza", fontsize=12)
+        ax_fit.set_title("Resonance Fit", fontsize=14)
+        ax_fit.set_xlabel("Frequency (Hz)", fontsize=12)
+        ax_fit.set_ylabel("Amplitude", fontsize=12)
         ax_fit.set_yscale("log")
         ax_fit.legend(fontsize=10)
         ax_fit.grid(True, linestyle='--', alpha=0.6)
 
         # Parte inferiore: residui
         ax_res = fig.add_subplot(gs[1])
-        ax_res.plot(f_cut, residui, label="Residui", marker="o", markersize=2.5, linestyle="none", color="steelblue")
+        ax_res.plot(f_cut, residui, label="Residuals", marker="o", markersize=2.5, linestyle="none", color="steelblue")
         ax_res.axhline(0, color='black', linestyle="--", linewidth=1)
-        ax_res.set_xlabel("Frequenza (Hz)", fontsize=12)
-        ax_res.set_ylabel("Residui", fontsize=12)
+        ax_res.set_xlabel("Frequency (Hz)", fontsize=12)
+        ax_res.set_ylabel("Residuals", fontsize=12)
         ax_res.legend(fontsize=10)
         ax_res.grid(True, linestyle='--', alpha=0.6)
 

@@ -14,33 +14,80 @@ def read_data(filename):
     z = I + 1j * Q  # Costruisce il segnale complesso
     return f, z
 
-# Rimuove il ritardo di fase dovuto ai cavi usando un fit lineare della fase
-def remove_cable_delay(f, z):
-    phase = np.unwrap(np.angle(z))
-    p = np.polyfit(f, phase, 1)  # Fit lineare della fase
-    delay_phase = np.exp(-1j * np.polyval(p, f))  # Compensazione del ritardo
-    return z * delay_phase
+def remove_cable_delay(f, z, window=0.2):
+    n = len(f)
+    n_win = int(n * window)
 
-# Fit circolare nel piano complesso per trovare il centro e il raggio della traiettoria del risonatore
+    # Estrai le frequenze e la fase solo agli estremi della banda
+    f_fit = np.concatenate([f[:n_win], f[-n_win:]])
+    phase_raw = np.angle(z)
+    phase_fit = np.unwrap(np.concatenate([phase_raw[:n_win], phase_raw[-n_win:]]))
+
+    # Fit lineare della fase
+    p = np.polyfit(f_fit, phase_fit, 1)
+
+    # Correggi la fase su tutto il range
+    delay_phase = np.exp(-1j * np.polyval(p, f))
+    z_corrected = z * delay_phase
+
+    return z_corrected
+
+from scipy.linalg import eig
+
 def fit_circle(x, y):
-    x_m = np.mean(x)
-    y_m = np.mean(y)
-    u = x - x_m
-    v = y - y_m
-    Suu = np.sum(u**2)
-    Suv = np.sum(u*v)
-    Svv = np.sum(v**2)
-    Suuu = np.sum(u**3)
-    Suvv = np.sum(u*v**2)
-    Svvv = np.sum(v**3)
-    Svuu = np.sum(v*u**2)
+    """
+    Circle fit using the Chernov-Lesort method.
+    Input:
+        x, y : arrays of Re(S21), Im(S21)
+    Returns:
+        xc, yc : center of the circle
+        r      : radius of the circle
+    """
+    w = x**2 + y**2
 
-    A = np.array([[Suu, Suv], [Suv, Svv]])
-    B = np.array([(Suuu + Suvv)/2.0, (Svvv + Svuu)/2.0])
-    uc, vc = np.linalg.solve(A, B)
-    xc = x_m + uc
-    yc = y_m + vc
-    r = np.mean(np.sqrt((x - xc)**2 + (y - yc)**2))  # Calcolo del raggio medio
+    # Compute the moments
+    Mww = np.sum(w * w)
+    Mxw = np.sum(x * w)
+    Myw = np.sum(y * w)
+    Mx  = np.sum(x)
+    My  = np.sum(y)
+    Mw  = np.sum(w)
+    Mxx = np.sum(x * x)
+    Myy = np.sum(y * y)
+    Mxy = np.sum(x * y)
+    n   = len(x)
+
+    # Matrix M
+    M = np.array([
+        [Mww, Mxw, Myw, Mw],
+        [Mxw, Mxx, Mxy, Mx],
+        [Myw, Mxy, Myy, My],
+        [Mw,  Mx,  My,  n ]
+    ])
+
+    # Constraint matrix B
+    B = np.zeros((4, 4))
+    B[1, 1] = 1
+    B[2, 2] = 1
+
+    # Solve generalized eigenvalue problem: M a = η B a
+    eigvals, eigvecs = eig(M, B)
+
+    # Filter real positive eigenvalues
+    real_pos = [(val, vec) for val, vec in zip(eigvals, eigvecs.T) if np.isreal(val) and val > 0]
+    if not real_pos:
+        raise RuntimeError("No positive real eigenvalues found in circle fit.")
+
+    eta, A = sorted(real_pos, key=lambda t: t[0])[0]
+    A = np.real(A)  # Ensure it's real
+
+    A_coeff, B_coeff, C_coeff, D_coeff = A
+
+    # Extract center and radius
+    xc = -B_coeff / (2 * A_coeff)
+    yc = -C_coeff / (2 * A_coeff)
+    r = np.sqrt((B_coeff**2 + C_coeff**2 - 4 * A_coeff * D_coeff) / (4 * A_coeff**2))
+
     return xc, yc, r
 
 # Trasla e ruota la traiettoria complessa in modo da centrare e allineare il cerchio
@@ -138,7 +185,7 @@ def plot_resonances(file_list, temperatures, fr_list, f_min_cut=3.1765e9):
     df_over_f0 = (fr - f0) / f0  # Δf / f0
 
     # Maschera per il range di temperatura del fit
-    T_min = 30
+    T_min = 200
     T_max = 350
     mask_fit = (T >= T_min) & (T <= T_max)
     Temp_cut = T[mask_fit]
@@ -167,11 +214,11 @@ def plot_resonances(file_list, temperatures, fr_list, f_min_cut=3.1765e9):
         axs[1].plot(t, df, 'o', color=color)
 
     # Fit del modello MB ai dati
-    df_err = np.full_like(df_cut, 0.05 * np.abs(df_cut).max())  # Errore fittizio uniforme
+    df_err = 0.05 * np.abs(df_cut) + 1e-8   # Errore fittizio uniforme
     least_squares = LeastSquares(Temp_cut, df_cut, df_err, model)
-    m = Minuit(least_squares, alpha=0.8, Delta0_meV=0.3)  # Fit iniziale
+    m = Minuit(least_squares, alpha=0.8, Delta0_meV=0.5)  # Fit iniziale
     m.fixed["alpha"] = True  # α fissato
-    m.limits["Delta0_meV"] = (0.1, 0.4)
+    m.limits["Delta0_meV"] = (0.1, 0.5)
     m.migrad()
     m.hesse()
 
