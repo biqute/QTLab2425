@@ -5,7 +5,7 @@ from iminuit import Minuit
 from iminuit.cost import LeastSquares
 from scipy.special import iv, kv
 from scipy.constants import hbar, k, h
-
+import matplotlib.cm as cm
 
 # -----------------------------------------------
 # Lettura dei dati complessi (f, I, Q) dal file CSV
@@ -99,10 +99,6 @@ def fit_circle(x, y):
     r = np.sqrt((B_coeff**2 + C_coeff**2 - 4 * A_coeff * D_coeff) / (4 * A_coeff**2))
 
     return xc, yc, r
-
-
-
-
 
 # -----------------------------------------------
 # Traslazione e rotazione della circonferenza
@@ -223,13 +219,36 @@ def model(T, fr, Q0, Delta0_meV, alpha=0.8):
 # Fit del gap Δ0 tramite la dipendenza termica di Qi(T)
 # usando modello teorico (Mattis-Bardeen)
 # -----------------------------------------------
-def fit_delta(Qi, T, freq, alpha_fixed=0.8):
+def fit_delta(file_list, Qi, T, freq, alpha_fixed=0.8):
+    f_min_cut=3.1765e9
     T = np.asarray(T, dtype=float)
     Qi = np.asarray(Qi, dtype=float)
     Qi_err = 0.01 * Qi                       # 1% errore relativo
     inv_Qi_err = Qi_err / Qi**2              # Propagazione errore su 1/Qi
 
-    # Fit con Minuit
+
+     # Mappa colori per rappresentare la temperatura
+    norm = plt.Normalize(T.min(), T.max())
+    cmap = cm.get_cmap("coolwarm")
+    colors = [cmap(norm(t)) for t in T]
+
+    fig, axs = plt.subplots(1, 2, figsize=(13, 5))
+
+    # Traccia le risonanze in ampiezza per ogni file
+    for file, color in zip(file_list, colors):
+        f, z = read_data(file)
+        mask = f >= f_min_cut
+        axs[0].plot(f[mask], np.abs(z)[mask], color=color, linewidth=1)
+    
+    for t, df, color in zip(T, 1/Qi, colors):
+        axs[1].plot(t, df, 'o', color=color)
+
+    axs[0].set_xlabel("Frequency [Hz]")
+    axs[0].set_ylabel(r"Amplitude $|S_{21}|$")
+    axs[0].set_title("Resonances behavior at different temperatures")
+    axs[0].grid(True, linestyle="--", alpha=0.5)
+
+        # Fit con Minuit
     least_squares = LeastSquares(T, 1/Qi, inv_Qi_err, model)
     minuit = Minuit(least_squares,
                     fr=freq,
@@ -254,19 +273,24 @@ def fit_delta(Qi, T, freq, alpha_fixed=0.8):
     Q0_fit = minuit.values["Q0"]
     Delta0_fit = minuit.values["Delta0_meV"]
 
-    # Plot del fit
-    fig, ax = plt.subplots(figsize=(7, 4))
-    ax.errorbar(T, 1/Qi, yerr=inv_Qi_err, fmt="o", color="#1f77b4", ecolor="#aec7e8",
-                label="Experimental data", markersize=4, capsize=2, linestyle="None")
-    ax.plot(T, model(T, freq, Q0_fit, Delta0_fit), "-", color="#d62728", linewidth=2,
-            label=f"Fit: \n$\\Delta_0$ = {Delta0_fit:.3f} meV")
 
-    ax.set_xlabel("Temperature (mK)", fontsize=11)
-    ax.set_ylabel(r"$1/Q_i$", fontsize=11)
-    ax.set_title("Quality factor fit (Mattis-Bardeen)", fontsize=12)
-    ax.grid(True, linestyle="--", alpha=0.6)
-    ax.legend(fontsize=9, loc="best")
+    # Traccia 1/qi rispetto alla temperatura
+    for t, df, color in zip(T, 1/Qi, colors):
+        axs[1].plot(t, df, 'o', color=color)
+
+    # Plot del fit teorico
+    axs[1].plot(T, model(T, freq, Q0_fit, Delta0_fit), '-', color="tab:blue", linewidth=2,
+                label=fr"Fit MB: $\Delta_0$ = {Delta0_fit:.3f} meV")
+
+    axs[1].set_xlabel("Temperatures (mK)")
+    axs[1].set_ylabel(r"1/$Q_i$")
+    axs[1].set_title("1/Qi vs Temperature")
+    axs[1].grid(True, linestyle="--", alpha=0.5)
+    axs[1].legend(fontsize=9)
+
     plt.tight_layout()
     plt.show()
 
     return Q0_fit, Delta0_fit
+
+

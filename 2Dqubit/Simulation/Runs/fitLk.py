@@ -85,28 +85,81 @@ def stampa(dati_col1, dati_col2):
 # -----------------------------------------------
 # Estrazione dei minimi di trasmissione per ogni Lk
 # -----------------------------------------------
-def trova_minimi(dati_col1, dati_col2, discarded_Lk = None):
+def trova_minimi(dati_col1, dati_col2, discarded_Lk=None):
     """
     Estrae i minimi delle curve S21 per ogni Lk (escludendo eventuali scartati).
     """
-    f_min = []
-    Lk_list = []
+    if discarded_Lk is None:
+        discarded_Lk = []
+
+    lk_list = []
+    fr_list = []
 
     for lk_str in dati_col1:
         try:
             lk_val = float(lk_str)
         except ValueError:
             continue
-        if  lk_val not in discarded_Lk:
-            x = dati_col1[lk_str]
-            y = dati_col2[lk_str]
-            if len(y) == 0:
-                continue
-            min_idx = np.argmin(y)
-            f_min.append(x[min_idx])
-            Lk_list.append(lk_val)
 
-    return f_min, Lk_list
+        if lk_val not in discarded_Lk:
+            x = np.array(dati_col1[lk_str]) 
+            y = np.array(dati_col2[lk_str])  
+            lk_list.append(lk_val)
+
+            # Stima iniziale della frequenza di risonanza (minimo)
+            i = np.argmin(y)
+            fmin = x[i]
+            amp_min = np.min(y)
+            amp_max = np.max(y)
+
+            # Stima approssimata per Qt
+            tolleranza = 0.2e-1
+            amp_FWHM = amp_min + (amp_max - amp_min) / 2
+            indici = np.where(np.abs(y - amp_FWHM) < tolleranza)[0]
+            frequenze_half = x[indici]
+
+            Qc_guess = 14000
+            Qt_guess = fmin / np.abs(frequenze_half[0] - frequenze_half[-1]) if len(frequenze_half) >= 2 else 15000
+            k_guess = (amp_max - amp_min) * (Qc_guess / Qt_guess)
+            amp_err = np.ones(len(y)) * 1e-3  # Errore costante
+
+            # Parametri iniziali del modello
+            initial_params = {
+                'a': 1,
+                'b': 1e-9,
+                'c': 1e-18,
+                'd': 1e-27,
+                'k': k_guess,
+                'phi': 0.01,
+                'Qt': Qt_guess,
+                'delta_Q': 1000,
+                'fr': fmin
+            }
+
+            # Modello teorico: polinomio + risposta risonante (complessa)
+            def model(f, a, b, c, d, k, phi, Qt, delta_Q, fr):
+                Qc = Qt + np.abs(delta_Q)
+                x_ = f - fr
+                resonant = k * np.abs(1 - Qt * np.exp(1j * phi) / Qc / (1 + 2j * Qt * x_ / fr))
+                return a + b * x_ + c * x_**2 + d * x_**3 + resonant
+
+            # Fit con Minuit
+            least_squares = LeastSquares(x, y, amp_err, model)
+            minuit = Minuit(least_squares, **initial_params)
+
+            minuit.limits["k"] = (0.5, 5)
+            minuit.limits["phi"] = (-np.pi, np.pi)
+            minuit.limits["Qt"] = (500, 50000)
+            minuit.limits["delta_Q"] = (10, 50000)
+            minuit.limits["fr"] = (fmin - 5e4, fmin + 5e4)
+
+            minuit.migrad()
+            minuit.hesse()
+
+            fr_fit = minuit.values['fr']
+            fr_list.append(fr_fit)
+
+    return fr_list, lk_list
 
 # -----------------------------------------------
 # Visualizzazione semplice dei minimi fr vs Lk
@@ -212,23 +265,24 @@ def lkvfr_tot(Lk1, f_min1, Lk2, f_min2, Lk3, f_min3, Lk4, f_min4, lk_mean, lk_lo
         fr_local = model(lk_local, a_fit, b_fit, g_fit)
         fr_at_lk_mean = model(lk_mean, a_fit, b_fit, g_fit)
 
-        print(f"Curva {i+1}:")
+        print(f"Resonator {i+1}:")
         print(f"   - Lk locale fornito = {lk_local:.3f}")
-        print(f"   - f_res(Lk locale) = {fr_local:.4f} GHz")
-        print(f"   - f_res(Lk_mean)   = {fr_at_lk_mean:.4f} GHz")
+        print(f"   - f_res(Lk locale) = {fr_local} GHz")
+        print(f"   - f_res(Lk_mean)   = {fr_at_lk_mean} GHz")
+        print(f" delta fr = {np.abs(fr_local - fr_at_lk_mean)}")
 
         x_fit = np.linspace(min(x), max(x), 300)
         y_fit = model(x_fit, a_fit, b_fit, g_fit)
 
-        label_fit = f"Fit {i+1} (f_res={fr_local:.2f} GHz)"
-        plt.plot(x, y, 'o', color=col, label=f'Dati {i+1}')
+        label_fit = f"Resonator {i+1} (L_k = {lk_local:.2f})"
+        plt.plot(x, y, 'o', color=col, label=f'Data {i+1}')
         plt.plot(x_fit, y_fit, '-', color=col, label=label_fit)
-        plt.plot(lk_mean, fr_at_lk_mean, 'ro', markersize=6, label='Intersezione' if i == 0 else "")
+        plt.plot(lk_mean, fr_at_lk_mean, 'ro', markersize=6)
 
-    plt.axvline(x=lk_mean, color='black', linestyle='--', linewidth=1.2, label=f'Lk mean = {lk_mean}')
+    plt.axvline(x=lk_mean, color='black', linestyle='--', linewidth=1.2, label=f'Lk mean = {lk_mean:.2f}')
     plt.xlabel("Lk")
-    plt.ylabel("Frequenza (GHz)")
-    plt.title("Frequenze di risonanza e compatibilità con Lk medio")
+    plt.ylabel("Frequency (GHz)")
+    plt.title("Resonance Frequencies vs Lk and compatibility with mean Lk")
     plt.legend()
     plt.grid(True, alpha=0.3)
     plt.tight_layout()
