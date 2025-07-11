@@ -103,7 +103,7 @@ def _interpolate_colors(colors, n_colors):
 
 def plot_fit(data, model, model_params, title: str = 'Model Fit', palette: Palette = None, typography: Typography = None, 
              xlabel: str = 'X-axis', ylabel: str = 'Y-axis', data_label: str = 'Data', model_label: str = 'Model', show_residuals: bool = True,
-             figsize: tuple = (10, 8), ax = None, rasterize_points: bool = False, **kwargs):
+             figsize: tuple = (10, 8), ax = None, rasterize_points: bool = False, save: str = None, **kwargs):
     """
     Plot the data and model fit with customized aesthetics, including residuals plot.
 
@@ -136,6 +136,8 @@ def plot_fit(data, model, model_params, title: str = 'Model Fit', palette: Palet
         Axes to subdivide into main and residual plots. If None, a new figure will be created.
     rasterize_points : bool, optional
         Whether to rasterize the scatter points for better performance with large datasets. Default is False.
+    save : str, optional
+        If provided, saves the plot to the specified file path. The file format is inferred from the file extension.
     **kwargs
         Additional keyword arguments passed to plotting functions.
 
@@ -283,6 +285,14 @@ def plot_fit(data, model, model_params, title: str = 'Model Fit', palette: Palet
 
         # set background color for residuals plot
         ax_residuals.set_facecolor(neutral_color)
+
+    # Save the plot if a save path is provided
+    if save:
+        save_format = save.split('.')[-1].lower()
+        if save_format not in ['png', 'jpg', 'jpeg', 'pdf', 'svg']:
+            raise ValueError(f"Unsupported file format: {save_format}. Supported formats are: png, jpg, jpeg, pdf, svg.")
+        fig.savefig(save, bbox_inches='tight', dpi=300, format=save_format)
+        print(f"Plot saved to {save}")
     
     # Return appropriate axes
     if show_residuals and ax_residuals is not None:
@@ -291,9 +301,9 @@ def plot_fit(data, model, model_params, title: str = 'Model Fit', palette: Palet
         return fig, ax_main
     
 
-def plot(x, y, title: str = 'Plot', palette: Palette = None, typography: Typography = None, 
+def plot(x, y, plot_type: str = 'plot', title: str = 'Plot', palette: Palette = None, typography: Typography = None, 
          xlabel: str = 'X-axis', ylabel: str = 'Y-axis', figsize: tuple = (10, 6), ax=None, grid: bool = True, 
-         return_fig: bool = False, labels=None, colors=None, gradient: bool = False, **kwargs):
+         return_fig: bool = False, labels=None, colors=None, gradient: bool = False, save: str = None, **kwargs):
     """
     Plot using matplotlib with customized aesthetics. Supports both single and multiple plots.
 
@@ -303,6 +313,9 @@ def plot(x, y, title: str = 'Plot', palette: Palette = None, typography: Typogra
         X data for the plot(s). Can be a single array or list of arrays for multiple plots.
     y : array-like or list of array-like
         Y data for the plot(s). Can be a single array or list of arrays for multiple plots.
+    plot_type : str or list of str, optional
+        Type of plot to create. Default is 'plot'. Can be a single type or list of types for multiple plots.
+        Supported types include 'plot', 'scatter'.
     title : str, optional
         Title of the plot.
     palette : Palette, optional
@@ -329,6 +342,8 @@ def plot(x, y, title: str = 'Plot', palette: Palette = None, typography: Typogra
     gradient : bool, optional
         If True, interpolates between the colors in the 'colors' list to create a gradient
         across all plots. If False, colors are used as discrete values. Default is False.
+    save : str, optional
+        If provided, saves the plot to the specified file path. The file format is inferred from the file extension.
     **kwargs : keyword arguments
         Additional keyword arguments for the plot.
 
@@ -405,6 +420,25 @@ def plot(x, y, title: str = 'Plot', palette: Palette = None, typography: Typogra
     else:
         plot_colors = _get_plot_colors(palette, n_plots)
 
+    # Handle plot types
+    if plot_type is None or plot_type == 'plot':
+        plot_types = ['plot'] * n_plots
+    elif isinstance(plot_type, str):
+        plot_types = [plot_type] * n_plots
+    elif isinstance(plot_type, (list, tuple)):
+        plot_types = list(plot_type)
+        # Pad with 'plot' if not enough types provided
+        while len(plot_types) < n_plots:
+            plot_types.append('plot')
+    else:
+        plot_types = ['plot'] * n_plots
+    
+    # Validate plot types
+    supported_types = ['plot', 'scatter']
+    for plot_type in plot_types:
+        if plot_type not in supported_types:
+            raise ValueError(f"Unsupported plot type: {plot_type}. Supported types are: {supported_types}")
+
     # Set title and labels
     text_color = str(palette.colours['text_primary']) if palette and 'text_primary' in palette.colours else 'black'
     title_kwargs = {'fontname': typography.title.font, 'fontsize': typography.title.size, 'color': text_color} if typography else {'color': text_color}
@@ -445,10 +479,23 @@ def plot(x, y, title: str = 'Plot', palette: Palette = None, typography: Typogra
             plot_kwargs.pop('color')  # Use our color management instead
         if 'label' in plot_kwargs:
             plot_kwargs.pop('label')  # Use our label management instead
+        
+        # Choose plotting method based on type
+        if plot_types[i] == 'scatter':
+            # For scatter plots, use different default styling
+            scatter_kwargs = plot_kwargs.copy()
+            scatter_kwargs.setdefault('s', 50)  # Default marker size
+            scatter_kwargs.setdefault('alpha', 0.7)  # Default transparency
+            scatter_kwargs.setdefault('edgecolors', 'white')  # Default edge color
+            scatter_kwargs.setdefault('linewidth', 0.5)  # Default edge width
             
-        line = ax.plot(x_data[i], y_data[i], color=plot_colors[i], linewidth=2, 
-                      label=plot_labels[i], **plot_kwargs)
-        lines.extend(line)
+            line = ax.scatter(x_data[i], y_data[i], color=plot_colors[i], 
+                            label=plot_labels[i], **scatter_kwargs)
+            lines.append(line)
+        else:  # Default to 'plot'
+            line = ax.plot(x_data[i], y_data[i], color=plot_colors[i], linewidth=2, 
+                          label=plot_labels[i], **plot_kwargs)
+            lines.extend(line)
     
     # Only show legend if there are actual labels to show
     if any(label is not None for label in plot_labels):
@@ -465,6 +512,13 @@ def plot(x, y, title: str = 'Plot', palette: Palette = None, typography: Typogra
     # Use tight_layout without rect to avoid spacing issues
     fig.tight_layout()
     
+    # Save the plot if a save path is provided
+    if save:
+        save_format = save.split('.')[-1].lower()
+        if save_format not in ['png', 'jpg', 'jpeg', 'pdf', 'svg']:
+            raise ValueError(f"Unsupported file format: {save_format}. Supported formats are: png, jpg, jpeg, pdf, svg.")
+        fig.savefig(save, bbox_inches='tight', dpi=300, format=save_format)
+        print(f"Plot saved to {save}")
     # Return the figure for display
     if return_fig:
         return fig, ax

@@ -194,6 +194,42 @@ def test_auto_color_cycling():
     input("Press Enter to continue...")  # Pause for user to view the plot
     return fig
 
+def test_scatter_only():
+    """Test scatter plot type only."""
+    print("Testing scatter plot type...")
+    x = np.linspace(0, 10, 30)
+    y = np.sin(x) + np.random.normal(0, 0.1, len(x))
+    
+    fig, ax = plot(x, y, plot_type='scatter',
+                   title="Scatter Plot Test", 
+                   palette=QSciencePalette, typography=QScienceTypography,
+                   xlabel="X values", ylabel="sin(x) + noise",
+                   labels="Noisy sine data", 
+                   return_fig=True)
+    print("✓ Scatter plot test passed")
+    fig.show()  # Show the figure to verify scatter plot
+    input("Press Enter to continue...")  # Pause for user to view the plot
+    return fig
+
+def test_mixed_plot_types():
+    """Test mixed plot types with both line and scatter plots."""
+    print("Testing mixed plot types...")
+    x = np.linspace(0, 10, 50)
+    y1 = np.sin(x)  # This will be a line plot
+    y2 = np.cos(x) + np.random.normal(0, 0.1, len(x))  # This will be a scatter plot
+    
+    fig, ax = plot([x, x], [y1, y2], 
+                   plot_type=['plot', 'scatter'],  # Mixed types
+                   title="Mixed Plot Types Test", 
+                   palette=QSciencePalette, typography=QScienceTypography,
+                   xlabel="X values", ylabel="Mixed functions",
+                   labels=["sin(x) - line", "cos(x) + noise - scatter"], 
+                   return_fig=True)
+    print("✓ Mixed plot types test passed")
+    fig.show()  # Show the figure to verify mixed plot types
+    input("Press Enter to continue...")  # Pause for user to view the plot
+    return fig
+
 def test_backward_compatibility():
     """Test that the function still works with old single-plot syntax."""
     print("Testing backward compatibility...")
@@ -221,6 +257,8 @@ if __name__ == "__main__":
         test_custom_colors()
         test_gradient_colors()
         test_auto_color_cycling()
+        test_scatter_only()
+        test_mixed_plot_types()
         test_backward_compatibility()
         
         print("=" * 50)
