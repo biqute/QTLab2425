@@ -167,3 +167,5 @@ IRdetection/Experiments/PhotodiodeArea
 *.jpg
 *.png
 .github
+
+.vscode
