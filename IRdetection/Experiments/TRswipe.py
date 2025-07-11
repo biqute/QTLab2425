@@ -3,9 +3,9 @@ import numpy as np
 import h5py
 import os
 
-from src.instruments.Keysight_VNA import VNA
-from src.experiment.Experiment import Experiment
-from src.experiment.Callback import Callback
+from irdetection.instruments.Keysight_VNA import VNA
+from irdetection.experiment.Experiment import Experiment
+from irdetection.experiment.Callback import Callback
 
 class MakePeakGraph(Callback):
     def make_peak_graph(self, experiment, peak_name, bias_current, peak_data):

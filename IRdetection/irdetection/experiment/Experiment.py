@@ -4,10 +4,10 @@ import os
 from typing import Dict, List, Optional, Any, TypeVar, Union
 import sys
 
-from src.experiment.Logger import Logger, ExperimentConfig
-from src.abstract.Instrument import Instrument
-from src.experiment.Callback import Callback
-from src.experiment.Exceptions import (
+from irdetection.experiment.Logger import Logger, ExperimentConfig
+from irdetection.abstract.Instrument import Instrument
+from irdetection.experiment.Callback import Callback
+from irdetection.experiment.Exceptions import (
     ExperimentError, InstrumentError, CallbackError,
     ExperimentRuntimeError, ExperimentSetupError, ConfigurationError
 )

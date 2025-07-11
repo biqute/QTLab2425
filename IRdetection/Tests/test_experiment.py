@@ -6,9 +6,9 @@ from typing import Any
 # Add the src directory to the path to import local modules
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
-from src.experiment.Experiment import Experiment
-from src.experiment.Callback import Callback
-from src.abstract.Instrument import Instrument
+from irdetection.experiment.Experiment import Experiment
+from irdetection.experiment.Callback import Callback
+from irdetection.abstract.Instrument import Instrument
 
 # Create a simple mock instrument for testing
 class MockInstrument(Instrument):

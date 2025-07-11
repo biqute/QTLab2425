@@ -1,6 +1,6 @@
 import serial
 import time
-from src.abstract.Instrument import Instrument
+from irdetection.abstract.Instrument import Instrument
 
 class QuickSyn(Instrument):
     

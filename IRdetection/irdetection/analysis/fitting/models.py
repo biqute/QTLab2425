@@ -2,6 +2,7 @@ import numpy as np
 from scipy import special as sp
 from scipy import constants as cs
 from typing import Callable
+import torch
 
 
 class Model:
@@ -80,6 +81,12 @@ class Model:
 def resonance_model(f: np.ndarray, f0: float, phi: float, Qt: float, Qc: float, A: float, B: float, C: float, D: float, K: float, fmin: float) -> np.ndarray:
     return (A+B*(f-fmin) + C*(f-fmin)**2 + D*(f-fmin)**3) + K * np.abs((1 - (Qt/np.abs(Qc))*np.exp(1j*phi)/(1 + 2j*Qt*((f-fmin) - f0)/fmin)))
 
+def resonance_model_test(f: np.ndarray, f0: float, phi: float, Qt: float, Qc: float, A: float, B: float, C: float, D: float, K: float, fmin: float) -> np.ndarray:
+    if Qt > Qc:
+        return np.zeros_like(f)
+    
+    return (A+B*(f-fmin) + C*(f-fmin)**2 + D*(f-fmin)**3) + K * np.abs((1 - (Qt/np.abs(Qc))*np.exp(1j*phi)/(1 + 2j*Qt*((f-fmin) - f0)/fmin)))
+
 def resonance_model_smart(f: np.ndarray, f0: float, phi: float, Qs: float, Qi: float, A: float, B: float, C: float, D: float, K: float, fmin: float) -> np.ndarray:
     return (A+B*(f-fmin) + C*(f-fmin)**2 + D*(f-fmin)**3) + K * np.abs((1 - (Qs)*np.exp(1j*phi)/(1 + Qs + 2j*Qi*((f-fmin) - f0)/fmin)))
 
@@ -100,3 +107,19 @@ def qi_factor_model(T: np.ndarray, a: float, w: float, Q0: float, D0_k: float) -
     csi = cs.hbar * w / (2 * cs.k * T)
     exp = np.exp(-D0_k/T)
     return Q0**-1 + (2*a / np.pi) * exp* np.sinh(csi) * sp.kv(0, csi) / (1 - 2 * exp*np.exp(-csi)*sp.iv(0, -csi))
+
+
+
+# TORCH MODELS (for TorchFitter) ----------------------------------------------------
+def resonance_model_torch(
+    f: torch.Tensor,
+    f0: torch.Tensor, phi: torch.Tensor,
+    Qt: torch.Tensor, Qc: torch.Tensor,
+    A: torch.Tensor, B: torch.Tensor, C: torch.Tensor, D: torch.Tensor,
+    K: torch.Tensor, fmin: torch.Tensor
+) -> torch.Tensor:
+    poly = A + B*(f - fmin) + C*(f - fmin)**2 + D*(f - fmin)**3
+    lorentz = 1 - (Qt / torch.abs(Qc)) * torch.exp(1j * phi) / (
+        1 + 2j * Qt * ((f - fmin) - f0) / fmin
+    )
+    return poly + K * torch.abs(lorentz)

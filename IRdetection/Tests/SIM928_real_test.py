@@ -6,7 +6,7 @@ from pathlib import Path
 # Add parent directory to path to import the SIM928 module
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from src.instruments.SIM928 import SIM928
+from irdetection.instruments.SIM928 import SIM928
 
 def test_real_sim928(port_name, address=1):
     """

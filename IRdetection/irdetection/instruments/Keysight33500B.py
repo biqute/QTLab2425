@@ -4,7 +4,7 @@ import re
 import time
 import json
 import os
-from src.abstract.Instrument import Instrument
+from irdetection.abstract.Instrument import Instrument
 
 class Keysight33500B(Instrument):
     """

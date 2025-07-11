@@ -1,9 +1,9 @@
-from src.instruments.PicoScope import PicoScope
+from irdetection.instruments.PicoScope import PicoScope
 import ctypes
 import numpy as np
 import matplotlib.pyplot as plt
 import time
-from src.instruments.Keysight33500B import Keysight33500B
+from irdetection.instruments.Keysight33500B import Keysight33500B
 import h5py
 import keyboard # Import the keyboard library
 

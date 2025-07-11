@@ -6,7 +6,7 @@ import os
 # Add the parent directory to the path to import modules
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from src.instruments.Keysight33500B import Keysight33500B
+from irdetection.instruments.Keysight33500B import Keysight33500B
 
 class TestKeysight33500B(unittest.TestCase):
     """Test class for the Keysight33500B arbitrary waveform generator."""

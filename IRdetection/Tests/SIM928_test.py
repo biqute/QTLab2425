@@ -7,7 +7,7 @@ import serial
 # Add parent directory to path to import the SIM928 module
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from src.instruments.SIM928 import SIM928
+from irdetection.instruments.SIM928 import SIM928
 
 class TestSIM928(unittest.TestCase):
     """Test cases for the SIM928 voltage source instrument class."""

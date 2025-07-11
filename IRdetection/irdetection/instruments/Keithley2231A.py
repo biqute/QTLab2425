@@ -1,6 +1,6 @@
 import serial
 import time
-from src.abstract.Instrument import Instrument
+from irdetection.abstract.Instrument import Instrument
 
 ALLOWED_CHANNELS = [1, 2, 3]
 

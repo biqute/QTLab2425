@@ -4,11 +4,11 @@ import os
 import time
 from matplotlib import pyplot as plt
 
-from src.instruments.Keysight_VNA import VNA
-from src.instruments.Keysight33500B import Keysight33500B
-from src.instruments.PicoScope import PicoScope
-from src.experiment.Experiment import Experiment
-from src.experiment.Callback import Callback, MakePeakGraphCallback, RestartRunCallback
+from irdetection.instruments.Keysight_VNA import VNA
+from irdetection.instruments.Keysight33500B import Keysight33500B
+from irdetection.instruments.PicoScope import PicoScope
+from irdetection.experiment.Experiment import Experiment
+from irdetection.experiment.Callback import Callback, MakePeakGraphCallback, RestartRunCallback
 from tqdm import tqdm
 
 """
@@ -207,4 +207,3 @@ if __name__ == "__main__":
     
     # Run the experiment
     experiment.run(override_last_run=False)
-    
