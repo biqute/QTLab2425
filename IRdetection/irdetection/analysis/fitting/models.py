@@ -2,7 +2,7 @@ import numpy as np
 from scipy import special as sp
 from scipy import constants as cs
 from typing import Callable
-import torch
+#import torch
 
 
 class Model:
@@ -111,15 +111,15 @@ def qi_factor_model(T: np.ndarray, a: float, w: float, Q0: float, D0_k: float) -
 
 
 # TORCH MODELS (for TorchFitter) ----------------------------------------------------
-def resonance_model_torch(
-    f: torch.Tensor,
-    f0: torch.Tensor, phi: torch.Tensor,
-    Qt: torch.Tensor, Qc: torch.Tensor,
-    A: torch.Tensor, B: torch.Tensor, C: torch.Tensor, D: torch.Tensor,
-    K: torch.Tensor, fmin: torch.Tensor
-) -> torch.Tensor:
-    poly = A + B*(f - fmin) + C*(f - fmin)**2 + D*(f - fmin)**3
-    lorentz = 1 - (Qt / torch.abs(Qc)) * torch.exp(1j * phi) / (
-        1 + 2j * Qt * ((f - fmin) - f0) / fmin
-    )
-    return poly + K * torch.abs(lorentz)
+# def resonance_model_torch(
+#     f: torch.Tensor,
+#     f0: torch.Tensor, phi: torch.Tensor,
+#     Qt: torch.Tensor, Qc: torch.Tensor,
+#     A: torch.Tensor, B: torch.Tensor, C: torch.Tensor, D: torch.Tensor,
+#     K: torch.Tensor, fmin: torch.Tensor
+# ) -> torch.Tensor:
+#     poly = A + B*(f - fmin) + C*(f - fmin)**2 + D*(f - fmin)**3
+#     lorentz = 1 - (Qt / torch.abs(Qc)) * torch.exp(1j * phi) / (
+#         1 + 2j * Qt * ((f - fmin) - f0) / fmin
+#     )
+#     return poly + K * torch.abs(lorentz)
