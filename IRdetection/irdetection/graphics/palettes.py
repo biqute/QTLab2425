@@ -11,7 +11,7 @@ QSciencePalette = Palette("Quantum Science", {
     'text_primary': '#1A1B23', # Rich charcoal - maximum readability
     'text_secondary': '#4A5568', # Cool gray - perfect for secondary text
     'status_error': '#E53E3E',  # Crisp red - clear error indication
-    'neutral_light': "#F3F3F3",  # Cool light gray - subtle grid
+    'neutral_light': "#FFFFFF",  # Cool light gray - subtle grid
     'neutral_dark': "#2D3748",   # Professional dark gray - strong borders
 })
 
