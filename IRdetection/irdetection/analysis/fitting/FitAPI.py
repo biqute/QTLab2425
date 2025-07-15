@@ -112,7 +112,7 @@ class Fitter:
         active_params = {p_name: getattr(self.model, p_name) for p_name in active_params_names}
 
         if self.yerr is None: # Estimate the error as 5% of the data if greater than 1e-5 else 1e-5: bigger error is needed to make every fit converge!
-            self.yerr = np.maximum(1e-5, 0.7* self.y)
+            self.yerr = np.maximum(1e-5, 0.05* self.y)
         if self.xerr is None:
             loss = self.loss_manager(x=self.x, y=self.y, yerror=self.yerr, model=self.model, loss=self.loss_function, name=active_params_names)
             

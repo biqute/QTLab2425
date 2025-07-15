@@ -127,8 +127,8 @@ class ResonancePeakSearcher(Searcher):
             self.params["Qi"] = Qi
             #set boundaries for Qc and Qt
             model.set_param_bounds({
-                "Qi": (0, 1e6),
-                "Qs": (0, 1e6)
+                "Qi": (0, 1e7),
+                "Qs": (0, 1e7)
             })
             
         elif self.version == "T":
@@ -137,8 +137,8 @@ class ResonancePeakSearcher(Searcher):
             self.params["Qc"] = Qc
             #set boundaries for Qc and Qt
             model.set_param_bounds({
-                "Qt": (0, 1e6),
-                "Qc": (0, 1e6)
+                "Qt": (0, 1e7),
+                "Qc": (0, 1e7)
             })
         
 
