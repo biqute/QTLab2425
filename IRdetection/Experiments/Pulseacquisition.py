@@ -119,9 +119,9 @@ if __name__ == "__main__":
 P = 1.8e-3  # W
 t = 30e-9  # s
 lambda_val = 1550e-9  # m
-hbar = 1.055e-34  # J.s
-c = 3e8  # m/s
+h = 6.626e-34  # J.s
+c = 2.98e8  # m/s
 
-Nphot = (P * t) / (hbar * c / lambda_val)
+Nphot = (P * t) / (h * c / lambda_val)
 print(f"Estimated number of photons = {Nphot}")
 
