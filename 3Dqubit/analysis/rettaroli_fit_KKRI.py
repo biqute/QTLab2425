@@ -104,21 +104,19 @@ width = guess["width"]
 theta11 = guess["theta11"]
 theta21 = guess["theta21"]
 
-import pprint
-pprint.pprint(guess)
+# import pprint
+# pprint.pprint(guess)
 
 # ============================ REAL PARTS FITTERS ============================
 
 crop = width_to_indeces(5 * width, f0, freqs)
 
-metadata_S21 = read_metadata(f"../data/{basename}_S21_meta.csv")
 f21_real = Fitter()
 f21_real.datax = freqs[crop[0]:crop[1]] # Hz
 f21_real.datay = np.real(S21[crop[0]:crop[1]]) # 1
 f21_real.sigmay = f21_real.datay * 0 + 1e-3
 f21_real.model = lambda x, f0, QL, k1, k2, A, theta21: np.real(np.exp(1j*theta21)*model_rettaroli_S21(x, f0, QL, k1, k2, A))
 
-metadata_S11 = read_metadata(f"../data/{basename}_S11_meta.csv")
 f11_real = Fitter()
 f11_real.datax = freqs[crop[0]:crop[1]] # Hz
 f11_real.datay = np.real(S11[crop[0]:crop[1]]) # 1
@@ -128,6 +126,7 @@ f11_real.model = lambda x, f0, QL, k1, k2, A, theta11: np.real(np.exp(1j*theta11
 
 # ============================ PREPARING FOR FITTING ============================
 
+metadata_S21 = read_metadata(f"../data/{basename}_S21_meta.csv")
 f21_real.scaley = "linear" # "linear" (default), "log", "dB"
 f21_real.unity = "1"
 f21_real.scalex = lambda x: x / 1e9 # "linear" (default), "log", "dB"
@@ -142,6 +141,7 @@ f21_real.show_model = True
 f21_real.file_name = f"../plots/{basename}_S21_real.pdf"
 f21_real.figure_size = (30, 24)
 
+metadata_S11 = read_metadata(f"../data/{basename}_S11_meta.csv")
 f11_real.scaley = "linear" # "linear" (default), "log", "dB"
 f11_real.unity = "1"
 f11_real.scalex = lambda x: x / 1e9 # "linear" (default), "log", "dB"
@@ -209,7 +209,7 @@ f11_imag.file_name = f"../plots/{basename}_S11_imag.pdf"
 # ============================ FITTING ============================
 
 res = simultaneous_fit([f21_real, f21_imag, f11_real, f11_imag])
-f21_real.plot(res["results"][0])
-f21_imag.plot(res["results"][1])
-f11_real.plot(res["results"][2])
-f11_imag.plot(res["results"][3])
+f21_real.plot(res)
+f21_imag.plot(res)
+f11_real.plot(res)
+f11_imag.plot(res)

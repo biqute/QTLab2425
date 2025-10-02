@@ -13,8 +13,8 @@ qubit3d\Scripts\deactivate.bat
 
 ## Logout git
 ```shell
-git config --global user.email ""  
-git config --global user.name ""  
+git config user.email "" --replace-all
+git config user.name "" --replace-all
 echo NAME:
 git config user.name
 echo EMAIL:
@@ -23,8 +23,8 @@ git config user.email
 
 ## Login git
 ```shell
-git config --global user.email "maregariccardo.rm0@gmail.com"  
-git config --global user.name "RiCkymare00"
+git config user.email "zanindavide02@gmail.com" --replace-all
+git config user.name "ZaninDavide" --replace-all
 echo NAME:
 git config user.name
 echo EMAIL:

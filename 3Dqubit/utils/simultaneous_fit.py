@@ -57,18 +57,4 @@ def simultaneous_fit(fitters):
     named_model = local_namespace['dynamic_func']
     mfitter.model = named_model
     
-    res = mfitter.fit()
-    
-    # Create separate results for each fitter
-    results = []
-    for i, f in enumerate(fitters):
-        ires = {"params": {}, "derived_params": {}}
-        for key, value in res["params"].items():
-            if key in f.params:
-                ires["params"][key] = value
-        for key, value in res["derived_params"].items():
-            if key in f.derived_params:
-                ires["derived_params"][key] = value
-        results.append(ires)
-    
-    return {**res, "results": results}
+    return mfitter.fit()

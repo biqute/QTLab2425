@@ -118,8 +118,8 @@ class Fitter():
     
     def plot(self, res):
         final_values = {}
-        for key, value in res["params"].items():
-            final_values[key] = value["value"]
+        for key in self.params.keys():
+            final_values[key] = res["params"][key]["value"]
 
         # SUBPLOTS
         fig, axes = plt.subplots(2, 1, gridspec_kw={"height_ratios": [2, 1]})
@@ -166,11 +166,13 @@ class Fitter():
         # Box
         texts = []
 
-        for key, par in res["params"].items():
+        for key in self.params.keys():
+            par = res["params"][key]
             name = self.param_displayed_names[key] if key in self.param_displayed_names else key
             if name != "":
                 texts.append(rf"${name}$ = ${number_to_text(par["value"], par["sigma"], self.param_units[key])}$")
-        for key, par in res["derived_params"].items():
+        for key in self.derived_params.keys():
+            par = res["derived_params"][key]
             name = self.param_displayed_names[key] if key in self.param_displayed_names else key
             if name != "":
                 texts.append(rf"${name}$ = ${number_to_text(par["value"], par["sigma"], self.param_units[key])}$")

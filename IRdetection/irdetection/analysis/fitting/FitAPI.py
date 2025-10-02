@@ -126,16 +126,13 @@ class Fitter:
             if p_name in self.m.parameters:
                 self.m.limits[p_name] = p_range
             
-
-                
         self.m.migrad()
         return self.m
     
 
     def p_value(self) -> float:
         return 1 - stats.chi2.cdf(self.m.fval, self.m.ndof)
-
-
+    
 
 # GRAVEYARD: Here lies old code, made with love and care, never worked, but still loved.
 
